@@ -5,5 +5,5 @@ import java.util.concurrent.ExecutionException;
 public interface Controller {
     void init() throws ExecutionException, InterruptedException;
 
-    void shutdown();
+    void shutdown() throws InterruptedException;
 }

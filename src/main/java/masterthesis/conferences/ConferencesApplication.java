@@ -10,8 +10,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ConferencesApplication {
 	private static ServerController controller;
-	private static final Log logger = LogFactory.getLog(ConferencesApplication.class);
 	private static boolean running = false;
+
+	private static final Log logger = LogFactory.getLog(ConferencesApplication.class);
+	public static final boolean DEBUG = true;
+
 
 	public static void main(String[] args) throws InterruptedException {
 		SpringApplication.run(ConferencesApplication.class, args);

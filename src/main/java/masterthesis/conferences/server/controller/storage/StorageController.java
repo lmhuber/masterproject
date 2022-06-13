@@ -17,11 +17,11 @@ import org.elasticsearch.client.RestClient;
 
 import java.util.concurrent.ExecutionException;
 
+import static masterthesis.conferences.data.util.Indices.CONFERENCE;
+import static masterthesis.conferences.data.util.Indices.CONFERENCE_EDITION;
+
 public class StorageController implements Controller {
     private static ElasticsearchAsyncClient client = null;
-
-    private static final String CONFERENCE = "conference";
-    private static final String CONFERENCE_EDITION = "conference-edition";
 
     private static final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 
@@ -45,18 +45,31 @@ public class StorageController implements Controller {
     public synchronized void init() throws ExecutionException, InterruptedException {
         ConferencesApplication.getLogger().info("Initializing Elasticsearch Index");
         boolean indexCreated;
+        if (ConferencesApplication.DEBUG) {
+            ElasticIndexOperations.deleteIndex(CONFERENCE.indexName());
+            ElasticIndexOperations.deleteIndex(CONFERENCE_EDITION.indexName());
+        }
 
-        indexCreated = ElasticSearchOperations.existsIndex(CONFERENCE);
-        indexCreated &= ElasticSearchOperations.existsIndex(CONFERENCE_EDITION);
+        indexCreated = ElasticSearchOperations.existsIndex(CONFERENCE.indexName());
+        indexCreated &= ElasticSearchOperations.existsIndex(CONFERENCE_EDITION.indexName());
         if (!indexCreated) {
-            ElasticIndexOperations.createIndex(CONFERENCE);
-            ElasticIndexOperations.createIndex(CONFERENCE_EDITION);
+            initIndex(CONFERENCE.indexName());
+            initIndex(CONFERENCE_EDITION.indexName());
+        } else {
+            ElasticIndexOperations.openIndex(CONFERENCE.indexName());
+            ElasticIndexOperations.openIndex(CONFERENCE_EDITION.indexName());
         }
         ConferencesApplication.getLogger().info("Elasticsearch Index initialized");
     }
 
     @Override
-    public void shutdown() {
+    public void shutdown() throws InterruptedException {
+        ElasticIndexOperations.closeIndex(CONFERENCE.indexName());
+        ElasticIndexOperations.closeIndex(CONFERENCE_EDITION.indexName());
+    }
 
+    private void initIndex(String indexName) throws InterruptedException {
+        ElasticIndexOperations.createIndex(indexName);
+        ElasticIndexOperations.createMapping(indexName);
     }
 }

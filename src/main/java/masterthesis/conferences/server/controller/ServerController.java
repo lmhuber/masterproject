@@ -1,6 +1,7 @@
 package masterthesis.conferences.server.controller;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class ServerController implements Controller {
@@ -15,6 +16,10 @@ public class ServerController implements Controller {
         controllerList.remove(controller);
     }
 
+    public void deregister(Iterator<Controller> iterator) {
+        iterator.remove();
+    }
+
     @Override
     public synchronized void init() {
         controllerList.forEach(c -> {
@@ -27,7 +32,12 @@ public class ServerController implements Controller {
     }
 
     @Override
-    public void shutdown() {
-        controllerList.forEach(Controller::shutdown);
+    public void shutdown() throws InterruptedException {
+        Iterator<Controller> iterator = controllerList.iterator();
+        while (iterator.hasNext()) {
+            Controller c = iterator.next();
+            c.shutdown();
+            deregister(iterator);
+        }
     }
 }

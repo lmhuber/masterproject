@@ -1,11 +1,20 @@
 package masterthesis.conferences.server.controller.storage.rest;
 
+import co.elastic.clients.elasticsearch._types.mapping.Property;
 import masterthesis.conferences.ConferencesApplication;
+import masterthesis.conferences.data.model.Conference;
+import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.controller.storage.StorageController;
 
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
+import static masterthesis.conferences.data.util.Indices.CONFERENCE;
+import static masterthesis.conferences.data.util.Indices.CONFERENCE_EDITION;
+
 public class ElasticIndexOperations extends ElasticWriteOperation {
-    public static void createIndex(String indexName) {
-        StorageController.getInstance().indices().create(i -> i.index(indexName))
+    public static void createIndex(String indexName) throws InterruptedException {
+        CompletableFuture<?> responseObject = StorageController.getInstance().indices().create(i -> i.index(indexName))
                 .whenComplete((response, exception)
                         -> {
                     if (exception != null) {
@@ -14,5 +23,81 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
                         ConferencesApplication.getLogger().info(response);
                     }
                 });
+        while (!responseObject.isDone()) {
+            Thread.sleep(100);
+        }
+    }
+
+    public static void createMapping(String indexName) throws InterruptedException {
+        Map<String, Property> properties = null;
+        if (indexName.equalsIgnoreCase(CONFERENCE.indexName())) {
+            properties = Conference.getProperties();
+        } else if (indexName.equalsIgnoreCase(CONFERENCE_EDITION.indexName())) {
+            properties = ConferenceEdition.getProperties();
+        }
+
+        if (properties == null) {
+            ConferencesApplication.getLogger().warn("Index not implemented for preparation of mapping");
+            return;
+        }
+        final Map<String, Property> propertyMap = properties;
+        CompletableFuture<?> responseObject = StorageController.getInstance()
+                .indices().putMapping(m -> m.index(indexName)
+                        .properties(propertyMap))
+                .whenComplete((response, exception) -> {
+                    if (exception != null) {
+                        ConferencesApplication.getLogger().error("Failed to create mapping", exception);
+                    } else {
+                        ConferencesApplication.getLogger().info(response);
+                    }
+                });
+        while (!responseObject.isDone()) {
+            Thread.sleep(100);
+        }
+    }
+
+    public static void deleteIndex(String indexName) throws InterruptedException {
+        CompletableFuture<?> responseObject = StorageController.getInstance().indices().delete(i -> i.index(indexName))
+                .whenComplete((response, exception)
+                        -> {
+                    if (exception != null) {
+                        ConferencesApplication.getLogger().error("Failed to delete index", exception);
+                    } else {
+                        ConferencesApplication.getLogger().info(response);
+                    }
+                });
+        while (!responseObject.isDone()) {
+            Thread.sleep(100);
+        }
+    }
+
+    public static void openIndex(String indexName) throws InterruptedException {
+        CompletableFuture<?> responseObject = StorageController.getInstance().indices().open(i -> i.index(indexName))
+                .whenComplete((response, exception)
+                        -> {
+                    if (exception != null) {
+                        ConferencesApplication.getLogger().error("Failed to open index", exception);
+                    } else {
+                        ConferencesApplication.getLogger().info(response);
+                    }
+                });
+        while (!responseObject.isDone()) {
+            Thread.sleep(100);
+        }
+    }
+
+    public static void closeIndex(String indexName) throws InterruptedException {
+        CompletableFuture<?> responseObject = StorageController.getInstance().indices().close(i -> i.index(indexName))
+                .whenComplete((response, exception)
+                        -> {
+                    if (exception != null) {
+                        ConferencesApplication.getLogger().error("Failed to close index", exception);
+                    } else {
+                        ConferencesApplication.getLogger().info(response);
+                    }
+                });
+        while (!responseObject.isDone()) {
+            Thread.sleep(100);
+        }
     }
 }
