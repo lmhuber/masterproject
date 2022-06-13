@@ -3,6 +3,7 @@ package masterthesis.conferences.data.dto;
 import java.util.HashMap;
 
 public class ConferenceEditionDTO {
+    private final int id;
     private final int year;
     private final int edition;
     private final int participants;
@@ -19,10 +20,11 @@ public class ConferenceEditionDTO {
 
     private final HashMap<String, Float> additionalMetrics;
 
-    public ConferenceEditionDTO(int year, int edition, int participants, int sessions,
+    public ConferenceEditionDTO(int id, int year, int edition, int participants, int sessions,
                                 int greenInnovativeness, float interactionDynamics, float cost,
                                 float carbonFootprint, String sustainability, String country,
                                 String city, HashMap<String, Float> additionalMetrics) {
+        this.id = id;
         this.year = year;
         this.edition = edition;
         this.participants = participants;

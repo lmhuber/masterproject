@@ -1,10 +1,10 @@
 package masterthesis.conferences.data.model;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class ConferenceEdition {
+    private final int id;
     private final int year;
     private final int edition;
     private final int participants;
@@ -21,10 +21,11 @@ public class ConferenceEdition {
 
     private final HashSet<AdditionalMetric> additionalMetrics;
 
-    public ConferenceEdition(int year, int edition, int participants, int sessions,
+    public ConferenceEdition(int id, int year, int edition, int participants, int sessions,
                              int greenInnovativeness, float interactionDynamics, float cost,
                              float carbonFootprint, String sustainability, String country,
                              String city, AdditionalMetric... additionalMetrics) {
+        this.id = id;
         this.year = year;
         this.edition = edition;
         this.participants = participants;
