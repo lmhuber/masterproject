@@ -5,8 +5,14 @@ import masterthesis.conferences.server.controller.storage.StorageController;
 
 public class ElasticIndexOperations extends ElasticWriteOperation {
     public static void createIndex(String indexName) {
-        StorageController.getInstance().index(i -> i.index(indexName))
+        StorageController.getInstance().indices().create(i -> i.index(indexName))
                 .whenComplete((response, exception)
-                        -> ConferencesApplication.getLogger().info(indexName + " index created!"));
+                        -> {
+                    if (exception != null) {
+                        ConferencesApplication.getLogger().error("Failed to fetch index", exception);
+                    } else {
+                        ConferencesApplication.getLogger().info(response);
+                    }
+                });
     }
 }

@@ -9,6 +9,10 @@ import masterthesis.conferences.server.controller.Controller;
 import masterthesis.conferences.server.controller.storage.rest.ElasticIndexOperations;
 import masterthesis.conferences.server.controller.storage.rest.ElasticSearchOperations;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 
 import java.util.concurrent.ExecutionException;
@@ -19,12 +23,18 @@ public class StorageController implements Controller {
     private static final String CONFERENCE = "conference";
     private static final String CONFERENCE_EDITION = "conference-edition";
 
+    private static final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+
     public StorageController() {
     }
 
     public static ElasticsearchAsyncClient getInstance() {
         if (client == null) {
-            RestClient restClient = RestClient.builder(new HttpHost("localhost", 9200)).build();
+            credentialsProvider.setCredentials(AuthScope.ANY,
+                    new UsernamePasswordCredentials("elastic", "changeme"));
+            RestClient restClient = RestClient.builder(new HttpHost("localhost", 9200))
+                    .setHttpClientConfigCallback(httpAsyncClientBuilder ->
+                            httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider)).build();
             ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
             client = new ElasticsearchAsyncClient(transport);
         }
