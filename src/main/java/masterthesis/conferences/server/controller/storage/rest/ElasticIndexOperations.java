@@ -1,9 +1,10 @@
 package masterthesis.conferences.server.controller.storage.rest;
 
 import co.elastic.clients.elasticsearch._types.mapping.Property;
+import co.elastic.clients.elasticsearch.core.IndexRequest;
 import masterthesis.conferences.ConferencesApplication;
-import masterthesis.conferences.data.model.Conference;
-import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.data.dto.ConferenceDTO;
+import masterthesis.conferences.data.dto.ConferenceEditionDTO;
 import masterthesis.conferences.server.controller.storage.StorageController;
 
 import java.util.Map;
@@ -31,9 +32,9 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
     public static void createMapping(String indexName) throws InterruptedException {
         Map<String, Property> properties = null;
         if (indexName.equalsIgnoreCase(CONFERENCE.indexName())) {
-            properties = Conference.getProperties();
+            properties = ConferenceDTO.getProperties();
         } else if (indexName.equalsIgnoreCase(CONFERENCE_EDITION.indexName())) {
-            properties = ConferenceEdition.getProperties();
+            properties = ConferenceEditionDTO.getProperties();
         }
 
         if (properties == null) {
@@ -99,5 +100,11 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
         while (!responseObject.isDone()) {
             Thread.sleep(100);
         }
+    }
+
+    public static void writeConference(ConferenceDTO conferenceDTO, String indexName) {
+        sendAsyncRequestToElastic(
+                IndexRequest.of(c -> c.index(indexName).id(conferenceDTO.getTitle()).document(conferenceDTO))
+        );
     }
 }

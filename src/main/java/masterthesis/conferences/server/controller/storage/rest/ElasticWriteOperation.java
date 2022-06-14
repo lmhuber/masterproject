@@ -7,7 +7,7 @@ import masterthesis.conferences.server.controller.storage.StorageController;
 
 public abstract class ElasticWriteOperation {
 
-    private void sendAsyncRequestToElastic(Object request) {
+    protected static void sendAsyncRequestToElastic(Object request) {
         ElasticsearchAsyncClient esClient = StorageController.getInstance();
         if (request instanceof IndexRequest) {
             IndexRequest<?> indexRequest = (IndexRequest<?>) request;

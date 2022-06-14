@@ -1,6 +1,9 @@
 package masterthesis.conferences.data.dto;
 
+import co.elastic.clients.elasticsearch._types.mapping.Property;
+
 import java.util.HashMap;
+import java.util.Map;
 
 public class ConferenceEditionDTO {
     private final int id;
@@ -20,6 +23,8 @@ public class ConferenceEditionDTO {
 
     private final HashMap<String, Float> additionalMetrics;
 
+    private final static Map<String, Property> properties = new HashMap<>();
+
     public ConferenceEditionDTO(int id, int year, int edition, int participants, int sessions,
                                 int greenInnovativeness, float interactionDynamics, float cost,
                                 float carbonFootprint, String sustainability, String country,
@@ -37,5 +42,77 @@ public class ConferenceEditionDTO {
         this.country = country;
         this.city = city;
         this.additionalMetrics = additionalMetrics;
+    }
+
+    public static Map<String, Property> getProperties() {
+        if (properties.isEmpty()) {
+            properties.put("id", Property.of(n -> n.integer(fn -> fn.store(true))));
+            properties.put("year", Property.of(n -> n.integer(fn -> fn.store(true))));
+            properties.put("edition", Property.of(n -> n.integer(fn -> fn.store(true))));
+            properties.put("participants", Property.of(n -> n.integer(fn -> fn.store(true))));
+            properties.put("sessions", Property.of(n -> n.integer(fn -> fn.store(true))));
+            properties.put("greenInnovativeness", Property.of(n -> n.integer(fn -> fn.store(true))));
+            properties.put("interactionDynamics", Property.of(n -> n.float_(fn -> fn.store(true))));
+            properties.put("cost", Property.of(n -> n.float_(fn -> fn.store(true))));
+            properties.put("carbonFootprint", Property.of(n -> n.float_(fn -> fn.store(true))));
+            properties.put("sustainability", Property.of(n -> n.float_(fn -> fn.store(true))));
+            properties.put("city", Property.of(n -> n.text(fn -> fn.store(true))));
+            properties.put("country", Property.of(n -> n.text(fn -> fn.store(true))));
+            properties.put("additionalMetric", Property.of(n -> n.nested(fn -> fn)));
+        }
+        return properties;
+    }
+
+
+    public int getId() {
+        return id;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public int getEdition() {
+        return edition;
+    }
+
+    public int getParticipants() {
+        return participants;
+    }
+
+    public int getSessions() {
+        return sessions;
+    }
+
+    public int getGreenInnovativeness() {
+        return greenInnovativeness;
+    }
+
+    public float getInteractionDynamics() {
+        return interactionDynamics;
+    }
+
+    public float getCost() {
+        return cost;
+    }
+
+    public float getCarbonFootprint() {
+        return carbonFootprint;
+    }
+
+    public String getSustainability() {
+        return sustainability;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public HashMap<String, Float> getAdditionalMetrics() {
+        return additionalMetrics;
     }
 }

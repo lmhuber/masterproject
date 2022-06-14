@@ -5,6 +5,7 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import masterthesis.conferences.ConferencesApplication;
+import masterthesis.conferences.data.dto.ConferenceDTO;
 import masterthesis.conferences.server.controller.Controller;
 import masterthesis.conferences.server.controller.storage.rest.ElasticIndexOperations;
 import masterthesis.conferences.server.controller.storage.rest.ElasticSearchOperations;
@@ -71,5 +72,9 @@ public class StorageController implements Controller {
     private void initIndex(String indexName) throws InterruptedException {
         ElasticIndexOperations.createIndex(indexName);
         ElasticIndexOperations.createMapping(indexName);
+    }
+
+    public void indexConference(ConferenceDTO conferenceDTO) {
+        ElasticIndexOperations.writeConference(conferenceDTO, CONFERENCE.indexName());
     }
 }

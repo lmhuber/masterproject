@@ -1,5 +1,7 @@
 package masterthesis.conferences.server.controller;
 
+import masterthesis.conferences.server.controller.storage.StorageController;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,5 +41,14 @@ public class ServerController implements Controller {
             c.shutdown();
             deregister(iterator);
         }
+    }
+
+    public StorageController getStorageController() {
+        for (Controller c : controllerList) {
+            if (c instanceof StorageController) {
+                return (StorageController) c;
+            }
+        }
+        return null;
     }
 }
