@@ -1,14 +1,14 @@
-package masterthesis.conferences.server.controller.storage;
+package masterthesis.conferences.server.controller.storage.rest;
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import masterthesis.conferences.ConferencesApplication;
+import masterthesis.conferences.data.ConferenceRepository;
+import masterthesis.conferences.data.MapperService;
 import masterthesis.conferences.data.dto.ConferenceDTO;
 import masterthesis.conferences.server.controller.Controller;
-import masterthesis.conferences.server.controller.storage.rest.ElasticIndexOperations;
-import masterthesis.conferences.server.controller.storage.rest.ElasticSearchOperations;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -26,10 +26,11 @@ public class StorageController implements Controller {
 
     private static final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 
-    public StorageController() {
-    }
+    private static ConferenceRepository repository = null;
 
-    public static ElasticsearchAsyncClient getInstance() {
+    private static MapperService mapperService = null;
+
+    protected static ElasticsearchAsyncClient getInstance() {
         if (client == null) {
             credentialsProvider.setCredentials(AuthScope.ANY,
                     new UsernamePasswordCredentials("elastic", "changeme"));
@@ -40,6 +41,21 @@ public class StorageController implements Controller {
             client = new ElasticsearchAsyncClient(transport);
         }
         return client;
+    }
+
+    protected static MapperService getMapper() {
+        if (mapperService == null) {
+            if (repository == null) return null;
+            mapperService = new MapperService(repository);
+        }
+        return mapperService;
+    }
+
+    public static ConferenceRepository getRepository() {
+        if (repository == null) {
+            repository = new ConferenceRepository();
+        }
+        return repository;
     }
 
     @Override
@@ -74,7 +90,7 @@ public class StorageController implements Controller {
         ElasticIndexOperations.createMapping(indexName);
     }
 
-    public void indexConference(ConferenceDTO conferenceDTO) {
+    public void indexConference(ConferenceDTO conferenceDTO) throws InterruptedException {
         ElasticIndexOperations.writeConference(conferenceDTO, CONFERENCE.indexName());
     }
 }

@@ -1,11 +1,11 @@
 package masterthesis.conferences.server.controller.storage.rest;
 
+import co.elastic.clients.elasticsearch._types.mapping.DynamicMapping;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
 import masterthesis.conferences.ConferencesApplication;
 import masterthesis.conferences.data.dto.ConferenceDTO;
 import masterthesis.conferences.data.dto.ConferenceEditionDTO;
-import masterthesis.conferences.server.controller.storage.StorageController;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -20,6 +20,7 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
                         -> {
                     if (exception != null) {
                         ConferencesApplication.getLogger().error("Failed to fetch index", exception);
+                        ConferencesApplication.getErrorChecker().detectError();
                     } else {
                         ConferencesApplication.getLogger().info(response);
                     }
@@ -44,10 +45,11 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
         final Map<String, Property> propertyMap = properties;
         CompletableFuture<?> responseObject = StorageController.getInstance()
                 .indices().putMapping(m -> m.index(indexName)
-                        .properties(propertyMap))
+                        .properties(propertyMap).dynamic(DynamicMapping.Strict))
                 .whenComplete((response, exception) -> {
                     if (exception != null) {
                         ConferencesApplication.getLogger().error("Failed to create mapping", exception);
+                        ConferencesApplication.getErrorChecker().detectError();
                     } else {
                         ConferencesApplication.getLogger().info(response);
                     }
@@ -102,7 +104,7 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
         }
     }
 
-    public static void writeConference(ConferenceDTO conferenceDTO, String indexName) {
+    public static void writeConference(ConferenceDTO conferenceDTO, String indexName) throws InterruptedException {
         sendAsyncRequestToElastic(
                 IndexRequest.of(c -> c.index(indexName).id(conferenceDTO.getTitle()).document(conferenceDTO))
         );

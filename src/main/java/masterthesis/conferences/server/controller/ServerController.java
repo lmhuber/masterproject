@@ -1,6 +1,6 @@
 package masterthesis.conferences.server.controller;
 
-import masterthesis.conferences.server.controller.storage.StorageController;
+import masterthesis.conferences.server.controller.storage.rest.StorageController;
 
 import java.util.ArrayList;
 import java.util.Iterator;

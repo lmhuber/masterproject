@@ -2,7 +2,6 @@ package masterthesis.conferences.server.controller.storage.rest;
 
 import co.elastic.clients.elasticsearch.indices.ExistsRequest;
 import masterthesis.conferences.ConferencesApplication;
-import masterthesis.conferences.server.controller.storage.StorageController;
 
 import java.util.concurrent.ExecutionException;
 
@@ -12,6 +11,7 @@ public class ElasticSearchOperations extends ElasticReadOperation {
                 .whenComplete((response, exception) -> {
                     if (exception != null) {
                         ConferencesApplication.getLogger().error("Failed to fetch index", exception);
+                        ConferencesApplication.getErrorChecker().detectError();
                     }
                 }).get().value();
     }

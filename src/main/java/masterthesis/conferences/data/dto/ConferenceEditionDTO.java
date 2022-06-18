@@ -4,6 +4,7 @@ import co.elastic.clients.elasticsearch._types.mapping.Property;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ConferenceEditionDTO {
     private final int id;
@@ -46,12 +47,12 @@ public class ConferenceEditionDTO {
 
     public static Map<String, Property> getProperties() {
         if (properties.isEmpty()) {
-            properties.put("id", Property.of(n -> n.integer(fn -> fn.store(true))));
-            properties.put("year", Property.of(n -> n.integer(fn -> fn.store(true))));
-            properties.put("edition", Property.of(n -> n.integer(fn -> fn.store(true))));
-            properties.put("participants", Property.of(n -> n.integer(fn -> fn.store(true))));
-            properties.put("sessions", Property.of(n -> n.integer(fn -> fn.store(true))));
-            properties.put("greenInnovativeness", Property.of(n -> n.integer(fn -> fn.store(true))));
+            properties.put("id", Property.of(n -> n.long_(fn -> fn.store(true))));
+            properties.put("year", Property.of(n -> n.long_(fn -> fn.store(true))));
+            properties.put("edition", Property.of(n -> n.long_(fn -> fn.store(true))));
+            properties.put("participants", Property.of(n -> n.long_(fn -> fn.store(true))));
+            properties.put("sessions", Property.of(n -> n.long_(fn -> fn.store(true))));
+            properties.put("greenInnovativeness", Property.of(n -> n.long_(fn -> fn.store(true))));
             properties.put("interactionDynamics", Property.of(n -> n.float_(fn -> fn.store(true))));
             properties.put("cost", Property.of(n -> n.float_(fn -> fn.store(true))));
             properties.put("carbonFootprint", Property.of(n -> n.float_(fn -> fn.store(true))));
@@ -114,5 +115,18 @@ public class ConferenceEditionDTO {
 
     public HashMap<String, Float> getAdditionalMetrics() {
         return additionalMetrics;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConferenceEditionDTO that = (ConferenceEditionDTO) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

@@ -1,7 +1,8 @@
 package masterthesis.conferences;
 
+import masterthesis.conferences.server.controller.ErrorFilter;
 import masterthesis.conferences.server.controller.ServerController;
-import masterthesis.conferences.server.controller.storage.StorageController;
+import masterthesis.conferences.server.controller.storage.rest.StorageController;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.SpringApplication;
@@ -13,6 +14,7 @@ public class ConferencesApplication {
 	private static boolean running = false;
 
 	private static final Log logger = LogFactory.getLog(ConferencesApplication.class);
+	private static final ErrorFilter errorChecker = new ErrorFilter();
 	public static final boolean DEBUG = true;
 
 
@@ -35,6 +37,10 @@ public class ConferencesApplication {
 
 	public static Log getLogger() {
 		return logger;
+	}
+
+	public static ErrorFilter getErrorChecker() {
+		return errorChecker;
 	}
 
 }

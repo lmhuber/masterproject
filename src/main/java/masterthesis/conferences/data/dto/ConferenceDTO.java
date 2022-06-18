@@ -2,25 +2,24 @@ package masterthesis.conferences.data.dto;
 
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 public class ConferenceDTO {
     private final String title;
     private final String organization;
     private final String publisher;
-    private final HashSet<Integer> conferenceEdtions;
-    private final HashSet<ConferenceEditionDTO> conferenceEditionDTOs;
+    private final Set<Integer> conferenceEdtions;
 
     private final static Map<String, Property> properties = new HashMap<>();
 
-    public ConferenceDTO(String title, String organization, String publisher, ConferenceEditionDTO... conferenceEditionDTOs) {
+    public ConferenceDTO(String title, String organization, String publisher, Set<Integer> conferenceEditions) {
         this.title = title;
         this.organization = organization;
         this.publisher = publisher;
-        this.conferenceEdtions = new HashSet<>();
-        this.conferenceEditionDTOs = new HashSet<>();
-        this.conferenceEditionDTOs.addAll(List.of(conferenceEditionDTOs));
-        Arrays.stream(conferenceEditionDTOs).forEach(d -> conferenceEdtions.add(d.getId()));
+        this.conferenceEdtions = conferenceEditions;
     }
 
     public String getTitle() {
@@ -35,7 +34,7 @@ public class ConferenceDTO {
         return publisher;
     }
 
-    public HashSet<Integer> getConferenceEdtions() {
+    public Set<Integer> getConferenceEdtions() {
         return conferenceEdtions;
     }
 
@@ -49,4 +48,16 @@ public class ConferenceDTO {
         return properties;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConferenceDTO that = (ConferenceDTO) o;
+        return Objects.equals(title, that.title);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title);
+    }
 }

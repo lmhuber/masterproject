@@ -1,14 +1,16 @@
 package masterthesis.conferences.elastic.datamodel;
 
+import masterthesis.conferences.ConferencesApplication;
 import masterthesis.conferences.data.dto.ConferenceDTO;
-import masterthesis.conferences.data.dto.ConferenceEditionDTO;
 import masterthesis.conferences.server.controller.ServerController;
-import masterthesis.conferences.server.controller.storage.StorageController;
+import masterthesis.conferences.server.controller.storage.rest.StorageController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class DatamodelTests {
 
@@ -26,21 +28,19 @@ public class DatamodelTests {
     }
 
     @Test
-    void ingestTestConference() {
+    void ingestTestConference() throws InterruptedException {
         ConferenceDTO conference = new ConferenceDTO("DEXA and related conferences",
                 "TK JKU Linz", "ACM",
-                new ConferenceEditionDTO(1, 1, 1, 11, 1, 1,
-                        1, 1, 1, "", "", "", new HashMap<>()),
-                new ConferenceEditionDTO(2, 1, 1, 11, 1, 1,
-                        1, 1, 1, "", "", "", new HashMap<>()));
+                Set.of(1, 2));
         controller.getStorageController().indexConference(conference);
+        checkErrorLogs();
         ConferenceDTO conference2 = new ConferenceDTO("iiWAS & MoMM",
-                "iiWAS", "ACM",
-                new ConferenceEditionDTO(3, 1, 1, 11, 1, 1,
-                        1, 1, 1, "", "", "", new HashMap<>()),
-                new ConferenceEditionDTO(4, 1, 1, 11, 1, 1,
-                        1, 1, 1, "", "", "", new HashMap<>()));
+                "iiWAS", "ACM", Set.of(3, 4));
         controller.getStorageController().indexConference(conference2);
+        checkErrorLogs();
+    }
 
+    private void checkErrorLogs() {
+        assertFalse(ConferencesApplication.getErrorChecker().getErrorFlag());
     }
 }
