@@ -43,7 +43,7 @@ public class ConferenceDTO {
             properties.put("title", Property.of(c -> c.text(fn -> fn.store(true))));
             properties.put("organization", Property.of(c -> c.text(fn -> fn.store(true))));
             properties.put("publisher", Property.of(c -> c.text(fn -> fn.store(true))));
-            properties.put("conferenceEditions", Property.of(c -> c.integer(fn -> fn.store(true))));
+            properties.put("conferenceEditions", Property.of(c -> c.long_(fn -> fn.store(true))));
         }
         return properties;
     }
