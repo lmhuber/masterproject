@@ -58,7 +58,7 @@ public class Conference {
     }
 
     public Set<Integer> getConferenceEditionIds() {
-        return conferenceEditions.stream().map(e -> e.getId()).collect(Collectors.toSet());
+        return conferenceEditions.stream().map(ConferenceEdition::getId).collect(Collectors.toSet());
     }
 
     @Override
@@ -72,5 +72,15 @@ public class Conference {
     @Override
     public int hashCode() {
         return Objects.hash(title);
+    }
+
+    @Override
+    public String toString() {
+        return "Conference{" +
+                "title='" + title + '\'' +
+                ", organization='" + organization + '\'' +
+                ", publisher='" + publisher + '\'' +
+                ", conferenceEditions=" + conferenceEditions +
+                '}';
     }
 }

@@ -1,6 +1,7 @@
 package masterthesis.conferences.data;
 
 import masterthesis.conferences.data.model.Conference;
+import masterthesis.conferences.data.model.ConferenceEdition;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,5 +32,16 @@ public class ConferenceRepository {
 
     public Conference getConference(String title) {
         return conferenceSet.stream().filter(c -> c.getTitle().equals(title)).findFirst().orElse(null);
+    }
+
+    public ConferenceEdition getEdition(int id) {
+        for (Conference c : conferenceSet) {
+            if (c.getConferenceEditionIds().contains(id)) {
+                for (ConferenceEdition edition : c.getConferenceEditions()) {
+                    if (edition.getId() == id) return edition;
+                }
+            }
+        }
+        return null;
     }
 }
