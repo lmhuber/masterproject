@@ -1,6 +1,6 @@
 package masterthesis.conferences.data.model;
 
-import masterthesis.conferences.server.controller.storage.rest.ElasticCountOperations;
+import masterthesis.conferences.server.rest.storage.ElasticCountOperations;
 
 import java.util.HashSet;
 import java.util.Objects;

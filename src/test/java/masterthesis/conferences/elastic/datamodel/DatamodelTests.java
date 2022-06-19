@@ -5,8 +5,8 @@ import masterthesis.conferences.data.dto.ConferenceDTO;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.controller.ServerController;
-import masterthesis.conferences.server.controller.storage.rest.ElasticSearchOperations;
-import masterthesis.conferences.server.controller.storage.rest.StorageController;
+import masterthesis.conferences.server.rest.storage.ElasticSearchOperations;
+import masterthesis.conferences.server.rest.storage.StorageController;
 import org.junit.jupiter.api.*;
 
 import java.util.HashSet;

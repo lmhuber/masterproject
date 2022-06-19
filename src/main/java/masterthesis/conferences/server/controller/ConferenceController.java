@@ -1,7 +1,7 @@
-package masterthesis.conferences.rest.controller;
+package masterthesis.conferences.server.controller;
 
 import masterthesis.conferences.data.model.Conference;
-import masterthesis.conferences.rest.service.ConferenceService;
+import masterthesis.conferences.server.rest.service.ConferenceService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -49,17 +49,17 @@ public class ConferenceController {
 			return "redirect:/conferences/list";
 		}
 	}
-	
-	
+
+
 	@GetMapping("/delete")
-	public String delete(@RequestParam("conferenceId") int id) {
-		
+	public String delete(@RequestParam("conferenceId") String title) {
+
 		// delete the conference
-		conferenceService.deleteById(id);
-		
+		conferenceService.deleteById(title);
+
 		// redirect to /conferences/list
 		return "redirect:/conferences/list";
-		
+
 	}
 
 	@GetMapping("/search")
