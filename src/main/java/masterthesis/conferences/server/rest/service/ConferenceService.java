@@ -1,4 +1,4 @@
-package masterthesis.conferences.rest.service;
+package masterthesis.conferences.server.rest.service;
 
 import masterthesis.conferences.data.model.Conference;
 
@@ -7,13 +7,14 @@ import java.util.List;
 public interface ConferenceService {
 
 	public List<Conference> findAll();
-	
-	public Conference findById(int id);
-	
+
+	//TODO: search for title (key for conference is title)
+	public Conference findById(String title);
+
 	public void save(Conference conferences);
-	
-	public void deleteById(int id);
+
+	public void deleteById(String title);
 
 	public List<Conference> searchBy(String name);
-	
+
 }

@@ -5,7 +5,7 @@ import masterthesis.conferences.data.dto.ConferenceEditionDTO;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
-import masterthesis.conferences.server.controller.storage.rest.ElasticSearchOperations;
+import masterthesis.conferences.server.rest.storage.ElasticSearchOperations;
 
 import java.util.HashMap;
 import java.util.Map;

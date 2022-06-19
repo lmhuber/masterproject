@@ -2,9 +2,9 @@ package masterthesis.conferences.data;
 
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.server.rest.storage.StorageController;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class ConferenceRepository {
     private final Set<Conference> conferenceSet;
@@ -17,7 +17,7 @@ public class ConferenceRepository {
         this.conferenceSet.add(conference);
     }
 
-    public Set<Conference> getConferences() {
+    public Set<Conference> getConferenceSet() {
         return conferenceSet;
     }
 
@@ -43,5 +43,22 @@ public class ConferenceRepository {
             }
         }
         return null;
+    }
+
+    public List<Conference> getConferences() {
+        return new ArrayList<>(conferenceSet);
+    }
+
+    public void save(Conference conference) throws InterruptedException {
+        this.addConference(conference);
+        StorageController.getControllerInstance().indexConference(conference);
+    }
+
+    public void deleteById(String title) {
+        conferenceSet.remove(getConference(title));
+    }
+
+    public Optional<Conference> findById(String title) {
+        return Optional.of(getConference(title));
     }
 }

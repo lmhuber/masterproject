@@ -1,4 +1,4 @@
-package masterthesis.conferences.server.controller.storage.rest;
+package masterthesis.conferences.server.rest.storage;
 
 import co.elastic.clients.elasticsearch._types.mapping.DynamicMapping;
 import co.elastic.clients.elasticsearch._types.mapping.Property;

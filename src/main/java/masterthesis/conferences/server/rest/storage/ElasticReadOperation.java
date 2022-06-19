@@ -1,4 +1,4 @@
-package masterthesis.conferences.server.controller.storage.rest;
+package masterthesis.conferences.server.rest.storage;
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.elasticsearch.core.GetRequest;

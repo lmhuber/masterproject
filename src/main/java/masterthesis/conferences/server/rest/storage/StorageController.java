@@ -1,4 +1,4 @@
-package masterthesis.conferences.server.controller.storage.rest;
+package masterthesis.conferences.server.rest.storage;
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
@@ -31,6 +31,15 @@ public class StorageController implements Controller {
     private static ConferenceRepository repository = null;
 
     private static MapperService mapperService = null;
+
+    private static StorageController instance = null;
+
+    public static StorageController getControllerInstance() {
+        if (instance == null) {
+            instance = new StorageController();
+        }
+        return instance;
+    }
 
     protected static ElasticsearchAsyncClient getInstance() {
         if (client == null) {
