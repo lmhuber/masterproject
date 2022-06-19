@@ -45,7 +45,7 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
         final Map<String, Property> propertyMap = properties;
         CompletableFuture<?> responseObject = StorageController.getInstance()
                 .indices().putMapping(m -> m.index(indexName)
-                        .properties(propertyMap).dynamic(DynamicMapping.Strict))
+                        .properties(propertyMap).dynamic(DynamicMapping.False))
                 .whenComplete((response, exception) -> {
                     if (exception != null) {
                         ConferencesApplication.getLogger().error("Failed to create mapping", exception);
@@ -107,6 +107,13 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
     public static void writeConference(ConferenceDTO conferenceDTO, String indexName) throws InterruptedException {
         sendAsyncRequestToElastic(
                 IndexRequest.of(c -> c.index(indexName).id(conferenceDTO.getTitle()).document(conferenceDTO))
+        );
+    }
+
+    public static void writeConferenceEdition(ConferenceEditionDTO editionDTO) throws InterruptedException {
+        sendAsyncRequestToElastic(
+                IndexRequest.of(c -> c.index(CONFERENCE_EDITION.indexName())
+                        .id(Integer.toString(editionDTO.getId())).document(editionDTO))
         );
     }
 }

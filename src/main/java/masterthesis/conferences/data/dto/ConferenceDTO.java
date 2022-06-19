@@ -8,12 +8,16 @@ import java.util.Objects;
 import java.util.Set;
 
 public class ConferenceDTO {
-    private final String title;
-    private final String organization;
-    private final String publisher;
-    private final Set<Integer> conferenceEdtions;
+    private String title;
+    private String organization;
+    private String publisher;
+    private Set<Integer> conferenceEdtions;
 
     private final static Map<String, Property> properties = new HashMap<>();
+
+    public ConferenceDTO() {
+
+    }
 
     public ConferenceDTO(String title, String organization, String publisher, Set<Integer> conferenceEditions) {
         this.title = title;
@@ -59,5 +63,15 @@ public class ConferenceDTO {
     @Override
     public int hashCode() {
         return Objects.hash(title);
+    }
+
+    @Override
+    public String toString() {
+        return "ConferenceDTO{" +
+                "title='" + title + '\'' +
+                ", organization='" + organization + '\'' +
+                ", publisher='" + publisher + '\'' +
+                ", conferenceEdtions=" + conferenceEdtions +
+                '}';
     }
 }

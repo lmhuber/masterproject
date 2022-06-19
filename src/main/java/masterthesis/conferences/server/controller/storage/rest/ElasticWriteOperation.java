@@ -24,7 +24,7 @@ public abstract class ElasticWriteOperation {
                     });
         }
         while (responseObject != null && !responseObject.isDone()) {
-            Thread.sleep(100);
+            Thread.sleep(600);
         }
 
     }

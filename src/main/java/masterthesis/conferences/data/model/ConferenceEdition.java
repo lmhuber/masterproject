@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class ConferenceEdition {
-    private final int id;
+    private int id;
     private int year;
     private int edition;
     private int participants;
@@ -23,7 +23,11 @@ public class ConferenceEdition {
     private String country;
     private String city;
 
-    private final HashSet<AdditionalMetric> additionalMetrics;
+    private final HashSet<AdditionalMetric> additionalMetrics = new HashSet<>();
+
+    public ConferenceEdition() {
+
+    }
 
     public ConferenceEdition(int year, int edition, int participants, int sessions,
                              int greenInnovativeness, float interactionDynamics, float cost,
@@ -41,12 +45,15 @@ public class ConferenceEdition {
         this.sustainability = sustainability;
         this.country = country;
         this.city = city;
-        this.additionalMetrics = new HashSet<>();
         this.additionalMetrics.addAll(Set.of(additionalMetrics));
     }
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getYear() {
@@ -152,5 +159,24 @@ public class ConferenceEdition {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "ConferenceEdition{" +
+                "id=" + id +
+                ", year=" + year +
+                ", edition=" + edition +
+                ", participants=" + participants +
+                ", sessions=" + sessions +
+                ", greenInnovativeness=" + greenInnovativeness +
+                ", interactionDynamics=" + interactionDynamics +
+                ", cost=" + cost +
+                ", carbonFootprint=" + carbonFootprint +
+                ", sustainability='" + sustainability + '\'' +
+                ", country='" + country + '\'' +
+                ", city='" + city + '\'' +
+                ", additionalMetrics=" + additionalMetrics +
+                '}';
     }
 }

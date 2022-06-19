@@ -7,7 +7,8 @@ import co.elastic.clients.transport.rest_client.RestClientTransport;
 import masterthesis.conferences.ConferencesApplication;
 import masterthesis.conferences.data.ConferenceRepository;
 import masterthesis.conferences.data.MapperService;
-import masterthesis.conferences.data.dto.ConferenceDTO;
+import masterthesis.conferences.data.model.Conference;
+import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.controller.Controller;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -16,6 +17,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import static masterthesis.conferences.data.util.Indices.CONFERENCE;
@@ -43,7 +45,7 @@ public class StorageController implements Controller {
         return client;
     }
 
-    protected static MapperService getMapper() {
+    public static MapperService getMapper() {
         if (mapperService == null) {
             if (repository == null) return null;
             mapperService = new MapperService(repository);
@@ -90,7 +92,18 @@ public class StorageController implements Controller {
         ElasticIndexOperations.createMapping(indexName);
     }
 
-    public void indexConference(ConferenceDTO conferenceDTO) throws InterruptedException {
-        ElasticIndexOperations.writeConference(conferenceDTO, CONFERENCE.indexName());
+    public void indexConference(Conference conference) throws InterruptedException {
+        ElasticIndexOperations.writeConference(
+                Objects.requireNonNull(getMapper()).convertToConferenceDTO(conference.getTitle()), CONFERENCE.indexName()
+        );
+    }
+
+    public void indexConferenceEdition(ConferenceEdition edition, Conference conference) throws InterruptedException {
+        conference.addConferenceEdition(edition);
+        repository.updateConference(conference);
+        ElasticIndexOperations.writeConferenceEdition(
+                Objects.requireNonNull(getMapper()).convertToConferenceEditionDTO(edition.getId(), CONFERENCE_EDITION.indexName())
+        );
+        indexConference(conference);
     }
 }

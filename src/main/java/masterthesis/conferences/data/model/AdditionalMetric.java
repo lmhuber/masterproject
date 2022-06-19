@@ -31,4 +31,12 @@ public class AdditionalMetric {
     public int hashCode() {
         return Objects.hash(datapoint, metricIdentifier);
     }
+
+    @Override
+    public String toString() {
+        return "AdditionalMetric{" +
+                "datapoint=" + datapoint +
+                ", metricIdentifier='" + metricIdentifier + '\'' +
+                '}';
+    }
 }
