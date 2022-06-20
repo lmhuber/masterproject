@@ -25,7 +25,7 @@ public class MapperService {
                 conference.getPublisher(), conference.getConferenceEditionIds());
     }
 
-    public ConferenceEditionDTO convertToConferenceEditionDTO(int id, String indexName) {
+    public ConferenceEditionDTO convertToConferenceEditionDTO(int id) {
         ConferenceEdition edition = repository.getEdition(id);
         return new ConferenceEditionDTO(id, edition.getYear(), edition.getEdition(), edition.getParticipants(),
                 edition.getParticipants(), edition.getGreenInnovativeness(), edition.getInteractionDynamics(),
@@ -35,6 +35,7 @@ public class MapperService {
     }
 
     public Conference convertToConference(ConferenceDTO conferenceDTO) throws ExecutionException, InterruptedException {
+        if (conferenceDTO == null) return null;
         Conference conference = new Conference(conferenceDTO.getTitle(),
                 conferenceDTO.getOrganization(),
                 conferenceDTO.getPublisher());
@@ -45,6 +46,7 @@ public class MapperService {
     }
 
     public ConferenceEdition convertToConferenceEdition(ConferenceEditionDTO editionDTO) {
+        if (editionDTO == null) return null;
         ConferenceEdition conferenceEdition = new ConferenceEdition();
         conferenceEdition.setEdition(editionDTO.getEdition());
         conferenceEdition.setYear(editionDTO.getYear());

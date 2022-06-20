@@ -59,21 +59,6 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
         }
     }
 
-    public static void deleteIndex(String indexName) throws InterruptedException {
-        CompletableFuture<?> responseObject = StorageController.getInstance().indices().delete(i -> i.index(indexName))
-                .whenComplete((response, exception)
-                        -> {
-                    if (exception != null) {
-                        ConferencesApplication.getLogger().error("Failed to delete index", exception);
-                    } else {
-                        ConferencesApplication.getLogger().info(response);
-                    }
-                });
-        while (!responseObject.isDone()) {
-            Thread.sleep(100);
-        }
-    }
-
     public static void openIndex(String indexName) throws InterruptedException {
         CompletableFuture<?> responseObject = StorageController.getInstance().indices().open(i -> i.index(indexName))
                 .whenComplete((response, exception)

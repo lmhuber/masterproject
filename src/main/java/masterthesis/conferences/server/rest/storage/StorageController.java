@@ -74,8 +74,8 @@ public class StorageController implements Controller {
         ConferencesApplication.getLogger().info("Initializing Elasticsearch Index");
         boolean indexCreated;
         if (ConferencesApplication.DEBUG) {
-            ElasticIndexOperations.deleteIndex(CONFERENCE.indexName());
-            ElasticIndexOperations.deleteIndex(CONFERENCE_EDITION.indexName());
+            ElasticDeleteOperations.deleteIndex(CONFERENCE.indexName());
+            ElasticDeleteOperations.deleteIndex(CONFERENCE_EDITION.indexName());
         }
 
         indexCreated = ElasticSearchOperations.existsIndex(CONFERENCE.indexName());
@@ -111,8 +111,21 @@ public class StorageController implements Controller {
         conference.addConferenceEdition(edition);
         repository.updateConference(conference);
         ElasticIndexOperations.writeConferenceEdition(
-                Objects.requireNonNull(getMapper()).convertToConferenceEditionDTO(edition.getId(), CONFERENCE_EDITION.indexName())
+                Objects.requireNonNull(getMapper()).convertToConferenceEditionDTO(edition.getId())
         );
         indexConference(conference);
+    }
+
+    public void removeConference(Conference conference) throws InterruptedException {
+        for (ConferenceEdition edition : conference.getConferenceEditions()) {
+            ElasticDeleteOperations.deleteConferenceEdition(edition.getId());
+        }
+        ElasticDeleteOperations.deleteConference(conference.getTitle());
+        repository.deleteConference(conference);
+    }
+
+    public void removeConferenceEdition(ConferenceEdition edition) throws InterruptedException {
+        ElasticDeleteOperations.deleteConferenceEdition(edition.getId());
+        repository.removeEdition(edition.getId());
     }
 }

@@ -45,6 +45,31 @@ public class ConferenceRepository {
         return null;
     }
 
+    public void removeEdition(int id) {
+        Conference conferenceToRemove = null;
+        ConferenceEdition editionToRemove = null;
+        for (Conference c : conferenceSet) {
+            if (c.getConferenceEditionIds().contains(id)) {
+                for (ConferenceEdition edition : c.getConferenceEditions()) {
+                    if (edition.getId() == id) {
+                        editionToRemove = edition;
+                        conferenceToRemove = c;
+                    }
+                }
+            }
+        }
+        if (editionToRemove != null) {
+            conferenceToRemove.getConferenceEditions().remove(editionToRemove);
+        }
+    }
+
+    public void addEdition(Conference conferenceToAdd, ConferenceEdition editionToAdd) {
+        if (editionToAdd == null) return;
+        conferenceToAdd.addConferenceEdition(editionToAdd);
+        updateConference(conferenceToAdd);
+    }
+
+
     public List<Conference> getConferences() {
         return new ArrayList<>(conferenceSet);
     }
@@ -54,7 +79,8 @@ public class ConferenceRepository {
         StorageController.getControllerInstance().indexConference(conference);
     }
 
-    public void deleteById(String title) {
+    public void deleteById(String title) throws InterruptedException {
+        StorageController.getControllerInstance().removeConference(getConference(title));
         conferenceSet.remove(getConference(title));
     }
 
