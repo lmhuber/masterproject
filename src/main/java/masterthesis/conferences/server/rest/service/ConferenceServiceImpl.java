@@ -49,7 +49,11 @@ public class ConferenceServiceImpl implements ConferenceService {
 
 	@Override
 	public void deleteById(String title) {
-		conferenceRepository.deleteById(title);
+		try {
+			conferenceRepository.deleteById(title);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

@@ -13,8 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DatamodelTests {
@@ -88,6 +87,35 @@ public class DatamodelTests {
         System.out.println(conference.toString());
         assertTrue(conference.toString().equals(StorageController.getRepository().getConference(DEXA).toString()));
     }
+
+    @Test
+    @Order(5)
+    void testDeletionEdition() throws InterruptedException, ExecutionException {
+        StorageController.getControllerInstance()
+                .removeConferenceEdition(StorageController.getRepository().getEdition(0));
+        assertNull(StorageController.getRepository().getEdition(0));
+        assertNull(ElasticSearchOperations.retrieveConferenceEdition(0));
+    }
+
+    @Test
+    @Order(6)
+    void testDeletionConference() throws InterruptedException, ExecutionException {
+        StorageController.getControllerInstance()
+                .removeConference(StorageController.getRepository().getConference(IIWAS));
+        assertNull(StorageController.getRepository().getConference(IIWAS));
+        assertNull(ElasticSearchOperations.retrieveConference(IIWAS));
+    }
+
+    @Test
+    @Order(7)
+    void testDeletionConferenceCascading() throws InterruptedException, ExecutionException {
+        StorageController.getControllerInstance()
+                .removeConference(StorageController.getRepository().getConference(DEXA));
+        assertNull(StorageController.getRepository().getConference(DEXA));
+        assertNull(ElasticSearchOperations.retrieveConference(DEXA));
+        assertNull(ElasticSearchOperations.retrieveConferenceEdition(3));
+    }
+
 
     private void checkErrorLogs() {
         assertFalse(ConferencesApplication.getErrorChecker().getErrorFlag());
