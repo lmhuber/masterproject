@@ -117,8 +117,10 @@ public class StorageController implements Controller {
     }
 
     public void removeConference(Conference conference) throws InterruptedException {
-        for (ConferenceEdition edition : conference.getConferenceEditions()) {
-            ElasticDeleteOperations.deleteConferenceEdition(edition.getId());
+        if (conference.getConferenceEditions() != null) {
+            for (ConferenceEdition edition : conference.getConferenceEditions()) {
+                ElasticDeleteOperations.deleteConferenceEdition(edition.getId());
+            }
         }
         ElasticDeleteOperations.deleteConference(conference.getTitle());
         repository.deleteConference(conference);

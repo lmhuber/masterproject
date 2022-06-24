@@ -2,6 +2,7 @@ package masterthesis.conferences.server.controller;
 
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.server.rest.service.ConferenceService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,6 +14,7 @@ import java.util.List;
 @RequestMapping("/conferences")
 public class ConferenceController {
 
+	@Autowired
 	private ConferenceService conferenceService;
 
 	public ConferenceController(ConferenceService conferenceService) {
@@ -30,7 +32,7 @@ public class ConferenceController {
 		// add to the spring model
 		model.addAttribute("conferences", conferences);
 		
-		return "conferences/conferences-view";
+		return "conferences/conference-view";
 	}
 	
 	@PostMapping("/save")
@@ -80,10 +82,22 @@ public class ConferenceController {
 			model.addAttribute("conferences", conferences);
 			
 			// send to conferences-view
-			return "conferences/conferences-view";
+			return "conferences/conference-view";
 		}
 		
 	}
+
+	@GetMapping("/showFormForAdd")
+	public String showFormForAdd(Model model) {
+
+		// create model attribute to bind form data
+		Conference conference = new Conference();
+
+		model.addAttribute("conference", conference);
+
+		return "conferences/conferences-form";
+	}
+
 }
 
 

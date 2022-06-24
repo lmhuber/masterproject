@@ -9,7 +9,7 @@ public class Conference {
     private String title;
     private String organization;
     private String publisher;
-    private final HashSet<ConferenceEdition> conferenceEditions;
+    private HashSet<ConferenceEdition> conferenceEditions;
 
 
     public Conference(String title, String organization, String publisher, ConferenceEdition... editions) {
@@ -18,6 +18,10 @@ public class Conference {
         this.publisher = publisher;
         this.conferenceEditions = new HashSet<>();
         this.conferenceEditions.addAll(Set.of(editions));
+    }
+
+    public Conference() {
+
     }
 
     public String getTitle() {
@@ -52,13 +56,13 @@ public class Conference {
         this.conferenceEditions.add(edition);
     }
 
-    public void updateConfereceEdition(ConferenceEdition edition) {
+    public void updateConferenceEdition(ConferenceEdition edition) {
         this.conferenceEditions.remove(edition);
         this.conferenceEditions.add(edition);
     }
 
     public Set<Integer> getConferenceEditionIds() {
-        return conferenceEditions.stream().map(ConferenceEdition::getId).collect(Collectors.toSet());
+        return conferenceEditions == null? new HashSet<Integer>(): conferenceEditions.stream().map(ConferenceEdition::getId).collect(Collectors.toSet());
     }
 
     @Override
@@ -82,5 +86,9 @@ public class Conference {
                 ", publisher='" + publisher + '\'' +
                 ", conferenceEditions=" + conferenceEditions +
                 '}';
+    }
+
+    public void setConferenceEditions(HashSet<ConferenceEdition> conferenceEditions) {
+        this.conferenceEditions = conferenceEditions;
     }
 }
