@@ -7,7 +7,9 @@ import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.rest.storage.ElasticSearchOperations;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -43,6 +45,14 @@ public class MapperService {
             conference.addConferenceEdition(ElasticSearchOperations.retrieveConferenceEdition(i));
         }
         return conference;
+    }
+
+    public List<Conference> convertToConferenceList(List<ConferenceDTO> conferenceDTOList) throws ExecutionException, InterruptedException {
+        List<Conference> conferenceList = new ArrayList<>();
+        for (ConferenceDTO c : conferenceDTOList) {
+            conferenceList.add(convertToConference(c));
+        }
+        return conferenceList;
     }
 
     public ConferenceEdition convertToConferenceEdition(ConferenceEditionDTO editionDTO) {

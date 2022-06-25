@@ -116,6 +116,12 @@ public class DatamodelTests {
         assertNull(ElasticSearchOperations.retrieveConferenceEdition(3));
     }
 
+    @Test
+    @Order(8)
+    void testRetrievalAllConferences() throws InterruptedException, ExecutionException {
+        StorageController.getControllerInstance().getConferences();
+    }
+
 
     private void checkErrorLogs() {
         assertFalse(ConferencesApplication.getErrorChecker().getErrorFlag());

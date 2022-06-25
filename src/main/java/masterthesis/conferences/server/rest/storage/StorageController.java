@@ -17,6 +17,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -65,6 +66,7 @@ public class StorageController implements Controller {
     public static ConferenceRepository getRepository() {
         if (repository == null) {
             repository = new ConferenceRepository();
+            getConferences();
         }
         return repository;
     }
@@ -74,8 +76,12 @@ public class StorageController implements Controller {
         ConferencesApplication.getLogger().info("Initializing Elasticsearch Index");
         boolean indexCreated;
         if (ConferencesApplication.DEBUG) {
-            ElasticDeleteOperations.deleteIndex(CONFERENCE.indexName());
-            ElasticDeleteOperations.deleteIndex(CONFERENCE_EDITION.indexName());
+            if (ElasticSearchOperations.existsIndex(CONFERENCE.indexName())) {
+                ElasticDeleteOperations.deleteIndex(CONFERENCE.indexName());
+            }
+            if (ElasticSearchOperations.existsIndex(CONFERENCE_EDITION.indexName())) {
+                ElasticDeleteOperations.deleteIndex(CONFERENCE_EDITION.indexName());
+            }
         }
 
         indexCreated = ElasticSearchOperations.existsIndex(CONFERENCE.indexName());
@@ -129,5 +135,17 @@ public class StorageController implements Controller {
     public void removeConferenceEdition(ConferenceEdition edition) throws InterruptedException {
         ElasticDeleteOperations.deleteConferenceEdition(edition.getId());
         repository.removeEdition(edition.getId());
+    }
+
+    public static void getConferences() {
+        List<Conference> conferenceList = null;
+        try {
+            conferenceList = ElasticSearchOperations.retrieveConferences();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        for (Conference c : conferenceList) repository.addConference(c);
     }
 }
