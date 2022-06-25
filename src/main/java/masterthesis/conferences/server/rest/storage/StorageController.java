@@ -17,6 +17,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -138,7 +139,7 @@ public class StorageController implements Controller {
     }
 
     public static void getConferences() {
-        List<Conference> conferenceList = null;
+        List<Conference> conferenceList = new ArrayList<Conference>();
         try {
             conferenceList = ElasticSearchOperations.retrieveConferences();
         } catch (InterruptedException e) {
