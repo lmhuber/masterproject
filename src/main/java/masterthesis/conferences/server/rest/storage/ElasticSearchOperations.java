@@ -1,6 +1,10 @@
 package masterthesis.conferences.server.rest.storage;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.GetRequest;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.indices.ExistsRequest;
 import masterthesis.conferences.ConferencesApplication;
 import masterthesis.conferences.data.dto.ConferenceDTO;
@@ -8,6 +12,8 @@ import masterthesis.conferences.data.dto.ConferenceEditionDTO;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -30,6 +36,18 @@ public class ElasticSearchOperations extends ElasticReadOperation {
                 GetRequest.of(s -> s.index(CONFERENCE.indexName()).id(title)),
                 ConferenceDTO.class
         ));
+    }
+
+    public static List<Conference> retrieveConferences() throws InterruptedException, ExecutionException {
+        List<Hit<ConferenceDTO>> hits = (List<Hit<ConferenceDTO>>) sendAsyncSearchRequestToElastic(
+                SearchRequest.of(s -> s.index(CONFERENCE.indexName()).query(Query.of(m -> m.matchAll(MatchAllQuery.of(q -> q))))),
+                ConferenceDTO.class
+        );
+        List<ConferenceDTO> conferenceDTOList = new ArrayList<>();
+        for (Hit<ConferenceDTO> hit : hits) {
+            conferenceDTOList.add(hit.source());
+        }
+        return Objects.requireNonNull(StorageController.getMapper()).convertToConferenceList(conferenceDTOList);
     }
 
     public static ConferenceEdition retrieveConferenceEdition(int id) throws InterruptedException, ExecutionException {

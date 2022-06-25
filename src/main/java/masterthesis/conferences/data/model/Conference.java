@@ -9,14 +9,13 @@ public class Conference {
     private String title;
     private String organization;
     private String publisher;
-    private HashSet<ConferenceEdition> conferenceEditions;
+    private final HashSet<ConferenceEdition> conferenceEditions = new HashSet<>();
 
 
     public Conference(String title, String organization, String publisher, ConferenceEdition... editions) {
         this.title = title;
         this.organization = organization;
         this.publisher = publisher;
-        this.conferenceEditions = new HashSet<>();
         this.conferenceEditions.addAll(Set.of(editions));
     }
 
@@ -62,7 +61,7 @@ public class Conference {
     }
 
     public Set<Integer> getConferenceEditionIds() {
-        return conferenceEditions == null? new HashSet<Integer>(): conferenceEditions.stream().map(ConferenceEdition::getId).collect(Collectors.toSet());
+        return conferenceEditions.stream().map(ConferenceEdition::getId).collect(Collectors.toSet());
     }
 
     @Override
@@ -89,6 +88,8 @@ public class Conference {
     }
 
     public void setConferenceEditions(HashSet<ConferenceEdition> conferenceEditions) {
-        this.conferenceEditions = conferenceEditions;
+        if (conferenceEditions == null) return;
+        this.conferenceEditions.clear();
+        this.conferenceEditions.addAll(conferenceEditions);
     }
 }
