@@ -2,6 +2,7 @@ package masterthesis.conferences.data;
 
 import masterthesis.conferences.data.dto.ConferenceDTO;
 import masterthesis.conferences.data.dto.ConferenceEditionDTO;
+import masterthesis.conferences.data.dto.ConferenceFrontendDTO;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
@@ -75,5 +76,22 @@ public class MapperService {
         }
         conferenceEdition.setSustainability(editionDTO.getSustainability());
         return conferenceEdition;
+    }
+
+    public ConferenceFrontendDTO convertToFrontendDTO(String title, int id) {
+        ConferenceFrontendDTO frontendDTO = new ConferenceFrontendDTO();
+        Conference conference = repository.getConference(title);
+        ConferenceEdition edition = repository.getEdition(id);
+        frontendDTO.setCity(edition.getCity());
+        frontendDTO.setCountry(edition.getCountry());
+        frontendDTO.setEdition(edition.getEdition());
+        frontendDTO.setOrganization(conference.getOrganization());
+        frontendDTO.setPublisher(conference.getPublisher());
+        frontendDTO.setParticipants(edition.getParticipants());
+        frontendDTO.setId(edition.getId());
+        frontendDTO.setSessions(edition.getSessions());
+        frontendDTO.setYear(edition.getYear());
+        frontendDTO.setTitle(conference.getTitle());
+        return frontendDTO;
     }
 }
