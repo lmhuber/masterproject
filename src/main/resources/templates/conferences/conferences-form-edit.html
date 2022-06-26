@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+    <title>Edit Conference</title>
+</head>
+
+<body>
+
+<div class="container">
+
+    <hr>
+
+    <p class="h4 mb-4">Edit Conference</p>
+
+<!--    <form action="#" th:action="@{/conferences/save}"    -->
+    <form action="#" th:action="@{/showFormForEditConferenceEdition(conferenceId=${conference.title}, conferenceEditionId=${option})}"
+           method="GET">
+
+        <div class="form-inline">
+            <input type="text" th:field="*{title}"
+                   class="form-control mb-4 col-4" placeholder="Title">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('title')}"
+                  th:errors="*{title}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+
+        </div>
+
+        <div class="form-inline">
+            <input type="text" th:field="*{organization}"
+                   class="form-control mb-4 col-4" placeholder="Organization">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('organization')}"
+                  th:errors="*{organization}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+        </div>
+
+        <div class="form-inline">
+            <input type="text" th:field="*{publisher}"
+                   class="form-control mb-4 col-4" placeholder="Publisher">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('publisher')}"
+                  th:errors="*{publisher}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+        </div>
+
+        <p class="h5 mb-5">Select Conference Edition</p>
+        <div>
+            <select class="form-control" id="dropDownList">
+                <option th:each="option : ${options}" th:value="${option}" th:text="${option}"></option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-info col-2">Edit</button>
+
+    </form>
+
+    <hr>
+    <a th:href="@{/conferences/showFormForEditConferenceEdition(conferenceId=${conference.title}, conferenceEditionId=${option})}">To Conferences Edit</a>
+
+    <a th:href="@{/conferences/list}">Back to Conferences List</a>
+
+</div>
+</body>
+
+</html>

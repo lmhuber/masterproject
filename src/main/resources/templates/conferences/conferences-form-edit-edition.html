@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+    <title>Edit Conference Edition</title>
+</head>
+
+<body>
+
+<div class="container">
+
+    <hr>
+
+    <p class="h4 mb-4">Edit Conference Edition</p>
+
+    <form action="#" th:action="@{/conferences/save}"
+          th:object="${conferenceFrontendDTO}" method="POST">
+
+        <div class="form-inline">
+            <input type="text" th:field="*{title}"
+                   class="form-control mb-4 col-4" placeholder="Title" name="title">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('title')}"
+                  th:errors="*{title}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+
+        </div>
+
+        <div class="form-inline">
+            <input type="text" th:field="*{organization}"
+                   class="form-control mb-4 col-4" placeholder="Organization" name="organization">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('organization')}"
+                  th:errors="*{organization}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+        </div>
+
+        <div class="form-inline">
+            <input type="text" th:field="*{publisher}"
+                   class="form-control mb-4 col-4" placeholder="Publisher" name="publisher">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('publisher')}"
+                  th:errors="*{publisher}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+        </div>
+
+        <div class="form-inline">
+            <input type="text" th:field="*{city}"
+                   class="form-control mb-4 col-4" placeholder="City" name="city">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('city')}"
+                  th:errors="*{city}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+
+        </div>
+
+        <div class="form-inline">
+            <input type="text" th:field="*{country}"
+                   class="form-control mb-4 col-4" placeholder="Country" name="country">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('country')}"
+                  th:errors="*{country}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+
+        </div>
+
+        <div class="form-inline">
+            <input type="text" th:field="*{year}"
+                   class="form-control mb-4 col-4" placeholder="Year" name="year">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('year')}"
+                  th:errors="*{year}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+
+        </div>
+
+        <div class="form-inline">
+            <input type="text" th:field="*{edition}"
+                   class="form-control mb-4 col-4" placeholder="Edition" name="edition">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('edition')}"
+                  th:errors="*{edition}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+
+        </div>
+
+        <div class="form-inline">
+            <input type="text" th:field="*{participants}"
+                   class="form-control mb-4 col-4" placeholder="Participants" name="participants">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('participants')}"
+                  th:errors="*{participants}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+
+        </div>
+
+        <div class="form-inline">
+            <input type="text" th:field="*{sessions}"
+                   class="form-control mb-4 col-4" placeholder="Sessions" name="sessions">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('sessions')}"
+                  th:errors="*{sessions}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+        </div>
+
+        <button type="submit" class="btn btn-info col-2">Edit</button>
+
+    </form>
+
+    <hr>
+    <a th:href="@{/conferences/conferences-form-edit}">Back to Edit Conference</a>
+
+</div>
+</body>
+
+</html>
