@@ -61,6 +61,7 @@ public class Conference {
     }
 
     public Set<Integer> getConferenceEditionIds() {
+        // TODO: null pointer exception
         return conferenceEditions.stream().map(ConferenceEdition::getId).collect(Collectors.toSet());
     }
 

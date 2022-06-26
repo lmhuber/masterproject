@@ -3,9 +3,11 @@ package masterthesis.conferences.data;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.rest.storage.StorageController;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@Repository
 public class ConferenceRepository {
     private final Set<Conference> conferenceSet;
 
@@ -36,7 +38,7 @@ public class ConferenceRepository {
 
     public ConferenceEdition getEdition(int id) {
         for (Conference c : conferenceSet) {
-            if (c.getConferenceEditionIds().contains(id)) {
+            if (c.getConferenceEditionIds()!= null && c.getConferenceEditionIds().contains(id)) {
                 for (ConferenceEdition edition : c.getConferenceEditions()) {
                     if (edition.getId() == id) return edition;
                 }

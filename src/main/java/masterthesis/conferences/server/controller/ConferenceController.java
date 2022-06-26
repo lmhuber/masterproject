@@ -1,21 +1,35 @@
 package masterthesis.conferences.server.controller;
 
+import masterthesis.conferences.data.ConferenceRepository;
+import masterthesis.conferences.data.MapperService;
+import masterthesis.conferences.data.dto.ConferenceFrontendDTO;
 import masterthesis.conferences.data.model.Conference;
+import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.rest.service.ConferenceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 @RequestMapping("/conferences")
+@ComponentScan("masterthesis/conferences/data")
 public class ConferenceController {
 
 	@Autowired
 	private ConferenceService conferenceService;
+
+	@Autowired
+	private MapperService mapperService;
+
+	@Autowired
+	private ConferenceRepository conferenceRepository;
 
 	public ConferenceController(ConferenceService conferenceService) {
 		conferenceService = conferenceService;
@@ -96,6 +110,69 @@ public class ConferenceController {
 		model.addAttribute("conference", conference);
 
 		return "conferences/conferences-form";
+	}
+
+	@GetMapping("/showFormForEditConference")
+	public String showFormForEditConference(@RequestParam("conferenceId") String title,
+									Model model) {
+
+		// get the conference from the service
+		Conference conference = conferenceService.findById(title);
+
+		// set conference as a model attribute to pre-populate the form
+		model.addAttribute("conference", conference);
+
+		List<String> options = new ArrayList<String>();
+
+		if (conference != null && conference.getConferenceEditionIds() != null && conference.getConferenceEditionIds().size() > 0) {
+			for (var id: conference.getConferenceEditionIds()) {
+				options.add("Edition: " + id);
+			}
+		}
+		else {
+			options.add("No editions yet");
+		}
+		model.addAttribute("options", options);
+
+		// send over to our form
+		return "conferences/conferences-form-edit";
+	}
+
+	@GetMapping("/showFormForEditConferenceEdition")
+	public String showFormForEditConferenceEdition(@RequestParam("conferenceId") String title, @RequestParam("conferenceEditionId") String conferenceEditionId,
+											Model model) throws ExecutionException, InterruptedException {
+
+		// get the conference from the service
+		Conference conference = conferenceService.findById(title);
+
+		int confEditionId = -1;
+		try {
+			confEditionId = Integer.parseInt(conferenceEditionId);
+		}
+		catch (Exception e) {
+
+		}
+
+		// create new conference edition if no editions are present yet
+		if (conferenceRepository.getEdition(confEditionId) == null) {
+			ConferenceEdition edition = new ConferenceEdition(0, 0, 0, 0, 0,
+					1.0f, 1.0f, 1.0f, "test", "test", "test");
+			conferenceRepository.addEdition(conference, edition);
+		}
+
+		ConferenceFrontendDTO conferenceFrontendDTO = mapperService.convertToFrontendDTO(title, 0);
+
+		// set conference as a model attribute to pre-populate the form
+		model.addAttribute("conferenceFrontendDTO", conferenceFrontendDTO);
+
+		// send over to our form
+		return "conferences/conferences-form-edit-edition";
+	}
+
+	@GetMapping
+	public String doSomething(@RequestParam("conferenceId") String title, Model model) {
+		// TODO: Alex edit this
+		return "conferences/link-to-dashboard-edit-me";
 	}
 
 }
