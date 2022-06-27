@@ -67,8 +67,11 @@ public class ConferenceRepository {
 
     public void addEdition(Conference conferenceToAdd, ConferenceEdition editionToAdd) {
         if (editionToAdd == null) return;
-        conferenceToAdd.addConferenceEdition(editionToAdd);
-        updateConference(conferenceToAdd);
+        try {
+            StorageController.getControllerInstance().indexConferenceEdition(editionToAdd, conferenceToAdd);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 

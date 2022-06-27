@@ -19,8 +19,8 @@ public class ConferencesApplication {
 
 
 	public static void main(String[] args) throws InterruptedException {
-		SpringApplication.run(ConferencesApplication.class, args);
 		initServer();
+		SpringApplication.run(ConferencesApplication.class, args);
 
 		while (running) {
 			Thread.sleep(100);

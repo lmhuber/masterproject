@@ -5,7 +5,16 @@ import masterthesis.conferences.data.MapperService;
 import masterthesis.conferences.data.dto.ConferenceFrontendDTO;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.server.rest.Utils;
 import masterthesis.conferences.server.rest.service.ConferenceService;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.mime.FileBody;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Controller;
@@ -13,6 +22,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -31,10 +45,12 @@ public class ConferenceController {
 	@Autowired
 	private ConferenceRepository conferenceRepository;
 
+	private static final String JSON_EXPORT = "src/main/resources/templates/kibana/";
+
 	public ConferenceController(ConferenceService conferenceService) {
 		conferenceService = conferenceService;
 	}
-	
+
 	// add mapping for "/list"
 
 	@GetMapping("/list")
@@ -48,19 +64,29 @@ public class ConferenceController {
 		
 		return "conferences/conference-view";
 	}
-	
+
 	@PostMapping("/save")
 	public String saveConference(
 			@ModelAttribute("conference") Conference conference,
-			BindingResult bindingResult) {
-		
+			BindingResult bindingResult,
+			Model model,
+			@ModelAttribute("conferenceFrontendDTO") ConferenceFrontendDTO dto
+	) {
+
 		if (bindingResult.hasErrors()) {
 			return "conferences/conference-view";
-		}
-		else {		
-			// save the conference
-			conferenceService.save(conference);
-			
+		} else {
+			if (dto.getCity() == null) conferenceService.save(conference);
+			else {
+				Conference oldConference = null;
+				try {
+					oldConference = mapperService.convertFrontendDTOToConference(dto);
+					ConferenceEdition edition = mapperService.convertFrontendDTOToConferenceEdition(dto);
+					conferenceService.save(edition, conference.getTitle());
+				} catch (Exception e) {
+
+				}
+			}
 			// use a redirect to prevent duplicate submissions
 			return "redirect:/conferences/list";
 		}
@@ -124,14 +150,12 @@ public class ConferenceController {
 
 		List<String> options = new ArrayList<String>();
 
-		if (conference != null && conference.getConferenceEditionIds() != null && conference.getConferenceEditionIds().size() > 0) {
-			for (var id: conference.getConferenceEditionIds()) {
+		if (conference != null && !conference.getConferenceEditions().isEmpty()) {
+			for (var id : conference.getConferenceEditionEditionNames()) {
 				options.add("Edition: " + id);
 			}
 		}
-		else {
-			options.add("No editions yet");
-		}
+		options.add("Add new");
 		model.addAttribute("options", options);
 
 		// send over to our form
@@ -139,28 +163,30 @@ public class ConferenceController {
 	}
 
 	@GetMapping("/showFormForEditConferenceEdition")
-	public String showFormForEditConferenceEdition(@RequestParam("conferenceId") String title, @RequestParam("conferenceEditionId") String conferenceEditionId,
-											Model model) throws ExecutionException, InterruptedException {
+	public String showFormForEditConferenceEdition(@RequestParam("title") String title, @RequestParam(value = "option") String option,
+												   Model model) throws ExecutionException, InterruptedException {
 
 		// get the conference from the service
 		Conference conference = conferenceService.findById(title);
 
 		int confEditionId = -1;
 		try {
-			confEditionId = Integer.parseInt(conferenceEditionId);
-		}
-		catch (Exception e) {
+			if (!option.equals("Add new")) confEditionId = Integer.parseInt(option.split(" ")[1]);
+			confEditionId = conference.convertEditionToId(confEditionId);
+		} catch (Exception e) {
 
 		}
+
+		ConferenceFrontendDTO conferenceFrontendDTO = null;
 
 		// create new conference edition if no editions are present yet
-		if (conferenceRepository.getEdition(confEditionId) == null) {
+		if (conferenceService.findById(confEditionId) == null) {
 			ConferenceEdition edition = new ConferenceEdition(0, 0, 0, 0, 0,
 					1.0f, 1.0f, 1.0f, "test", "test", "test");
-			conferenceRepository.addEdition(conference, edition);
+			conferenceService.save(edition, title);
+			conferenceFrontendDTO = mapperService.convertToFrontendDTO(title, edition.getId());
 		}
-
-		ConferenceFrontendDTO conferenceFrontendDTO = mapperService.convertToFrontendDTO(title, 0);
+		if (confEditionId != -1) conferenceFrontendDTO = mapperService.convertToFrontendDTO(title, confEditionId);
 
 		// set conference as a model attribute to pre-populate the form
 		model.addAttribute("conferenceFrontendDTO", conferenceFrontendDTO);
@@ -169,10 +195,45 @@ public class ConferenceController {
 		return "conferences/conferences-form-edit-edition";
 	}
 
-	@GetMapping
-	public String doSomething(@RequestParam("conferenceId") String title, Model model) {
-		// TODO: Alex edit this
-		return "conferences/link-to-dashboard-edit-me";
+	@GetMapping("/requestDashboard")
+	public String requestDashboard(@RequestParam("conferenceId") String title, Model model) throws IOException {
+
+		Conference conference = conferenceService.findById(title);
+		String importJson = "";
+		try {
+			String json = new String(Files.readAllBytes(Paths.get(JSON_EXPORT + "template.ndjson")));
+			importJson = Utils.prepareDashboardImport(conference, json);
+			try (FileWriter fWriter = new FileWriter(JSON_EXPORT + "export.ndjson")) {
+				fWriter.write(importJson);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
+			final HttpPost httppost = new HttpPost("http://localhost:5601/api/saved_objects/_import?overwrite=true");
+			httppost.setHeader(HttpHeaders.AUTHORIZATION, "ApiKey WWR1cXBZRUJycWxiZWEzTjFUd2E6TF9Ra0cycXlSdkNqQWFUR0s2ck1CQQ==");
+			httppost.setHeader("kbn-xsrf", true);
+
+
+			final FileBody bin = new FileBody(new File(JSON_EXPORT + "export.ndjson"));
+
+			final HttpEntity reqEntity = MultipartEntityBuilder.create()
+					.addPart("file", bin)
+					.build();
+
+
+			httppost.setEntity(reqEntity);
+			try (final CloseableHttpResponse response = httpclient.execute(httppost)) {
+				System.out.println("----------------------------------------");
+				System.out.println(response);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		String redirect = "http://localhost:5601/app/dashboards#/view/" + title + "-dashboard";
+		return "redirect:" + redirect;
 	}
 
 }

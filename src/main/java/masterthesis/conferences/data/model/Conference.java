@@ -17,6 +17,7 @@ public class Conference {
         this.organization = organization;
         this.publisher = publisher;
         this.conferenceEditions.addAll(Set.of(editions));
+        this.conferenceEditions.remove(null);
     }
 
     public Conference() {
@@ -52,6 +53,7 @@ public class Conference {
     }
 
     public void addConferenceEdition(ConferenceEdition edition) {
+        if (this.conferenceEditions.contains(null)) this.conferenceEditions.remove(null);
         this.conferenceEditions.add(edition);
     }
 
@@ -61,8 +63,20 @@ public class Conference {
     }
 
     public Set<Integer> getConferenceEditionIds() {
-        // TODO: null pointer exception
-        return conferenceEditions.stream().map(ConferenceEdition::getId).collect(Collectors.toSet());
+        return conferenceEditions.stream().filter(Objects::nonNull)
+                .map(ConferenceEdition::getId).collect(Collectors.toSet());
+    }
+
+    public Set<Integer> getConferenceEditionEditionNames() {
+        return conferenceEditions.stream().filter(Objects::nonNull)
+                .map(ConferenceEdition::getEdition).collect(Collectors.toSet());
+    }
+
+    public int convertEditionToId(int edition) {
+        for (ConferenceEdition editionObject : conferenceEditions) {
+            if (editionObject.getEdition() == edition) return editionObject.getId();
+        }
+        return -1;
     }
 
     @Override

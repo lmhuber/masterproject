@@ -60,9 +60,9 @@ public class ConferenceEditionDTO {
             properties.put("interactionDynamics", Property.of(n -> n.float_(fn -> fn.store(true).nullValue(-1.0f))));
             properties.put("cost", Property.of(n -> n.float_(fn -> fn.store(true).nullValue(-1.0f))));
             properties.put("carbonFootprint", Property.of(n -> n.float_(fn -> fn.store(true).nullValue(-1.0f))));
-            properties.put("sustainability", Property.of(n -> n.text(fn -> fn.store(true))));
-            properties.put("city", Property.of(n -> n.text(fn -> fn.store(true))));
-            properties.put("country", Property.of(n -> n.text(fn -> fn.store(true))));
+            properties.put("sustainability", Property.of(n -> n.text(fn -> fn.store(true).fields("raw", Property.of(k -> k.keyword(fn2 -> fn2))))));
+            properties.put("city", Property.of(n -> n.text(fn -> fn.store(true).fields("raw", Property.of(k -> k.keyword(fn2 -> fn2))))));
+            properties.put("country", Property.of(n -> n.text(fn -> fn.store(true).fields("raw", Property.of(k -> k.keyword(fn2 -> fn2))))));
             properties.put("additionalMetric", Property
                     .of(n -> n.nested(fn -> fn.properties(Map
                             .of("metricIdentifier", Property.of(tn -> tn.text(tfn -> tfn.store(true))),

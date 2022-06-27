@@ -6,7 +6,10 @@ import masterthesis.conferences.data.dto.ConferenceFrontendDTO;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.server.rest.service.ConferenceService;
+import masterthesis.conferences.server.rest.service.ConferenceServiceImpl;
 import masterthesis.conferences.server.rest.storage.ElasticSearchOperations;
+import masterthesis.conferences.server.rest.storage.StorageController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,22 +23,24 @@ import java.util.stream.Collectors;
 @Service
 public class MapperService {
     @Autowired
-    private final ConferenceRepository repository;
+    private ConferenceService conferenceService = new ConferenceServiceImpl();
 
-    public MapperService(ConferenceRepository repository) {
-        this.repository = repository;
+    @Autowired
+    private final ConferenceRepository repository = StorageController.getRepository();
+
+    public MapperService() {
     }
 
     public ConferenceDTO convertToConferenceDTO(String title) {
-        Conference conference = repository.getConference(title);
+        Conference conference = conferenceService.findById(title);
         return new ConferenceDTO(conference.getTitle(), conference.getOrganization(),
                 conference.getPublisher(), conference.getConferenceEditionIds());
     }
 
     public ConferenceEditionDTO convertToConferenceEditionDTO(int id) {
-        ConferenceEdition edition = repository.getEdition(id);
+        ConferenceEdition edition = conferenceService.findById(id);
         return new ConferenceEditionDTO(id, edition.getYear(), edition.getEdition(), edition.getParticipants(),
-                edition.getParticipants(), edition.getGreenInnovativeness(), edition.getInteractionDynamics(),
+                edition.getSessions(), edition.getGreenInnovativeness(), edition.getInteractionDynamics(),
                 edition.getCost(), edition.getCarbonFootprint(), edition.getSustainability(), edition.getCountry(),
                 edition.getCity(), (HashMap<String, Float>) edition.getAdditionalMetrics().stream()
                 .collect(Collectors.toMap(AdditionalMetric::getMetricIdentifier, AdditionalMetric::getDatapoint)));
@@ -49,6 +54,12 @@ public class MapperService {
         for (int i : conferenceDTO.getConferenceEdtions()) {
             conference.addConferenceEdition(ElasticSearchOperations.retrieveConferenceEdition(i));
         }
+        return conference;
+    }
+
+    public Conference convertFrontendDTOToConference(ConferenceFrontendDTO conferenceDTO) throws ExecutionException, InterruptedException {
+        if (conferenceDTO == null) return null;
+        Conference conference = conferenceService.findById(conferenceDTO.getTitle());
         return conference;
     }
 
@@ -82,10 +93,23 @@ public class MapperService {
         return conferenceEdition;
     }
 
+    public ConferenceEdition convertFrontendDTOToConferenceEdition(ConferenceFrontendDTO editionDTO) {
+        if (editionDTO == null) return null;
+        ConferenceEdition conferenceEdition = conferenceService.findById(editionDTO.getId());
+        conferenceEdition.setEdition(editionDTO.getEdition());
+        conferenceEdition.setYear(editionDTO.getYear());
+        conferenceEdition.setCity(editionDTO.getCity());
+        conferenceEdition.setId(editionDTO.getId());
+        conferenceEdition.setCountry(editionDTO.getCountry());
+        conferenceEdition.setParticipants(editionDTO.getParticipants());
+        conferenceEdition.setSessions(editionDTO.getSessions());
+        return conferenceEdition;
+    }
+
     public ConferenceFrontendDTO convertToFrontendDTO(String title, int id) {
         ConferenceFrontendDTO frontendDTO = new ConferenceFrontendDTO();
-        Conference conference = repository.getConference(title);
-        ConferenceEdition edition = repository.getEdition(id);
+        Conference conference = conferenceService.findById(title);
+        ConferenceEdition edition = conferenceService.findById(id);
         frontendDTO.setCity(edition.getCity());
         frontendDTO.setCountry(edition.getCountry());
         frontendDTO.setEdition(edition.getEdition());
