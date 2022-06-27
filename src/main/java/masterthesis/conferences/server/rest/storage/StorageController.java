@@ -59,7 +59,7 @@ public class StorageController implements Controller {
     public static MapperService getMapper() {
         if (mapperService == null) {
             if (repository == null) return null;
-            mapperService = new MapperService(repository);
+            mapperService = new MapperService();
         }
         return mapperService;
     }

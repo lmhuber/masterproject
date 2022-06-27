@@ -23,9 +23,13 @@
     <form action="#" th:action="@{/conferences/save}"
           th:object="${conferenceFrontendDTO}" method="POST">
 
+        <div style="display: none">
+            Edition id&emsp;&emsp;<input type="text" th:field="*{id}"
+                                         class="form-control mb-4 col-4" placeholder="Id" name="id">
+        </div>
         <div class="form-inline">
-            <input type="text" th:field="*{title}"
-                   class="form-control mb-4 col-4" placeholder="Title" name="title">
+            Conference-Title&emsp;&emsp;<input type="text" th:field="*{title}"
+                                               class="form-control mb-4 col-4" placeholder="Title" name="title">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('title')}"
@@ -35,8 +39,9 @@
         </div>
 
         <div class="form-inline">
-            <input type="text" th:field="*{organization}"
-                   class="form-control mb-4 col-4" placeholder="Organization" name="organization">
+            Conference Organization:&emsp;&emsp;<input type="text" th:field="*{organization}"
+                                                       class="form-control mb-4 col-4" placeholder="Organization"
+                                                       name="organization">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('organization')}"
@@ -45,8 +50,9 @@
         </div>
 
         <div class="form-inline">
-            <input type="text" th:field="*{publisher}"
-                   class="form-control mb-4 col-4" placeholder="Publisher" name="publisher">
+            Conference Publisher&emsp;&emsp;<input type="text" th:field="*{publisher}"
+                                                   class="form-control mb-4 col-4" placeholder="Publisher"
+                                                   name="publisher">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('publisher')}"
@@ -55,8 +61,8 @@
         </div>
 
         <div class="form-inline">
-            <input type="text" th:field="*{city}"
-                   class="form-control mb-4 col-4" placeholder="City" name="city">
+            City&emsp;&emsp;<input type="text" th:field="*{city}"
+                                   class="form-control mb-4 col-4" placeholder="City" name="city">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('city')}"
@@ -66,8 +72,8 @@
         </div>
 
         <div class="form-inline">
-            <input type="text" th:field="*{country}"
-                   class="form-control mb-4 col-4" placeholder="Country" name="country">
+            Country:&emsp;&emsp;<input type="text" th:field="*{country}"
+                                       class="form-control mb-4 col-4" placeholder="Country" name="country">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('country')}"
@@ -77,8 +83,8 @@
         </div>
 
         <div class="form-inline">
-            <input type="text" th:field="*{year}"
-                   class="form-control mb-4 col-4" placeholder="Year" name="year">
+            Year:&emsp;&emsp;<input type="text" th:field="*{year}"
+                                    class="form-control mb-4 col-4" placeholder="Year" name="year">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('year')}"
@@ -88,8 +94,8 @@
         </div>
 
         <div class="form-inline">
-            <input type="text" th:field="*{edition}"
-                   class="form-control mb-4 col-4" placeholder="Edition" name="edition">
+            Edition:&emsp;&emsp;<input type="text" th:field="*{edition}"
+                                       class="form-control mb-4 col-4" placeholder="Edition" name="edition">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('edition')}"
@@ -99,8 +105,9 @@
         </div>
 
         <div class="form-inline">
-            <input type="text" th:field="*{participants}"
-                   class="form-control mb-4 col-4" placeholder="Participants" name="participants">
+            Participants:&emsp;&emsp;<input type="text" th:field="*{participants}"
+                                            class="form-control mb-4 col-4" placeholder="Participants"
+                                            name="participants">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('participants')}"
@@ -110,8 +117,8 @@
         </div>
 
         <div class="form-inline">
-            <input type="text" th:field="*{sessions}"
-                   class="form-control mb-4 col-4" placeholder="Sessions" name="sessions">
+            Sessions:&emsp;&emsp;<input type="text" th:field="*{sessions}"
+                                        class="form-control mb-4 col-4" placeholder="Sessions" name="sessions">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('sessions')}"
@@ -119,7 +126,7 @@
                   class="badge badge-danger ml-2 mb-4"></span>
         </div>
 
-        <button type="submit" class="btn btn-info col-2">Edit</button>
+        <button type="submit" class="btn btn-info col-2">Save</button>
 
     </form>
 

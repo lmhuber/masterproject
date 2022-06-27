@@ -2,6 +2,7 @@ package masterthesis.conferences.server.rest.service;
 
 import masterthesis.conferences.data.ConferenceRepository;
 import masterthesis.conferences.data.model.Conference;
+import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.rest.storage.StorageController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,20 @@ public class ConferenceServiceImpl implements ConferenceService {
 	public void deleteById(String title) {
 		try {
 			conferenceRepository.deleteById(title);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public ConferenceEdition findById(int id) {
+		return conferenceRepository.getEdition(id);
+	}
+
+	@Override
+	public void save(ConferenceEdition edition, String title) {
+		try {
+			conferenceRepository.addEdition(findById(title), edition);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

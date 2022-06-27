@@ -44,9 +44,9 @@ public class ConferenceDTO {
 
     public static Map<String, Property> getProperties() {
         if (properties.isEmpty()) {
-            properties.put("title", Property.of(c -> c.text(fn -> fn.store(true))));
-            properties.put("organization", Property.of(c -> c.text(fn -> fn.store(true))));
-            properties.put("publisher", Property.of(c -> c.text(fn -> fn.store(true))));
+            properties.put("title", Property.of(c -> c.text(fn -> fn.store(true).fields("raw", Property.of(k -> k.keyword(fn2 -> fn2))))));
+            properties.put("organization", Property.of(c -> c.text(fn -> fn.store(true).fields("raw", Property.of(k -> k.keyword(fn2 -> fn2))))));
+            properties.put("publisher", Property.of(c -> c.text(fn -> fn.store(true).fields("raw", Property.of(k -> k.keyword(fn2 -> fn2))))));
             properties.put("conferenceEditions", Property.of(c -> c.long_(fn -> fn.store(true))));
         }
         return properties;
