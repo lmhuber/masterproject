@@ -11,11 +11,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication(scanBasePackages = {"masterthesis.conferences.server.controller", "masterthesis.conferences.server.rest.service"})
 public class ConferencesApplication {
 	private static ServerController controller;
-	private static boolean running = false;
+	private static boolean running = true;
 
 	private static final Log logger = LogFactory.getLog(ConferencesApplication.class);
 	private static final ErrorFilter errorChecker = new ErrorFilter();
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 
 
 	public static void main(String[] args) throws InterruptedException {
