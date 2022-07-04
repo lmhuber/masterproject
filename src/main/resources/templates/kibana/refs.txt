@@ -1,0 +1,1 @@
+{"id":"451fb120-f5ea-11ec-80fb-1f3756158b78","name":"<INDEX>:indexpattern-datasource-current-indexpattern","type":"index-pattern"},{"id":"451fb120-f5ea-11ec-80fb-1f3756158b78","name":"<INDEX>:indexpattern-datasource-layer-<LAYER>","type":"index-pattern"}
