@@ -7,19 +7,18 @@ import java.util.List;
 
 public interface ConferenceService {
 
-	public List<Conference> findAll();
+	List<Conference> findAll();
 
-	//TODO: search for title (key for conference is title)
-	public Conference findById(String title);
+	Conference findById(String title);
 
-	public ConferenceEdition findById(int id);
+	ConferenceEdition findById(int id);
 
-	public void save(ConferenceEdition edition, String title);
+	void save(ConferenceEdition edition, String title);
 
-	public void save(Conference conferences);
+	void save(Conference conferences);
 
-	public void deleteById(String title);
+	void deleteById(String title);
 
-	public List<Conference> searchBy(String name);
+	List<Conference> searchBy(String name);
 
 }

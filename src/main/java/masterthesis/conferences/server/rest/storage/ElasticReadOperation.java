@@ -1,6 +1,5 @@
 package masterthesis.conferences.server.rest.storage;
 
-import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.elasticsearch.core.GetRequest;
 import co.elastic.clients.elasticsearch.core.GetResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
@@ -10,9 +9,8 @@ import masterthesis.conferences.ConferencesApplication;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public abstract class ElasticReadOperation {
+public abstract class ElasticReadOperation extends ElasticOperation {
     protected static Object sendAsyncRequestToElastic(GetRequest request, Class<?> clazz) throws InterruptedException, ExecutionException {
-        ElasticsearchAsyncClient esClient = StorageController.getInstance();
         CompletableFuture<?> responseObject = null;
         if (request != null) {
             responseObject = esClient.get(request, clazz)
@@ -32,11 +30,10 @@ public abstract class ElasticReadOperation {
         return ((GetResponse<?>) responseObject.get()).source();
     }
 
-    protected static Object sendAsyncSearchRequestToElastic(SearchRequest request, Class<?> clazz) throws InterruptedException, ExecutionException {
-        ElasticsearchAsyncClient esClient = StorageController.getInstance();
+    protected static Object sendAsyncSearchRequestToElastic(SearchRequest request) throws InterruptedException, ExecutionException {
         CompletableFuture<?> responseObject = null;
         if (request != null) {
-            responseObject = esClient.search(request, clazz)
+            responseObject = esClient.search(request, (Class<?>) masterthesis.conferences.data.dto.ConferenceDTO.class)
                     .whenComplete((response, exception) -> {
                         if (exception != null) {
                             ConferencesApplication.getLogger().error("Failed to retrieve item", exception);

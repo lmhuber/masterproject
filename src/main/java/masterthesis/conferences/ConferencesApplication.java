@@ -2,7 +2,7 @@ package masterthesis.conferences;
 
 import masterthesis.conferences.server.controller.ErrorFilter;
 import masterthesis.conferences.server.controller.ServerController;
-import masterthesis.conferences.server.rest.storage.StorageController;
+import masterthesis.conferences.server.controller.StorageController;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.SpringApplication;
@@ -15,7 +15,7 @@ public class ConferencesApplication {
 
 	private static final Log logger = LogFactory.getLog(ConferencesApplication.class);
 	private static final ErrorFilter errorChecker = new ErrorFilter();
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 
 
 	public static void main(String[] args) throws InterruptedException {
@@ -26,12 +26,12 @@ public class ConferencesApplication {
 			Thread.sleep(100);
 		}
 		controller.shutdown();
+		controller.deregister();
 	}
 
 	private static void initServer() {
 		controller = new ServerController();
-		controller.register(StorageController.getControllerInstance());
-		running = true;
+		controller.register(new StorageController());
 		controller.init();
 	}
 

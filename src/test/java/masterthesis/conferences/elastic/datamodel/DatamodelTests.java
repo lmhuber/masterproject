@@ -5,8 +5,8 @@ import masterthesis.conferences.data.dto.ConferenceDTO;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.controller.ServerController;
+import masterthesis.conferences.server.controller.StorageController;
 import masterthesis.conferences.server.rest.storage.ElasticSearchOperations;
-import masterthesis.conferences.server.rest.storage.StorageController;
 import org.junit.jupiter.api.*;
 
 import java.util.HashSet;
@@ -21,22 +21,22 @@ public class DatamodelTests {
     private static final ServerController controller = new ServerController();
     private static final Set<ConferenceEdition> conferenceEditions = new HashSet<>();
 
-    private static final String DEXA = "DEXA and related conferences";
-    private static final String IIWAS = "iiWAS & MoMM";
+    private static final String DEXA = "DEXA_UNIT_TEST_1";
+    private static final String IIWAS = "iiWAS & MoMM_UNIT_TEST_1";
 
     private static int i = 1;
+    private static Conference conference1;
+    private static Conference conference2;
 
     @BeforeAll
-    static void setUp() throws ExecutionException, InterruptedException {
+    static void setUp() {
         controller.register(new StorageController());
         controller.init();
 
-        Conference conference1 = new Conference(DEXA,
+        conference1 = new Conference(DEXA,
                 "TK JKU Linz", "ACM");
-        Conference conference2 = new Conference(IIWAS,
+        conference2 = new Conference(IIWAS,
                 "iiWAS", "ACM");
-        StorageController.getRepository().addConference(conference1);
-        StorageController.getRepository().addConference(conference2);
     }
 
     private static ConferenceEdition createEdition() throws ExecutionException, InterruptedException {
@@ -53,20 +53,19 @@ public class DatamodelTests {
     }
 
     @Test
-    @Order(1)
+    @Order(2)
     void testMapConferenceToDTO() {
-        Conference conference = StorageController.getRepository().getConference(DEXA);
-        ConferenceDTO dto = StorageController.getMapper().convertToConferenceDTO(conference.getTitle());
-        assertTrue(dto.toString()
-                .equals(new ConferenceDTO(DEXA, "TK JKU Linz", "ACM", Set.of()).toString()));
+        Conference conference = ServerController.getRepository().getConference(DEXA);
+        ConferenceDTO dto = ServerController.getMapper().convertToConferenceDTO(conference.getTitle());
+        assertEquals(dto.toString(), new ConferenceDTO(DEXA, "TK JKU Linz", "ACM", Set.of()).toString());
     }
 
     @Test
-    @Order(2)
+    @Order(1)
     void testIngestConference() throws InterruptedException {
-        controller.getStorageController().indexConference(StorageController.getRepository().getConference(DEXA));
+        ServerController.indexConference(conference1);
         checkErrorLogs();
-        controller.getStorageController().indexConference(StorageController.getRepository().getConference(IIWAS));
+        ServerController.indexConference(conference2);
         checkErrorLogs();
     }
 
@@ -74,8 +73,7 @@ public class DatamodelTests {
     @Order(3)
     void testIngestEdition() throws InterruptedException, ExecutionException {
         for (int c = 0; c < 5; c++) {
-            controller.getStorageController()
-                    .indexConferenceEdition(createEdition(), StorageController.getRepository().getConference(DEXA));
+            ServerController.indexConferenceEdition(createEdition(), ServerController.getRepository().getConference(DEXA));
             checkErrorLogs();
         }
     }
@@ -85,41 +83,41 @@ public class DatamodelTests {
     void testConferenceRead() throws InterruptedException, ExecutionException {
         Conference conference = ElasticSearchOperations.retrieveConference(DEXA);
         System.out.println(conference.toString());
-        assertTrue(conference.toString().equals(StorageController.getRepository().getConference(DEXA).toString()));
+        assertEquals(conference.toString(), ServerController.getRepository().getConference(DEXA).toString());
     }
 
     @Test
     @Order(5)
     void testDeletionEdition() throws InterruptedException, ExecutionException {
-        StorageController.getControllerInstance()
-                .removeConferenceEdition(StorageController.getRepository().getEdition(0));
-        assertNull(StorageController.getRepository().getEdition(0));
+        ServerController
+                .removeConferenceEdition(ServerController.getRepository().getEdition(0));
+        assertNull(ServerController.getRepository().getEdition(0));
         assertNull(ElasticSearchOperations.retrieveConferenceEdition(0));
     }
 
     @Test
     @Order(6)
     void testDeletionConference() throws InterruptedException, ExecutionException {
-        StorageController.getControllerInstance()
-                .removeConference(StorageController.getRepository().getConference(IIWAS));
-        assertNull(StorageController.getRepository().getConference(IIWAS));
+        ServerController
+                .removeConference(ServerController.getRepository().getConference(IIWAS));
+        assertNull(ServerController.getRepository().getConference(IIWAS));
         assertNull(ElasticSearchOperations.retrieveConference(IIWAS));
     }
 
     @Test
     @Order(7)
     void testDeletionConferenceCascading() throws InterruptedException, ExecutionException {
-        StorageController.getControllerInstance()
-                .removeConference(StorageController.getRepository().getConference(DEXA));
-        assertNull(StorageController.getRepository().getConference(DEXA));
+        ServerController
+                .removeConference(ServerController.getRepository().getConference(DEXA));
+        assertNull(ServerController.getRepository().getConference(DEXA));
         assertNull(ElasticSearchOperations.retrieveConference(DEXA));
         assertNull(ElasticSearchOperations.retrieveConferenceEdition(3));
     }
 
     @Test
     @Order(8)
-    void testRetrievalAllConferences() throws InterruptedException, ExecutionException {
-        StorageController.getControllerInstance().getConferences();
+    void testRetrievalAllConferences() {
+        ServerController.fetchConferences();
     }
 
 

@@ -11,6 +11,7 @@ import masterthesis.conferences.data.dto.ConferenceDTO;
 import masterthesis.conferences.data.dto.ConferenceEditionDTO;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.server.controller.ServerController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ import static masterthesis.conferences.data.util.Indices.CONFERENCE_EDITION;
 
 public class ElasticSearchOperations extends ElasticReadOperation {
     public static boolean existsIndex(String indexName) throws ExecutionException, InterruptedException {
-        return StorageController.getInstance().indices().exists(ExistsRequest.of(e -> e.index(indexName)))
+        return esClient.indices().exists(ExistsRequest.of(e -> e.index(indexName)))
                 .whenComplete((response, exception) -> {
                     if (exception != null) {
                         ConferencesApplication.getLogger().error("Failed to fetch index", exception);
@@ -32,7 +33,7 @@ public class ElasticSearchOperations extends ElasticReadOperation {
     }
 
     public static Conference retrieveConference(String title) throws InterruptedException, ExecutionException {
-        return Objects.requireNonNull(StorageController.getMapper()).convertToConference((ConferenceDTO) sendAsyncRequestToElastic(
+        return Objects.requireNonNull(ServerController.getMapper()).convertToConference((ConferenceDTO) sendAsyncRequestToElastic(
                 GetRequest.of(s -> s.index(CONFERENCE.indexName()).id(title)),
                 ConferenceDTO.class
         ));
@@ -40,18 +41,17 @@ public class ElasticSearchOperations extends ElasticReadOperation {
 
     public static List<Conference> retrieveConferences() throws InterruptedException, ExecutionException {
         List<Hit<ConferenceDTO>> hits = (List<Hit<ConferenceDTO>>) sendAsyncSearchRequestToElastic(
-                SearchRequest.of(s -> s.index(CONFERENCE.indexName()).query(Query.of(m -> m.matchAll(MatchAllQuery.of(q -> q))))),
-                ConferenceDTO.class
+                SearchRequest.of(s -> s.index(CONFERENCE.indexName()).query(Query.of(m -> m.matchAll(MatchAllQuery.of(q -> q)))))
         );
         List<ConferenceDTO> conferenceDTOList = new ArrayList<>();
         for (Hit<ConferenceDTO> hit : hits) {
             conferenceDTOList.add(hit.source());
         }
-        return Objects.requireNonNull(StorageController.getMapper()).convertToConferenceList(conferenceDTOList);
+        return Objects.requireNonNull(ServerController.getMapper()).convertToConferenceList(conferenceDTOList);
     }
 
     public static ConferenceEdition retrieveConferenceEdition(int id) throws InterruptedException, ExecutionException {
-        return Objects.requireNonNull(StorageController.getMapper())
+        return Objects.requireNonNull(ServerController.getMapper())
                 .convertToConferenceEdition((ConferenceEditionDTO) sendAsyncRequestToElastic(
                         GetRequest.of(s -> s.index(CONFERENCE_EDITION.indexName()).id(Integer.toString(id))),
                         ConferenceEditionDTO.class

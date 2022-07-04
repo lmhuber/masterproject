@@ -53,7 +53,7 @@ public class Conference {
     }
 
     public void addConferenceEdition(ConferenceEdition edition) {
-        if (this.conferenceEditions.contains(null)) this.conferenceEditions.remove(null);
+        this.conferenceEditions.remove(null);
         this.conferenceEditions.add(edition);
     }
 

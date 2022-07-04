@@ -3,7 +3,7 @@ package masterthesis.conferences.server.rest.service;
 import masterthesis.conferences.data.ConferenceRepository;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
-import masterthesis.conferences.server.rest.storage.StorageController;
+import masterthesis.conferences.server.controller.ServerController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +13,11 @@ import java.util.Optional;
 @Service
 public class ConferenceServiceImpl implements ConferenceService {
 
-	private ConferenceRepository conferenceRepository;
+	private final ConferenceRepository conferenceRepository;
 
 	@Autowired
 	public ConferenceServiceImpl() {
-		this.conferenceRepository = StorageController.getRepository();
+		this.conferenceRepository = ServerController.getRepository();
 	}
 	
 	@Override
@@ -28,10 +28,10 @@ public class ConferenceServiceImpl implements ConferenceService {
 	@Override
 	public Conference findById(String title) {
 		Optional<Conference> result = conferenceRepository.findById(title);
-		Conference conference = null;
+		Conference conference;
 
-		if (result.isPresent() && result != null) {
-			conference = (Conference) result.get();
+		if (result.isPresent()) {
+			conference = result.get();
 		} else {
 			throw new RuntimeException("Did not find conference id - " + title);
 		}

@@ -9,7 +9,7 @@ import static masterthesis.conferences.data.util.Indices.CONFERENCE_EDITION;
 
 public class ElasticDeleteOperations extends ElasticWriteOperation {
     public static void deleteIndex(String indexName) throws InterruptedException {
-        CompletableFuture<?> responseObject = StorageController.getInstance().indices().delete(i -> i.index(indexName))
+        CompletableFuture<?> responseObject = esClient.indices().delete(i -> i.index(indexName))
                 .whenComplete((response, exception)
                         -> {
                     if (exception != null) {
@@ -24,7 +24,7 @@ public class ElasticDeleteOperations extends ElasticWriteOperation {
     }
 
     public static void deleteConference(String title) throws InterruptedException {
-        CompletableFuture<?> responseObject = StorageController.getInstance().delete(
+        CompletableFuture<?> responseObject = esClient.delete(
                 i -> i.index(CONFERENCE.indexName()).id(title)
         ).whenComplete((response, exception)
                 -> {
@@ -40,7 +40,7 @@ public class ElasticDeleteOperations extends ElasticWriteOperation {
     }
 
     public static void deleteConferenceEdition(int id) throws InterruptedException {
-        CompletableFuture<?> responseObject = StorageController.getInstance().delete(
+        CompletableFuture<?> responseObject = esClient.delete(
                 i -> i.index(CONFERENCE_EDITION.indexName()).id(Integer.toString(id))
         ).whenComplete((response, exception)
                 -> {

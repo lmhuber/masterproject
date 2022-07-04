@@ -15,7 +15,7 @@ import static masterthesis.conferences.data.util.Indices.CONFERENCE_EDITION;
 
 public class ElasticIndexOperations extends ElasticWriteOperation {
     public static void createIndex(String indexName) throws InterruptedException {
-        CompletableFuture<?> responseObject = StorageController.getInstance().indices().create(i -> i.index(indexName))
+        CompletableFuture<?> responseObject = esClient.indices().create(i -> i.index(indexName))
                 .whenComplete((response, exception)
                         -> {
                     if (exception != null) {
@@ -43,7 +43,7 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
             return;
         }
         final Map<String, Property> propertyMap = properties;
-        CompletableFuture<?> responseObject = StorageController.getInstance()
+        CompletableFuture<?> responseObject = esClient
                 .indices().putMapping(m -> m.index(indexName)
                         .properties(propertyMap).dynamic(DynamicMapping.False))
                 .whenComplete((response, exception) -> {
@@ -60,7 +60,7 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
     }
 
     public static void openIndex(String indexName) throws InterruptedException {
-        CompletableFuture<?> responseObject = StorageController.getInstance().indices().open(i -> i.index(indexName))
+        CompletableFuture<?> responseObject = esClient.indices().open(i -> i.index(indexName))
                 .whenComplete((response, exception)
                         -> {
                     if (exception != null) {
@@ -75,7 +75,7 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
     }
 
     public static void closeIndex(String indexName) throws InterruptedException {
-        CompletableFuture<?> responseObject = StorageController.getInstance().indices().close(i -> i.index(indexName))
+        CompletableFuture<?> responseObject = esClient.indices().close(i -> i.index(indexName))
                 .whenComplete((response, exception)
                         -> {
                     if (exception != null) {
