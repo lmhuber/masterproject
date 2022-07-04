@@ -9,7 +9,6 @@ import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.rest.service.ConferenceService;
 import masterthesis.conferences.server.rest.service.ConferenceServiceImpl;
 import masterthesis.conferences.server.rest.storage.ElasticSearchOperations;
-import masterthesis.conferences.server.rest.storage.StorageController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +22,7 @@ import java.util.stream.Collectors;
 @Service
 public class MapperService {
     @Autowired
-    private ConferenceService conferenceService = new ConferenceServiceImpl();
-
-    @Autowired
-    private final ConferenceRepository repository = StorageController.getRepository();
+    private final ConferenceService conferenceService = new ConferenceServiceImpl();
 
     public MapperService() {
     }
@@ -57,10 +53,9 @@ public class MapperService {
         return conference;
     }
 
-    public Conference convertFrontendDTOToConference(ConferenceFrontendDTO conferenceDTO) throws ExecutionException, InterruptedException {
+    public Conference convertFrontendDTOToConference(ConferenceFrontendDTO conferenceDTO) {
         if (conferenceDTO == null) return null;
-        Conference conference = conferenceService.findById(conferenceDTO.getTitle());
-        return conference;
+        return conferenceService.findById(conferenceDTO.getTitle());
     }
 
     public List<Conference> convertToConferenceList(List<ConferenceDTO> conferenceDTOList) throws ExecutionException, InterruptedException {

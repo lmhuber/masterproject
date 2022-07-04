@@ -8,7 +8,7 @@ import static masterthesis.conferences.data.util.Indices.CONFERENCE_EDITION;
 
 public class ElasticCountOperations extends ElasticReadOperation {
     private static int getDocumentNumberFromIndex(String index) throws ExecutionException, InterruptedException {
-        return (int) StorageController.getInstance().count(c -> c.index(index)).whenComplete((response, exception) -> {
+        return (int) esClient.count(c -> c.index(index)).whenComplete((response, exception) -> {
             if (exception != null) {
                 ConferencesApplication.getLogger().error("Could not retrieve document count", exception);
                 ConferencesApplication.getErrorChecker().detectError();

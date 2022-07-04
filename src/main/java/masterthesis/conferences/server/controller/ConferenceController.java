@@ -1,12 +1,12 @@
 package masterthesis.conferences.server.controller;
 
-import masterthesis.conferences.data.ConferenceRepository;
 import masterthesis.conferences.data.MapperService;
 import masterthesis.conferences.data.dto.ConferenceFrontendDTO;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.rest.Utils;
 import masterthesis.conferences.server.rest.service.ConferenceService;
+import masterthesis.conferences.server.rest.service.ConferenceServiceImpl;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.mime.FileBody;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
@@ -37,18 +37,16 @@ import java.util.concurrent.ExecutionException;
 public class ConferenceController {
 
 	@Autowired
-	private ConferenceService conferenceService;
+	private final ConferenceService conferenceService;
 
 	@Autowired
-	private MapperService mapperService;
-
-	@Autowired
-	private ConferenceRepository conferenceRepository;
+	private final MapperService mapperService;
 
 	private static final String JSON_EXPORT = "src/main/resources/templates/kibana/";
 
-	public ConferenceController(ConferenceService conferenceService) {
-		conferenceService = conferenceService;
+	public ConferenceController() {
+		this.conferenceService = new ConferenceServiceImpl();
+		this.mapperService = ServerController.getMapper();
 	}
 
 	// add mapping for "/list"
@@ -78,13 +76,12 @@ public class ConferenceController {
 		} else {
 			if (dto.getCity() == null) conferenceService.save(conference);
 			else {
-				Conference oldConference = null;
 				try {
-					oldConference = mapperService.convertFrontendDTOToConference(dto);
+					final Conference oldConference = mapperService.convertFrontendDTOToConference(dto);
 					ConferenceEdition edition = mapperService.convertFrontendDTOToConferenceEdition(dto);
 					conferenceService.save(edition, conference.getTitle());
 				} catch (Exception e) {
-
+					e.printStackTrace();
 				}
 			}
 			// use a redirect to prevent duplicate submissions
@@ -148,7 +145,7 @@ public class ConferenceController {
 		// set conference as a model attribute to pre-populate the form
 		model.addAttribute("conference", conference);
 
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 
 		if (conference != null && !conference.getConferenceEditions().isEmpty()) {
 			for (var id : conference.getConferenceEditionEditionNames()) {
@@ -174,7 +171,7 @@ public class ConferenceController {
 			if (!option.equals("Add new")) confEditionId = Integer.parseInt(option.split(" ")[1]);
 			confEditionId = conference.convertEditionToId(confEditionId);
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
 
 		ConferenceFrontendDTO conferenceFrontendDTO = null;
@@ -196,10 +193,10 @@ public class ConferenceController {
 	}
 
 	@GetMapping("/requestDashboard")
-	public String requestDashboard(@RequestParam("conferenceId") String title, Model model) throws IOException {
+	public String requestDashboard(@RequestParam("conferenceId") String title, Model model) {
 
 		Conference conference = conferenceService.findById(title);
-		String importJson = "";
+		String importJson;
 		try {
 			String json = new String(Files.readAllBytes(Paths.get(JSON_EXPORT + "template.ndjson")));
 			importJson = Utils.prepareDashboardImport(conference, json);

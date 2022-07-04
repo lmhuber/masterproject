@@ -3,9 +3,8 @@ package masterthesis.conferences.server.controller;
 public class ErrorFilter {
     private boolean errorFlag = false;
 
-    public boolean detectError() {
+    public void detectError() {
         errorFlag = true;
-        return true;
     }
 
     public boolean getErrorFlag() {

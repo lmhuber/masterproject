@@ -1,4 +1,4 @@
-package masterthesis.conferences.server.rest.storage;
+package masterthesis.conferences.server.controller;
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
@@ -9,7 +9,9 @@ import masterthesis.conferences.data.ConferenceRepository;
 import masterthesis.conferences.data.MapperService;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
-import masterthesis.conferences.server.controller.Controller;
+import masterthesis.conferences.server.rest.storage.ElasticDeleteOperations;
+import masterthesis.conferences.server.rest.storage.ElasticIndexOperations;
+import masterthesis.conferences.server.rest.storage.ElasticSearchOperations;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -34,16 +36,7 @@ public class StorageController implements Controller {
 
     private static MapperService mapperService = null;
 
-    private static StorageController instance = null;
-
-    public static StorageController getControllerInstance() {
-        if (instance == null) {
-            instance = new StorageController();
-        }
-        return instance;
-    }
-
-    protected static ElasticsearchAsyncClient getInstance() {
+    protected ElasticsearchAsyncClient getInstance() {
         if (client == null) {
             credentialsProvider.setCredentials(AuthScope.ANY,
                     new UsernamePasswordCredentials("elastic", "changeme"));
@@ -56,7 +49,7 @@ public class StorageController implements Controller {
         return client;
     }
 
-    public static MapperService getMapper() {
+    protected MapperService getMapper() {
         if (mapperService == null) {
             if (repository == null) return null;
             mapperService = new MapperService();
@@ -64,16 +57,21 @@ public class StorageController implements Controller {
         return mapperService;
     }
 
-    public static ConferenceRepository getRepository() {
+    protected ConferenceRepository getRepository() {
         if (repository == null) {
             repository = new ConferenceRepository();
-            getConferences();
+            fetchConferences();
         }
         return repository;
     }
 
     @Override
     public synchronized void init() throws ExecutionException, InterruptedException {
+        ConferencesApplication.getLogger().info("Initializing Controller");
+        getInstance();
+        getMapper();
+        getRepository();
+        ConferencesApplication.getLogger().info("Controller Objects initialized");
         ConferencesApplication.getLogger().info("Initializing Elasticsearch Index");
         boolean indexCreated;
         if (ConferencesApplication.DEBUG) {
@@ -108,13 +106,14 @@ public class StorageController implements Controller {
         ElasticIndexOperations.createMapping(indexName);
     }
 
-    public void indexConference(Conference conference) throws InterruptedException {
+    protected void indexConference(Conference conference) throws InterruptedException {
+        repository.addConference(conference);
         ElasticIndexOperations.writeConference(
                 Objects.requireNonNull(getMapper()).convertToConferenceDTO(conference.getTitle()), CONFERENCE.indexName()
         );
     }
 
-    public void indexConferenceEdition(ConferenceEdition edition, Conference conference) throws InterruptedException {
+    protected void indexConferenceEdition(ConferenceEdition edition, Conference conference) throws InterruptedException {
         conference.addConferenceEdition(edition);
         repository.updateConference(conference);
         ElasticIndexOperations.writeConferenceEdition(
@@ -123,7 +122,7 @@ public class StorageController implements Controller {
         indexConference(conference);
     }
 
-    public void removeConference(Conference conference) throws InterruptedException {
+    protected void removeConference(Conference conference) throws InterruptedException {
         if (conference.getConferenceEditions() != null) {
             for (ConferenceEdition edition : conference.getConferenceEditions()) {
                 ElasticDeleteOperations.deleteConferenceEdition(edition.getId());
@@ -133,18 +132,16 @@ public class StorageController implements Controller {
         repository.deleteConference(conference);
     }
 
-    public void removeConferenceEdition(ConferenceEdition edition) throws InterruptedException {
+    protected void removeConferenceEdition(ConferenceEdition edition) throws InterruptedException {
         ElasticDeleteOperations.deleteConferenceEdition(edition.getId());
         repository.removeEdition(edition.getId());
     }
 
-    public static void getConferences() {
-        List<Conference> conferenceList = new ArrayList<Conference>();
+    protected void fetchConferences() {
+        List<Conference> conferenceList = new ArrayList<>();
         try {
             conferenceList = ElasticSearchOperations.retrieveConferences();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         for (Conference c : conferenceList) repository.addConference(c);

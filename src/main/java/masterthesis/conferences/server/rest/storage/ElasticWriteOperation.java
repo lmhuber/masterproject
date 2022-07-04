@@ -1,15 +1,13 @@
 package masterthesis.conferences.server.rest.storage;
 
-import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
 import masterthesis.conferences.ConferencesApplication;
 
 import java.util.concurrent.CompletableFuture;
 
-public abstract class ElasticWriteOperation {
+public abstract class ElasticWriteOperation extends ElasticOperation{
 
     protected static void sendAsyncRequestToElastic(Object request) throws InterruptedException {
-        ElasticsearchAsyncClient esClient = StorageController.getInstance();
         CompletableFuture<?> responseObject = null;
         if (request instanceof IndexRequest) {
             IndexRequest<?> indexRequest = (IndexRequest<?>) request;

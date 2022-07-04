@@ -2,7 +2,7 @@ package masterthesis.conferences.data;
 
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
-import masterthesis.conferences.server.rest.storage.StorageController;
+import masterthesis.conferences.server.controller.ServerController;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -68,7 +68,7 @@ public class ConferenceRepository {
     public void addEdition(Conference conferenceToAdd, ConferenceEdition editionToAdd) {
         if (editionToAdd == null) return;
         try {
-            StorageController.getControllerInstance().indexConferenceEdition(editionToAdd, conferenceToAdd);
+            ServerController.indexConferenceEdition(editionToAdd, conferenceToAdd);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -81,11 +81,11 @@ public class ConferenceRepository {
 
     public void save(Conference conference) throws InterruptedException {
         this.addConference(conference);
-        StorageController.getControllerInstance().indexConference(conference);
+        ServerController.indexConference(conference);
     }
 
     public void deleteById(String title) throws InterruptedException {
-        StorageController.getControllerInstance().removeConference(getConference(title));
+        ServerController.removeConference(getConference(title));
         conferenceSet.remove(getConference(title));
     }
 

@@ -8,6 +8,7 @@ class ConferencesApplicationTests {
 
 	@Test
 	void contextLoads() {
+		System.out.println("");
 	}
 
 }
