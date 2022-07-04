@@ -4,7 +4,7 @@ import masterthesis.conferences.data.MapperService;
 import masterthesis.conferences.data.dto.ConferenceFrontendDTO;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
-import masterthesis.conferences.server.rest.Utils;
+import masterthesis.conferences.server.dashboarding.DashboardingUtils;
 import masterthesis.conferences.server.rest.service.ConferenceService;
 import masterthesis.conferences.server.rest.service.ConferenceServiceImpl;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -23,10 +23,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -42,7 +38,7 @@ public class ConferenceController {
 	@Autowired
 	private final MapperService mapperService;
 
-	private static final String JSON_EXPORT = "src/main/resources/templates/kibana/";
+	public static final String JSON_EXPORT = "src/main/resources/templates/kibana/";
 
 	public ConferenceController() {
 		this.conferenceService = new ConferenceServiceImpl();
@@ -196,16 +192,9 @@ public class ConferenceController {
 	public String requestDashboard(@RequestParam("conferenceId") String title, Model model) {
 
 		Conference conference = conferenceService.findById(title);
-		String importJson;
-		try {
-			String json = new String(Files.readAllBytes(Paths.get(JSON_EXPORT + "template.ndjson")));
-			importJson = Utils.prepareDashboardImport(conference, json);
-			try (FileWriter fWriter = new FileWriter(JSON_EXPORT + "export.ndjson")) {
-				fWriter.write(importJson);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
+		// TODO: list of DashboardingMetricDTO from UI
+		DashboardingUtils.convertToDashboard(conference, new ArrayList<>());
 
 		try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
 			final HttpPost httppost = new HttpPost("http://localhost:5601/api/saved_objects/_import?overwrite=true");
