@@ -7,8 +7,10 @@ import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.indices.ExistsRequest;
 import masterthesis.conferences.ConferencesApplication;
+import masterthesis.conferences.data.dto.AdditionalMetricDTO;
 import masterthesis.conferences.data.dto.ConferenceDTO;
 import masterthesis.conferences.data.dto.ConferenceEditionDTO;
+import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.controller.ServerController;
@@ -18,8 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
-import static masterthesis.conferences.data.util.Indices.CONFERENCE;
-import static masterthesis.conferences.data.util.Indices.CONFERENCE_EDITION;
+import static masterthesis.conferences.data.util.Indices.*;
 
 public class ElasticSearchOperations extends ElasticReadOperation {
     public static boolean existsIndex(String indexName) throws ExecutionException, InterruptedException {
@@ -55,6 +56,14 @@ public class ElasticSearchOperations extends ElasticReadOperation {
                 .convertToConferenceEdition((ConferenceEditionDTO) sendAsyncRequestToElastic(
                         GetRequest.of(s -> s.index(CONFERENCE_EDITION.indexName()).id(Integer.toString(id))),
                         ConferenceEditionDTO.class
+                ));
+    }
+
+    public static AdditionalMetric retrieveAdditionalMetric(int id) throws ExecutionException, InterruptedException {
+        return Objects.requireNonNull(ServerController.getMapper())
+                .convertToAdditionalMetric((AdditionalMetricDTO) sendAsyncRequestToElastic(
+                        GetRequest.of(s -> s.index(ADDITIONAL_METRIC.indexName()).id(Integer.toString(id))),
+                        AdditionalMetricDTO.class
                 ));
     }
 }

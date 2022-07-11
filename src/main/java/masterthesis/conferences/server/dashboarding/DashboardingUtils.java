@@ -2,14 +2,17 @@ package masterthesis.conferences.server.dashboarding;
 
 import masterthesis.conferences.data.dto.DashboardingMetricDTO;
 import masterthesis.conferences.data.model.Conference;
+import masterthesis.conferences.data.model.ConferenceEdition;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static masterthesis.conferences.server.controller.ConferenceController.JSON_EXPORT;
 import static masterthesis.conferences.server.dashboarding.ChartType.METRIC;
@@ -56,25 +59,25 @@ public class DashboardingUtils {
             panel = new String(Files.readAllBytes(Paths.get(JSON_EXPORT + "metric.json")));
         } else {
             panel = new String(Files.readAllBytes(Paths.get(JSON_EXPORT + "line_bar.json")))
-                    .replaceAll(METRIC_CHART_TYPE, metric.getDashboardType());
+                    .replace(METRIC_CHART_TYPE, metric.getDashboardType());
         }
         final String index = conference.getTitle()+"-index-"+metric.getTitle();
         final String layer = conference.getTitle()+"-layer-"+metric.getTitle();
-        toAppendMetrics.append(panel.replaceAll(METRIC_INDEX, index)
-                .replaceAll(METRIC_TITLE, metric.getPanelTitle())
-                .replaceAll(METRIC_BASE_X, calcBaseX(elementCounter))
-                .replaceAll(METRIC_BASE_Y, calcBaseY(elementCounter))
-                .replaceAll(METRIC_W, String.valueOf(WIDTH))
-                .replaceAll(METRIC_H, String.valueOf(HEIGHT))
-                .replaceAll(METRIC_LAYER, layer)
-                .replaceAll(METRIC_COLUMN, conference.getTitle()+"-column-"+metric.getTitle())
-                .replaceAll(METRIC_DB_LABEL, toUpper(metric.getOperation())+" of "+toUpper(metric.getTitle()))
-                .replaceAll(METRIC_DB_DATATYPE, "number")
-                .replaceAll(METRIC_DB_OPERATION, metric.getOperation())
-                .replaceAll(METRIC_DB_FIELD, METRIC_DB_FIELD_PREFIX + metric.getTitle()+"}"));
+        toAppendMetrics.append(panel.replace(METRIC_INDEX, index)
+                .replace(METRIC_TITLE, metric.getPanelTitle())
+                .replace(METRIC_BASE_X, calcBaseX(elementCounter))
+                .replace(METRIC_BASE_Y, calcBaseY(elementCounter))
+                .replace(METRIC_W, String.valueOf(WIDTH))
+                .replace(METRIC_H, String.valueOf(HEIGHT))
+                .replace(METRIC_LAYER, layer)
+                .replace(METRIC_COLUMN, conference.getTitle()+"-column-"+metric.getTitle())
+                .replace(METRIC_DB_LABEL, toUpper(metric.getOperation())+" of "+toUpper(metric.getPanelTitle()))
+                .replace(METRIC_DB_DATATYPE, "number")
+                .replace(METRIC_DB_OPERATION, metric.getOperation())
+                .replace(METRIC_DB_QUERY, additionalMetricsAsIdList(conference)));
         toAppendRefs.append(new String(Files.readAllBytes(Paths.get(JSON_EXPORT + "refs.txt")))
-                .replaceAll(METRIC_INDEX, index)
-                .replaceAll(METRIC_LAYER, layer));
+                .replace(METRIC_INDEX, index)
+                .replace(METRIC_LAYER, layer));
 
     }
 
@@ -93,14 +96,14 @@ public class DashboardingUtils {
     }
 
     private static String replaceAdditionalMetricsMarkers(String json, String metrics, String refs) {
-        return json.replaceAll(PANEL_MARKER, metrics.replaceAll("\"", "\\\""))
-                .replaceAll(REFS_MARKER, refs);
+        return json.replace(PANEL_MARKER, metrics.replace("\"", "\\\""))
+                .replace(REFS_MARKER, refs);
     }
 
     private static String prepareDashboardImport(Conference conference, String json) {
-        return json.replaceAll(DB_ID, conferenceAsIdList(conference.getConferenceEditionIds()))
-                .replaceAll(DB_DASHBOARD, conference.getTitle() + "-dashboard")
-                .replaceAll(DB_TITLE, DB_TITLE_PREFIX + conference.getTitle());
+        return json.replace(DB_ID, conferenceAsIdList(conference.getConferenceEditionIds()))
+                .replace(DB_DASHBOARD, conference.getTitle() + "-dashboard")
+                .replace(DB_TITLE, DB_TITLE_PREFIX + conference.getTitle());
     }
 
     private static String conferenceAsIdList(Set<Integer> conferenceEditionIds) {
@@ -111,6 +114,22 @@ public class DashboardingUtils {
                 string.append(" or ");
             }
             string.append(ids.get(i));
+        }
+        return string.toString();
+    }
+
+    private static String additionalMetricsAsIdList(Conference conference) {
+        StringBuilder string = new StringBuilder();
+        Set<Integer> ids = new HashSet<>();
+        for (ConferenceEdition e : conference.getConferenceEditions()) {
+            ids.addAll(e.getAdditionalMetricIds());
+        }
+        List<Integer> idList = new ArrayList<>(ids.stream().collect(Collectors.toList()));
+        for (int i = 0; i < idList.size(); i++) {
+            if (i != 0) {
+                string.append(" or ");
+            }
+            string.append(idList.get(i));
         }
         return string.toString();
     }

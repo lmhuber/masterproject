@@ -3,6 +3,7 @@ package masterthesis.conferences.data.dto;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,7 +23,7 @@ public class ConferenceEditionDTO {
     private String country;
     private String city;
 
-    private final HashMap<String, Float> additionalMetrics = new HashMap<>();
+    private final HashSet<Integer> additionalMetrics = new HashSet<>();
 
     private final static Map<String, Property> properties = new HashMap<>();
 
@@ -33,7 +34,7 @@ public class ConferenceEditionDTO {
     public ConferenceEditionDTO(int id, int year, int edition, int participants, int sessions,
                                 int greenInnovativeness, float interactionDynamics, float cost,
                                 float carbonFootprint, String sustainability, String country,
-                                String city, HashMap<String, Float> additionalMetrics) {
+                                String city, HashSet<Integer> additionalMetrics) {
         this.id = id;
         this.year = year;
         this.edition = edition;
@@ -46,7 +47,7 @@ public class ConferenceEditionDTO {
         this.sustainability = sustainability;
         this.country = country;
         this.city = city;
-        this.additionalMetrics.putAll(additionalMetrics);
+        this.additionalMetrics.addAll(additionalMetrics);
     }
 
     public static Map<String, Property> getProperties() {
@@ -63,11 +64,7 @@ public class ConferenceEditionDTO {
             properties.put("sustainability", Property.of(n -> n.text(fn -> fn.store(true).fields("raw", Property.of(k -> k.keyword(fn2 -> fn2))))));
             properties.put("city", Property.of(n -> n.text(fn -> fn.store(true).fields("raw", Property.of(k -> k.keyword(fn2 -> fn2))))));
             properties.put("country", Property.of(n -> n.text(fn -> fn.store(true).fields("raw", Property.of(k -> k.keyword(fn2 -> fn2))))));
-            properties.put("additionalMetric", Property
-                    .of(n -> n.nested(fn -> fn.properties(Map
-                            .of("metricIdentifier", Property.of(tn -> tn.text(tfn -> tfn.store(true))),
-                                    "datapoint",
-                                    Property.of(tn -> tn.float_(tfn -> tfn.store(true).nullValue(-1.0f))))))));
+            properties.put("additionalMetric", Property.of(c -> c.long_(fn -> fn.store(true))));
         }
         return properties;
     }
@@ -121,7 +118,7 @@ public class ConferenceEditionDTO {
         return city;
     }
 
-    public HashMap<String, Float> getAdditionalMetrics() {
+    public HashSet<Integer> getAdditionalMetrics() {
         return additionalMetrics;
     }
 

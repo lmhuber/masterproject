@@ -2,14 +2,21 @@ package masterthesis.conferences.elastic.datamodel;
 
 import masterthesis.conferences.ConferencesApplication;
 import masterthesis.conferences.data.dto.ConferenceDTO;
+import masterthesis.conferences.data.dto.DashboardingMetricDTO;
+import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.controller.ServerController;
 import masterthesis.conferences.server.controller.StorageController;
+import masterthesis.conferences.server.dashboarding.ChartType;
+import masterthesis.conferences.server.dashboarding.DashboardingUtils;
+import masterthesis.conferences.server.dashboarding.Operations;
 import masterthesis.conferences.server.rest.storage.ElasticSearchOperations;
 import org.junit.jupiter.api.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -23,8 +30,10 @@ public class DatamodelTests {
 
     private static final String DEXA = "DEXA_UNIT_TEST_1";
     private static final String IIWAS = "iiWAS & MoMM_UNIT_TEST_1";
+    private static final String METRIC_IDENTIFIER_1 = "RESTApiMetric1";
 
     private static int i = 1;
+    private static int n = 1;
     private static Conference conference1;
     private static Conference conference2;
 
@@ -45,6 +54,12 @@ public class DatamodelTests {
         conferenceEditions.add(e);
         i++;
         return e;
+    }
+
+    private static AdditionalMetric createAdditionalMetric() throws  ExecutionException, InterruptedException {
+        AdditionalMetric m = new AdditionalMetric(n,3.6f + n, METRIC_IDENTIFIER_1);
+        n++;
+        return m;
     }
 
     @AfterAll
@@ -80,6 +95,26 @@ public class DatamodelTests {
 
     @Test
     @Order(4)
+    void testAdditionalMetricIngestInEdition() throws InterruptedException, ExecutionException {
+        for (int c = 0; c < 5; c++){
+            ConferenceEdition edition = createEdition();
+            ServerController.indexConferenceEdition(edition, ServerController.getRepository().getConference(DEXA));
+            ServerController.indexAdditionalMetric(edition,
+                    ServerController.getRepository().getConference(DEXA), createAdditionalMetric());
+            checkErrorLogs();
+        }
+    }
+
+    @Test
+    @Order(5)
+    void testCustomDashboardExportWithAdditionalMetrics() {
+        List<DashboardingMetricDTO> dashboardSettings =  new ArrayList<>();
+        dashboardSettings.add(new DashboardingMetricDTO(DEXA, ChartType.METRIC.getName(), Operations.AVERAGE.getName(), METRIC_IDENTIFIER_1));
+        DashboardingUtils.convertToDashboard(ServerController.getRepository().getConference(DEXA), dashboardSettings);
+    }
+
+    @Test
+    @Order(6)
     void testConferenceRead() throws InterruptedException, ExecutionException {
         Conference conference = ElasticSearchOperations.retrieveConference(DEXA);
         System.out.println(conference.toString());
@@ -87,8 +122,9 @@ public class DatamodelTests {
     }
 
     @Test
-    @Order(5)
+    @Order(7)
     void testDeletionEdition() throws InterruptedException, ExecutionException {
+        if (ConferencesApplication.DEBUG) return;
         ServerController
                 .removeConferenceEdition(ServerController.getRepository().getEdition(0));
         assertNull(ServerController.getRepository().getEdition(0));
@@ -96,8 +132,9 @@ public class DatamodelTests {
     }
 
     @Test
-    @Order(6)
+    @Order(8)
     void testDeletionConference() throws InterruptedException, ExecutionException {
+        if (ConferencesApplication.DEBUG) return;
         ServerController
                 .removeConference(ServerController.getRepository().getConference(IIWAS));
         assertNull(ServerController.getRepository().getConference(IIWAS));
@@ -105,8 +142,9 @@ public class DatamodelTests {
     }
 
     @Test
-    @Order(7)
+    @Order(9)
     void testDeletionConferenceCascading() throws InterruptedException, ExecutionException {
+        if (ConferencesApplication.DEBUG) return;
         ServerController
                 .removeConference(ServerController.getRepository().getConference(DEXA));
         assertNull(ServerController.getRepository().getConference(DEXA));
@@ -115,7 +153,7 @@ public class DatamodelTests {
     }
 
     @Test
-    @Order(8)
+    @Order(10)
     void testRetrievalAllConferences() {
         ServerController.fetchConferences();
     }

@@ -30,5 +30,5 @@ public class DashboardingConstants{
     public static final String METRIC_DB_OPERATION = "<DB-OPERATION>";
     // see also https://www.elastic.co/guide/en/kibana/8.3/kuery-query.html
     public static final String METRIC_DB_FIELD = "<DB-FIELD>";
-    public static final String METRIC_DB_FIELD_PREFIX = "additionalMetric.properties:{metricIdentifier:";
+    public static final String METRIC_DB_QUERY = "<METRIC-QUERY>";
 }

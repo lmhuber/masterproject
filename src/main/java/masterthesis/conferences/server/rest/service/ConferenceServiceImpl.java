@@ -1,6 +1,7 @@
 package masterthesis.conferences.server.rest.service;
 
 import masterthesis.conferences.data.ConferenceRepository;
+import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.controller.ServerController;
@@ -49,12 +50,26 @@ public class ConferenceServiceImpl implements ConferenceService {
 	}
 
 	@Override
+	public void save(AdditionalMetric metric, String title, int id) {
+		try {
+			conferenceRepository.addMetric(findById(title), findById(id), metric);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
 	public void deleteById(String title) {
 		try {
 			conferenceRepository.deleteById(title);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public ConferenceEdition findEditionByMetricId(int id) {
+		return conferenceRepository.getEditonByMetric(id);
 	}
 
 	@Override
@@ -74,6 +89,11 @@ public class ConferenceServiceImpl implements ConferenceService {
 	@Override
 	public List<Conference> searchBy(String name) {
 		return List.of(conferenceRepository.getConference(name));
+	}
+
+	@Override
+	public AdditionalMetric findByMetricId(int id) {
+		return conferenceRepository.getMetric(id);
 	}
 
 }
