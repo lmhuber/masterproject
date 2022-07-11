@@ -4,8 +4,7 @@ import masterthesis.conferences.ConferencesApplication;
 
 import java.util.concurrent.CompletableFuture;
 
-import static masterthesis.conferences.data.util.Indices.CONFERENCE;
-import static masterthesis.conferences.data.util.Indices.CONFERENCE_EDITION;
+import static masterthesis.conferences.data.util.Indices.*;
 
 public class ElasticDeleteOperations extends ElasticWriteOperation {
     public static void deleteIndex(String indexName) throws InterruptedException {
@@ -55,5 +54,20 @@ public class ElasticDeleteOperations extends ElasticWriteOperation {
         }
     }
 
+    public static void deleteAdditionalMetric(int id) throws InterruptedException {
+        CompletableFuture<?> responseObject = esClient.delete(
+                i -> i.index(ADDITIONAL_METRIC.indexName()).id(Integer.toString(id))
+        ).whenComplete((response, exception)
+                -> {
+            if (exception != null) {
+                ConferencesApplication.getLogger().error("Failed to delete AdditionalMetric", exception);
+            } else {
+                ConferencesApplication.getLogger().info(response);
+            }
+        });
+        while (!responseObject.isDone()) {
+            Thread.sleep(100);
+        }
+    }
 
 }

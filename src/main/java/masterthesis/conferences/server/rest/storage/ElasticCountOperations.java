@@ -4,6 +4,7 @@ import masterthesis.conferences.ConferencesApplication;
 
 import java.util.concurrent.ExecutionException;
 
+import static masterthesis.conferences.data.util.Indices.ADDITIONAL_METRIC;
 import static masterthesis.conferences.data.util.Indices.CONFERENCE_EDITION;
 
 public class ElasticCountOperations extends ElasticReadOperation {
@@ -19,4 +20,9 @@ public class ElasticCountOperations extends ElasticReadOperation {
     public static int getMaxConferenceEditionId() throws ExecutionException, InterruptedException {
         return getDocumentNumberFromIndex(CONFERENCE_EDITION.indexName());
     }
+
+    public static int getMaxAdditionalMetricId() throws ExecutionException, InterruptedException {
+        return getDocumentNumberFromIndex(ADDITIONAL_METRIC.indexName());
+    }
+
 }

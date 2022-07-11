@@ -1,5 +1,6 @@
 package masterthesis.conferences.data;
 
+import masterthesis.conferences.data.dto.AdditionalMetricDTO;
 import masterthesis.conferences.data.dto.ConferenceDTO;
 import masterthesis.conferences.data.dto.ConferenceEditionDTO;
 import masterthesis.conferences.data.dto.ConferenceFrontendDTO;
@@ -13,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 @Service
 public class MapperService {
@@ -38,8 +37,13 @@ public class MapperService {
         return new ConferenceEditionDTO(id, edition.getYear(), edition.getEdition(), edition.getParticipants(),
                 edition.getSessions(), edition.getGreenInnovativeness(), edition.getInteractionDynamics(),
                 edition.getCost(), edition.getCarbonFootprint(), edition.getSustainability(), edition.getCountry(),
-                edition.getCity(), (HashMap<String, Float>) edition.getAdditionalMetrics().stream()
-                .collect(Collectors.toMap(AdditionalMetric::getMetricIdentifier, AdditionalMetric::getDatapoint)));
+                edition.getCity(), (HashSet<Integer>) edition.getAdditionalMetricIds());
+    }
+
+    public AdditionalMetricDTO convertToAdditionalMetricDTO(int id) {
+        AdditionalMetric metric = conferenceService.findByMetricId(id);
+        return new AdditionalMetricDTO(metric.getId(), conferenceService.findEditionByMetricId(id).getId(),
+                metric.getDatapoint(), metric.getMetricIdentifier());
     }
 
     public Conference convertToConference(ConferenceDTO conferenceDTO) throws ExecutionException, InterruptedException {
@@ -66,7 +70,7 @@ public class MapperService {
         return conferenceList;
     }
 
-    public ConferenceEdition convertToConferenceEdition(ConferenceEditionDTO editionDTO) {
+    public ConferenceEdition convertToConferenceEdition(ConferenceEditionDTO editionDTO) throws ExecutionException, InterruptedException {
         if (editionDTO == null) return null;
         ConferenceEdition conferenceEdition = new ConferenceEdition();
         conferenceEdition.setEdition(editionDTO.getEdition());
@@ -81,12 +85,22 @@ public class MapperService {
         conferenceEdition.setCarbonFootprint(editionDTO.getCarbonFootprint());
         conferenceEdition.setGreenInnovativeness(editionDTO.getGreenInnovativeness());
         conferenceEdition.setInteractionDynamics(editionDTO.getInteractionDynamics());
-        for (Map.Entry<String, Float> e : editionDTO.getAdditionalMetrics().entrySet()) {
-            conferenceEdition.getAdditionalMetrics().add(new AdditionalMetric(e.getValue(), e.getKey()));
+        for (int id : editionDTO.getAdditionalMetrics()) {
+            conferenceEdition.getAdditionalMetrics().add(ElasticSearchOperations.retrieveAdditionalMetric(id));
         }
         conferenceEdition.setSustainability(editionDTO.getSustainability());
         return conferenceEdition;
     }
+
+    public AdditionalMetric convertToAdditionalMetric(AdditionalMetricDTO metricDTO) {
+        if (metricDTO == null) return null;
+        AdditionalMetric metric = new AdditionalMetric();
+        metric.setId(metricDTO.getMetId());
+        metric.setMetricIdentifier(metricDTO.getMetricIdentifier());
+        metric.setDatapoint(metricDTO.getDatapoint());
+        return metric;
+    }
+
 
     public ConferenceEdition convertFrontendDTOToConferenceEdition(ConferenceFrontendDTO editionDTO) {
         if (editionDTO == null) return null;
@@ -117,4 +131,5 @@ public class MapperService {
         frontendDTO.setTitle(conference.getTitle());
         return frontendDTO;
     }
+
 }

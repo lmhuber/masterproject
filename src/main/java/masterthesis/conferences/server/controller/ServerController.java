@@ -3,6 +3,7 @@ package masterthesis.conferences.server.controller;
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import masterthesis.conferences.data.ConferenceRepository;
 import masterthesis.conferences.data.MapperService;
+import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 
@@ -90,12 +91,21 @@ public class ServerController implements Controller {
         getStorageControllerStatic().indexConferenceEdition(edition, conference);
     }
 
+    public static void indexAdditionalMetric(ConferenceEdition edition, Conference conference, AdditionalMetric metric) throws InterruptedException {
+        getStorageControllerStatic().indexAdditionalMetric(edition, conference, metric);
+    }
+
+
     public static void removeConference(Conference conference) throws InterruptedException {
         getStorageControllerStatic().removeConference(conference);
     }
 
     public static void removeConferenceEdition(ConferenceEdition edition) throws InterruptedException {
         getStorageControllerStatic().removeConferenceEdition(edition);
+    }
+
+    public static void removeAdditionalMetric(AdditionalMetric metric) throws InterruptedException {
+        getStorageControllerStatic().removeAdditionalMetric(metric);
     }
 
     public static void fetchConferences() {

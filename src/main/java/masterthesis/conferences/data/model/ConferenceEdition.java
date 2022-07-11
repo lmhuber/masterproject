@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class ConferenceEdition {
     private int id;
@@ -148,6 +149,20 @@ public class ConferenceEdition {
         return additionalMetrics;
     }
 
+    public void addAdditionalMetric(AdditionalMetric metric) {
+        getAdditionalMetrics().add(metric);
+    }
+
+    public void updateAdditionalMetric(AdditionalMetric metric) {
+        getAdditionalMetrics().remove(metric);
+        getAdditionalMetrics().add(metric);
+    }
+
+    public Set<Integer> getAdditionalMetricIds() {
+        return additionalMetrics.stream().filter(Objects::nonNull)
+                .map(AdditionalMetric::getId).collect(Collectors.toSet());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -179,4 +194,5 @@ public class ConferenceEdition {
                 ", additionalMetrics=" + additionalMetrics +
                 '}';
     }
+
 }

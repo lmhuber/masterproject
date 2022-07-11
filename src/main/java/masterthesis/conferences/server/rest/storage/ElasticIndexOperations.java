@@ -4,14 +4,14 @@ import co.elastic.clients.elasticsearch._types.mapping.DynamicMapping;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
 import masterthesis.conferences.ConferencesApplication;
+import masterthesis.conferences.data.dto.AdditionalMetricDTO;
 import masterthesis.conferences.data.dto.ConferenceDTO;
 import masterthesis.conferences.data.dto.ConferenceEditionDTO;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static masterthesis.conferences.data.util.Indices.CONFERENCE;
-import static masterthesis.conferences.data.util.Indices.CONFERENCE_EDITION;
+import static masterthesis.conferences.data.util.Indices.*;
 
 public class ElasticIndexOperations extends ElasticWriteOperation {
     public static void createIndex(String indexName) throws InterruptedException {
@@ -36,6 +36,8 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
             properties = ConferenceDTO.getProperties();
         } else if (indexName.equalsIgnoreCase(CONFERENCE_EDITION.indexName())) {
             properties = ConferenceEditionDTO.getProperties();
+        } else if (indexName.equalsIgnoreCase(ADDITIONAL_METRIC.indexName())) {
+            properties = AdditionalMetricDTO.getProperties();
         }
 
         if (properties == null) {
@@ -99,6 +101,13 @@ public class ElasticIndexOperations extends ElasticWriteOperation {
         sendAsyncRequestToElastic(
                 IndexRequest.of(c -> c.index(CONFERENCE_EDITION.indexName())
                         .id(Integer.toString(editionDTO.getId())).document(editionDTO))
+        );
+    }
+
+    public static void writeAdditionalMetric(AdditionalMetricDTO additionalMetricDTO) throws InterruptedException {
+        sendAsyncRequestToElastic(
+                IndexRequest.of(c -> c.index(ADDITIONAL_METRIC.indexName())
+                        .id(Integer.toString(additionalMetricDTO.getMetId())).document(additionalMetricDTO))
         );
     }
 }

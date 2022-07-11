@@ -15,7 +15,7 @@ public class ConferencesApplication {
 
 	private static final Log logger = LogFactory.getLog(ConferencesApplication.class);
 	private static final ErrorFilter errorChecker = new ErrorFilter();
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 
 
 	public static void main(String[] args) throws InterruptedException {
