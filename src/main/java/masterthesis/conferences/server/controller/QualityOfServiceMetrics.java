@@ -1,6 +1,7 @@
 package masterthesis.conferences.server.controller;
 
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,7 @@ import java.util.Map;
 public class QualityOfServiceMetrics {
 
     @GetMapping
+    @Scheduled(cron = "@daily")
     public ResponseEntity<?> getQOSMetrics(String meetingId) {
         try {
             String uri="https://apimocha.com/conferences/metrics/meetings/{meetingId}/participants/qos";
