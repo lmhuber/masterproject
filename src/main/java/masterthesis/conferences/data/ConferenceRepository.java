@@ -3,6 +3,7 @@ package masterthesis.conferences.data;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.data.model.IngestConfiguration;
 import masterthesis.conferences.server.controller.StorageController;
 import org.springframework.stereotype.Repository;
 
@@ -104,6 +105,27 @@ public class ConferenceRepository {
         }
     }
 
+    public void removeIngestConfiguration(int id) {
+        IngestConfiguration ingestConfigurationToRemove = null;
+        AdditionalMetric metricToRemove = null;
+        for (Conference c : conferenceSet) {
+            for (ConferenceEdition edition : c.getConferenceEditions()) {
+                if (edition.getAdditionalMetricIds().contains(id)) {
+                    for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
+                        if (metric.getConfig().getId() == id) {
+                            metricToRemove = metric;
+                            ingestConfigurationToRemove = metric.getConfig();
+                        }
+                    }
+                }
+            }
+        }
+        if (metricToRemove != null) {
+            metricToRemove.setConfig(null);
+        }
+    }
+
+
 
     public List<Conference> getConferences() {
         return new ArrayList<>(conferenceSet);
@@ -144,4 +166,18 @@ public class ConferenceRepository {
         }
         return null;
     }
+
+    public IngestConfiguration getIngestConfiguration(int ingestConfigId) {
+        for (Conference c : conferenceSet) {
+            for (ConferenceEdition edition : c.getConferenceEditions()) {
+                for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
+                    if (metric.getConfig() != null && metric.getConfig().getId() == ingestConfigId) {
+                        return metric.getConfig();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
 }

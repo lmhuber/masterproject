@@ -8,5 +8,10 @@ public interface CalculatedMetric {
 
     public List<String> getConfigParameters();
 
+    public String getKey();
+
     public String getTitle();
+
+    public ApplicationType getApplicationType();
+
 }

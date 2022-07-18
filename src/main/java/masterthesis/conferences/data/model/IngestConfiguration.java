@@ -14,6 +14,10 @@ public class IngestConfiguration {
 
     private Map<String, String> parameters = new HashMap<>();
 
+    public IngestConfiguration() {
+
+    }
+
     public IngestConfiguration(int id, ApplicationType type) {
         this.id = id;
         this.type = type;

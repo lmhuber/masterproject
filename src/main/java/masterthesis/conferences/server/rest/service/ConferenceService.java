@@ -3,6 +3,7 @@ package masterthesis.conferences.server.rest.service;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.data.model.IngestConfiguration;
 
 import java.util.List;
 
@@ -27,4 +28,6 @@ public interface ConferenceService {
 	List<Conference> searchBy(String name);
 
     AdditionalMetric findByMetricId(int id);
+
+    IngestConfiguration findConfigById(int ingestConfigId);
 }
