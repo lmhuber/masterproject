@@ -1,0 +1,168 @@
+[
+  {
+    "headers": {
+      "content-type": [
+        "application/json"
+      ],
+      "accept": [
+        "application/json"
+      ],
+      "X-Cloud-Trace-Context": [
+        "1d9165dd37f4f2c7425c593b7948bb54;o=1"
+      ],
+      "Date": [
+        "Sun, 17 Jul 2022 21:00:19 GMT"
+      ],
+      "Server": [
+        "Google Frontend"
+      ],
+      "Content-Length": [
+        "2360"
+      ]
+    },
+    "body": {
+      "page_count": "integer [int64]",
+      "page_size": "integer",
+      "total_records": "integer [int64]",
+      "next_page_token": "string",
+      "participants": [
+        {
+          "user_id": "string [uuid]",
+          "user_name": "string",
+          "device": "string",
+          "ip_address": "string",
+          "location": "string",
+          "join_time": "string [date-time]",
+          "leave_time": "string [date-time]",
+          "pc_name": "string",
+          "domain": "string",
+          "mac_addr": "string",
+          "harddisk_id": "string",
+          "version": "string",
+          "user_qos": [
+            {
+              "date_time": "string [date-time]",
+              "audio_input": {
+                "bitrate": "string",
+                "latency": "string",
+                "jitter": "string",
+                "avg_loss": "string",
+                "max_loss": "string"
+              },
+              "audio_output": {
+                "bitrate": "string",
+                "latency": "1 ms",
+                "jitter": "string",
+                "avg_loss": "string",
+                "max_loss": "string"
+              },
+              "video_input": {
+                "bitrate": "string",
+                "latency": "string",
+                "jitter": "string",
+                "avg_loss": "string",
+                "max_loss": "string",
+                "resolution": "string",
+                "frame_rate": "string"
+              },
+              "video_output": {
+                "bitrate": "string",
+                "latency": "string",
+                "jitter": "string",
+                "avg_loss": "string",
+                "max_loss": "string",
+                "resolution": "string",
+                "frame_rate": "string"
+              },
+              "as_input": {
+                "bitrate": "string",
+                "latency": "string",
+                "jitter": "string",
+                "avg_loss": "string",
+                "max_loss": "string",
+                "resolution": "string",
+                "frame_rate": "string"
+              },
+              "as_output": {
+                "bitrate": "string",
+                "latency": "string",
+                "jitter": "string",
+                "avg_loss": "string",
+                "max_loss": "string",
+                "resolution": "string",
+                "frame_rate": "string"
+              },
+              "cpu_usage": {
+                "zoom_min_cpu_usage": "string",
+                "zoom_avg_cpu_usage": "string",
+                "zoom_max_cpu_usage": "string",
+                "system_max_cpu_usage": "string"
+              }
+            },
+            {
+              "date_time": "string [date-time]",
+              "audio_input": {
+                "bitrate": "string",
+                "latency": "string",
+                "jitter": "string",
+                "avg_loss": "string",
+                "max_loss": "string"
+              },
+              "audio_output": {
+                "bitrate": "string",
+                "latency": "3 ms",
+                "jitter": "string",
+                "avg_loss": "string",
+                "max_loss": "string"
+              },
+              "video_input": {
+                "bitrate": "string",
+                "latency": "string",
+                "jitter": "string",
+                "avg_loss": "string",
+                "max_loss": "string",
+                "resolution": "string",
+                "frame_rate": "string"
+              },
+              "video_output": {
+                "bitrate": "string",
+                "latency": "string",
+                "jitter": "string",
+                "avg_loss": "string",
+                "max_loss": "string",
+                "resolution": "string",
+                "frame_rate": "string"
+              },
+              "as_input": {
+                "bitrate": "string",
+                "latency": "string",
+                "jitter": "string",
+                "avg_loss": "string",
+                "max_loss": "string",
+                "resolution": "string",
+                "frame_rate": "string"
+              },
+              "as_output": {
+                "bitrate": "string",
+                "latency": "string",
+                "jitter": "string",
+                "avg_loss": "string",
+                "max_loss": "string",
+                "resolution": "string",
+                "frame_rate": "string"
+              },
+              "cpu_usage": {
+                "zoom_min_cpu_usage": "string",
+                "zoom_avg_cpu_usage": "string",
+                "zoom_max_cpu_usage": "string",
+                "system_max_cpu_usage": "string"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "statusCode": "OK",
+    "statusCodeValue": 200
+  }
+]
