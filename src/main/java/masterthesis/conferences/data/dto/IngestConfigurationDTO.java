@@ -1,5 +1,7 @@
 package masterthesis.conferences.data.dto;
 
+import co.elastic.clients.elasticsearch._types.mapping.Property;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -8,6 +10,19 @@ public class IngestConfigurationDTO {
     private int id;
     private String type;
     private Map<String, String> parameters = new HashMap<>();
+
+    private final static Map<String, Property> properties = new HashMap<>();
+
+
+    public IngestConfigurationDTO(int id, String type, Map<String, String> parameters) {
+        this.id = id;
+        this.type = type;
+        this.parameters = parameters;
+    }
+
+    public IngestConfigurationDTO() {
+
+    }
 
     public int getId() {
         return id;
@@ -44,5 +59,19 @@ public class IngestConfigurationDTO {
     @Override
     public int hashCode() {
         return Objects.hash(id, type, parameters);
+    }
+
+    public static Map<String, Property> getProperties() {
+        if (properties.isEmpty()) {
+            properties.put("id", Property.of(c -> c.long_(fn -> fn.store(true))));
+            properties.put("type", Property.of(c -> c.text(fn -> fn.store(true).fields("raw", Property.of(k -> k.keyword(fn2 -> fn2))))));
+            properties.put("parameters", Property
+                    .of(n -> n.nested(fn -> fn.properties(Map
+                            .of("config", Property.of(tn -> tn.text(tfn -> tfn.store(true))),
+                                    "value",
+                                    Property.of(tn -> tn.text(tfn -> tfn.store(true))))))));
+
+        }
+        return properties;
     }
 }

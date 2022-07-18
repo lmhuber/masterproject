@@ -1,12 +1,11 @@
 package masterthesis.conferences.data;
 
-import masterthesis.conferences.data.dto.AdditionalMetricDTO;
-import masterthesis.conferences.data.dto.ConferenceDTO;
-import masterthesis.conferences.data.dto.ConferenceEditionDTO;
-import masterthesis.conferences.data.dto.ConferenceFrontendDTO;
+import masterthesis.conferences.data.dto.*;
+import masterthesis.conferences.data.metrics.ApplicationType;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.data.model.IngestConfiguration;
 import masterthesis.conferences.server.rest.service.ConferenceService;
 import masterthesis.conferences.server.rest.service.ConferenceServiceImpl;
 import masterthesis.conferences.server.rest.storage.ElasticReadOperation;
@@ -42,8 +41,15 @@ public class MapperService {
 
     public AdditionalMetricDTO convertToAdditionalMetricDTO(int id) {
         AdditionalMetric metric = conferenceService.findByMetricId(id);
-        return new AdditionalMetricDTO(metric.getId(), conferenceService.findEditionByMetricId(id).getId(),
+        return new AdditionalMetricDTO(metric.getId(), metric.getConfig().getId(),
+                conferenceService.findEditionByMetricId(id).getId(),
                 metric.getDatapoint(), metric.getMetricIdentifier());
+    }
+
+    public IngestConfigurationDTO convertToIngestConfigurationDTO(int id) {
+        IngestConfiguration config = conferenceService.findConfigById(id);
+        if (config == null) return null;
+        return new IngestConfigurationDTO(config.getId(), config.getType().text(), config.getParameters());
     }
 
     public Conference convertToConference(ConferenceDTO conferenceDTO) throws ExecutionException, InterruptedException {
@@ -92,13 +98,20 @@ public class MapperService {
         return conferenceEdition;
     }
 
-    public AdditionalMetric convertToAdditionalMetric(AdditionalMetricDTO metricDTO) {
+    public AdditionalMetric convertToAdditionalMetric(AdditionalMetricDTO metricDTO) throws ExecutionException, InterruptedException {
         if (metricDTO == null) return null;
         AdditionalMetric metric = new AdditionalMetric();
         metric.setId(metricDTO.getMetId());
         metric.setMetricIdentifier(metricDTO.getMetricIdentifier());
         metric.setDatapoint(metricDTO.getDatapoint());
+        metric.setConfig(ElasticReadOperation.retrieveIngestConfiguration(metricDTO.getIngestConfigId()));
         return metric;
+    }
+
+
+    public IngestConfiguration convertToIngestConfiguration(IngestConfigurationDTO configDTO) {
+        if (configDTO == null) return null;
+        return new IngestConfiguration(configDTO.getId(), ApplicationType.getFromString(configDTO.getType()));
     }
 
 
@@ -131,5 +144,4 @@ public class MapperService {
         frontendDTO.setTitle(conference.getTitle());
         return frontendDTO;
     }
-
 }

@@ -7,6 +7,8 @@ import masterthesis.conferences.ConferencesApplication;
 import masterthesis.conferences.data.dto.AdditionalMetricDTO;
 import masterthesis.conferences.data.dto.ConferenceDTO;
 import masterthesis.conferences.data.dto.ConferenceEditionDTO;
+import masterthesis.conferences.data.dto.IngestConfigurationDTO;
+import masterthesis.conferences.data.util.Indices;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -33,11 +35,11 @@ public class ElasticWriteOperation extends ElasticOperation{
 
     public static void createMapping(String indexName) throws InterruptedException {
         Map<String, Property> properties = null;
-        if (indexName.equalsIgnoreCase(CONFERENCE.indexName())) {
+        if (indexName.equalsIgnoreCase(CONFERENCE.index())) {
             properties = ConferenceDTO.getProperties();
-        } else if (indexName.equalsIgnoreCase(CONFERENCE_EDITION.indexName())) {
+        } else if (indexName.equalsIgnoreCase(CONFERENCE_EDITION.index())) {
             properties = ConferenceEditionDTO.getProperties();
-        } else if (indexName.equalsIgnoreCase(ADDITIONAL_METRIC.indexName())) {
+        } else if (indexName.equalsIgnoreCase(ADDITIONAL_METRIC.index())) {
             properties = AdditionalMetricDTO.getProperties();
         }
 
@@ -100,17 +102,25 @@ public class ElasticWriteOperation extends ElasticOperation{
 
     public static void writeConferenceEdition(ConferenceEditionDTO editionDTO) throws InterruptedException {
         sendAsyncRequestToElastic(
-                IndexRequest.of(c -> c.index(CONFERENCE_EDITION.indexName())
+                IndexRequest.of(c -> c.index(CONFERENCE_EDITION.index())
                         .id(Integer.toString(editionDTO.getId())).document(editionDTO))
         );
     }
 
     public static void writeAdditionalMetric(AdditionalMetricDTO additionalMetricDTO) throws InterruptedException {
         sendAsyncRequestToElastic(
-                IndexRequest.of(c -> c.index(ADDITIONAL_METRIC.indexName())
+                IndexRequest.of(c -> c.index(ADDITIONAL_METRIC.index())
                         .id(Integer.toString(additionalMetricDTO.getMetId())).document(additionalMetricDTO))
         );
     }
+
+    public static void writeIngestConfiguration(IngestConfigurationDTO ingestConfigurationDTO) throws InterruptedException {
+        sendAsyncRequestToElastic(
+                IndexRequest.of(c -> c.index(INGEST_CONFIGURATION.index())
+                        .id(Integer.toString(ingestConfigurationDTO.getId())).document(ingestConfigurationDTO))
+        );
+    }
+
 
     public static void deleteIndex(String indexName) throws InterruptedException {
         CompletableFuture<?> responseObject = esClient.indices().delete(i -> i.index(indexName))
@@ -129,7 +139,7 @@ public class ElasticWriteOperation extends ElasticOperation{
 
     public static void deleteConference(String title) throws InterruptedException {
         CompletableFuture<?> responseObject = esClient.delete(
-                i -> i.index(CONFERENCE.indexName()).id(title)
+                i -> i.index(CONFERENCE.index()).id(title)
         ).whenComplete((response, exception)
                 -> {
             if (exception != null) {
@@ -144,28 +154,24 @@ public class ElasticWriteOperation extends ElasticOperation{
     }
 
     public static void deleteConferenceEdition(int id) throws InterruptedException {
-        CompletableFuture<?> responseObject = esClient.delete(
-                i -> i.index(CONFERENCE_EDITION.indexName()).id(Integer.toString(id))
-        ).whenComplete((response, exception)
-                -> {
-            if (exception != null) {
-                ConferencesApplication.getLogger().error("Failed to delete ConferenceEdition", exception);
-            } else {
-                ConferencesApplication.getLogger().info(response);
-            }
-        });
-        while (!responseObject.isDone()) {
-            Thread.sleep(100);
-        }
+        deleteDocument(id, CONFERENCE_EDITION, "ConferenceEdition");
     }
 
     public static void deleteAdditionalMetric(int id) throws InterruptedException {
+        deleteDocument(id, ADDITIONAL_METRIC, "AdditionalMetric");
+    }
+
+    public static void deleteIngestConfiguration(int id) throws InterruptedException {
+        deleteDocument(id, INGEST_CONFIGURATION, "IngestConfiguration");
+    }
+
+    private static void deleteDocument(int id, Indices index, String name) throws InterruptedException {
         CompletableFuture<?> responseObject = esClient.delete(
-                i -> i.index(ADDITIONAL_METRIC.indexName()).id(Integer.toString(id))
+                i -> i.index(index.index()).id(Integer.toString(id))
         ).whenComplete((response, exception)
                 -> {
             if (exception != null) {
-                ConferencesApplication.getLogger().error("Failed to delete AdditionalMetric", exception);
+                ConferencesApplication.getLogger().error("Failed to delete " + name, exception);
             } else {
                 ConferencesApplication.getLogger().info(response);
             }
@@ -194,4 +200,5 @@ public class ElasticWriteOperation extends ElasticOperation{
         }
 
     }
+
 }

@@ -1,10 +1,13 @@
 package masterthesis.conferences.data.metrics.zoom;
 
 import masterthesis.conferences.data.metrics.APIMetric;
+import masterthesis.conferences.data.metrics.ApplicationType;
 
 import java.util.List;
 
 public class AudioLatency extends APIMetric {
+
+    public static final String MEETING_ID = "meetingId";
 
     public AudioLatency() {
         super(List.of("body", "participants", "user_qos", "audio_output", "latency"));
@@ -21,11 +24,21 @@ public class AudioLatency extends APIMetric {
 
     @Override
     public List<String> getConfigParameters() {
-        return List.of("meetingId");
+        return List.of(MEETING_ID);
+    }
+
+    @Override
+    public String getKey() {
+        return "audioLatency";
     }
 
     @Override
     public String getTitle() {
-        return "audioLatency";
+        return "Audio Latency";
+    }
+
+    @Override
+    public ApplicationType getApplicationType() {
+        return ApplicationType.ZOOM;
     }
 }

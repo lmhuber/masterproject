@@ -7,9 +7,11 @@ import co.elastic.clients.transport.rest_client.RestClientTransport;
 import masterthesis.conferences.ConferencesApplication;
 import masterthesis.conferences.data.ConferenceRepository;
 import masterthesis.conferences.data.MapperService;
+import masterthesis.conferences.data.dto.IngestConfigurationDTO;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.data.model.IngestConfiguration;
 import masterthesis.conferences.server.rest.storage.ElasticReadOperation;
 import masterthesis.conferences.server.rest.storage.ElasticWriteOperation;
 import org.apache.http.HttpHost;
@@ -74,33 +76,33 @@ public class StorageController implements Controller {
         ConferencesApplication.getLogger().info("Initializing Elasticsearch Index");
         boolean indexCreated;
         if (ConferencesApplication.DEBUG) {
-            if (ElasticReadOperation.existsIndex(CONFERENCE.indexName())) {
-                ElasticWriteOperation.deleteIndex(CONFERENCE.indexName());
+            if (ElasticReadOperation.existsIndex(CONFERENCE.index())) {
+                ElasticWriteOperation.deleteIndex(CONFERENCE.index());
             }
-            if (ElasticReadOperation.existsIndex(CONFERENCE_EDITION.indexName())) {
-                ElasticWriteOperation.deleteIndex(CONFERENCE_EDITION.indexName());
+            if (ElasticReadOperation.existsIndex(CONFERENCE_EDITION.index())) {
+                ElasticWriteOperation.deleteIndex(CONFERENCE_EDITION.index());
             }
         }
 
-        indexCreated = ElasticReadOperation.existsIndex(CONFERENCE.indexName());
-        indexCreated &= ElasticReadOperation.existsIndex(CONFERENCE_EDITION.indexName());
+        indexCreated = ElasticReadOperation.existsIndex(CONFERENCE.index());
+        indexCreated &= ElasticReadOperation.existsIndex(CONFERENCE_EDITION.index());
         if (!indexCreated) {
-            initIndex(CONFERENCE.indexName());
-            initIndex(CONFERENCE_EDITION.indexName());
-            initIndex(ADDITIONAL_METRIC.indexName());
+            initIndex(CONFERENCE.index());
+            initIndex(CONFERENCE_EDITION.index());
+            initIndex(ADDITIONAL_METRIC.index());
         } else {
-            ElasticWriteOperation.openIndex(CONFERENCE.indexName());
-            ElasticWriteOperation.openIndex(CONFERENCE_EDITION.indexName());
-            ElasticWriteOperation.openIndex(ADDITIONAL_METRIC.indexName());
+            ElasticWriteOperation.openIndex(CONFERENCE.index());
+            ElasticWriteOperation.openIndex(CONFERENCE_EDITION.index());
+            ElasticWriteOperation.openIndex(ADDITIONAL_METRIC.index());
         }
         ConferencesApplication.getLogger().info("Elasticsearch Index initialized");
     }
 
     @Override
     public void shutdown() throws InterruptedException {
-        ElasticWriteOperation.closeIndex(CONFERENCE.indexName());
-        ElasticWriteOperation.closeIndex(CONFERENCE_EDITION.indexName());
-        ElasticWriteOperation.closeIndex(ADDITIONAL_METRIC.indexName());
+        ElasticWriteOperation.closeIndex(CONFERENCE.index());
+        ElasticWriteOperation.closeIndex(CONFERENCE_EDITION.index());
+        ElasticWriteOperation.closeIndex(ADDITIONAL_METRIC.index());
     }
 
     private void initIndex(String indexName) throws InterruptedException {
@@ -111,7 +113,7 @@ public class StorageController implements Controller {
     public static void indexConference(Conference conference) throws InterruptedException {
         repository.addConference(conference);
         ElasticWriteOperation.writeConference(
-                Objects.requireNonNull(getMapper()).convertToConferenceDTO(conference.getTitle()), CONFERENCE.indexName()
+                Objects.requireNonNull(getMapper()).convertToConferenceDTO(conference.getTitle()), CONFERENCE.index()
         );
     }
 
@@ -130,6 +132,14 @@ public class StorageController implements Controller {
                 Objects.requireNonNull(getMapper()).convertToAdditionalMetricDTO(metric.getId())
         );
         indexConferenceEdition(edition, conference);
+    }
+
+    public static void indexIngestConfiguration(ConferenceEdition edition, Conference conference, AdditionalMetric metric, IngestConfiguration config) throws InterruptedException {
+        metric.setConfig(config);
+        IngestConfigurationDTO ingestDTO = Objects.requireNonNull(getMapper()).convertToIngestConfigurationDTO(config.getId());
+        if (ingestDTO == null) return;
+        ElasticWriteOperation.writeIngestConfiguration(ingestDTO);
+        indexAdditionalMetric(edition, conference, metric);
     }
 
     public static void removeConference(Conference conference) throws InterruptedException {
@@ -155,6 +165,11 @@ public class StorageController implements Controller {
     public static void removeAdditionalMetric(AdditionalMetric metric) throws InterruptedException {
         ElasticWriteOperation.deleteAdditionalMetric(metric.getId());
         repository.removeAdditionalMetric(metric.getId());
+    }
+
+    public static void removeIngestConfiguration(IngestConfiguration config) throws InterruptedException {
+        ElasticWriteOperation.deleteIngestConfiguration(config.getId());
+        repository.removeIngestConfiguration(config.getId());
     }
 
 

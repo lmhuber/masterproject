@@ -1,6 +1,9 @@
 package masterthesis.conferences.server.rest.service;
 
 import masterthesis.conferences.data.config.QoSConfig;
+import masterthesis.conferences.data.metrics.ApplicationType;
+import masterthesis.conferences.data.model.IngestConfiguration;
+import masterthesis.conferences.server.rest.storage.ElasticReadOperation;
 import org.elasticsearch.common.inject.Inject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -9,6 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+
+import static masterthesis.conferences.data.metrics.zoom.AudioLatency.MEETING_ID;
 
 @Service
 public class QoSMetricsServiceImpl implements QoSMetricsService {
@@ -65,11 +71,25 @@ public class QoSMetricsServiceImpl implements QoSMetricsService {
         return responses;
     }
 
-    // TODO: @Alex: think about how you want to save these metrics to the database
-    // we can expand the application.yml and config with more parameters, if they are needed
-    // for a scheduled cronjob, you can only use methods that accept no parameters, but we can read them from these files
     @Inject
     public void setQoSConfig(QoSConfig qoSConfig) {
         this.qoSConfig = qoSConfig;
+    }
+
+    public void addMeetingToConfigFromElastic(int id) {
+        IngestConfiguration config = null;
+        try {
+            config = ElasticReadOperation.retrieveIngestConfiguration(id);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (config == null) return;
+
+        if (config.getType() == ApplicationType.ZOOM) {
+            this.qoSConfig.getMeetingIdList().add(config.getParameters().get(MEETING_ID));
+        }
+
     }
 }

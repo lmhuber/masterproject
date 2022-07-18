@@ -12,9 +12,11 @@ import masterthesis.conferences.ConferencesApplication;
 import masterthesis.conferences.data.dto.AdditionalMetricDTO;
 import masterthesis.conferences.data.dto.ConferenceDTO;
 import masterthesis.conferences.data.dto.ConferenceEditionDTO;
+import masterthesis.conferences.data.dto.IngestConfigurationDTO;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.data.model.IngestConfiguration;
 import masterthesis.conferences.server.controller.StorageController;
 
 import java.util.ArrayList;
@@ -38,14 +40,14 @@ public class ElasticReadOperation extends ElasticOperation {
 
     public static Conference retrieveConference(String title) throws InterruptedException, ExecutionException {
         return Objects.requireNonNull(StorageController.getMapper()).convertToConference((ConferenceDTO) sendAsyncRequestToElastic(
-                GetRequest.of(s -> s.index(CONFERENCE.indexName()).id(title)),
+                GetRequest.of(s -> s.index(CONFERENCE.index()).id(title)),
                 ConferenceDTO.class
         ));
     }
 
     public static List<Conference> retrieveConferences() throws InterruptedException, ExecutionException {
         List<Hit<ConferenceDTO>> hits = (List<Hit<ConferenceDTO>>) sendAsyncSearchRequestToElastic(
-                SearchRequest.of(s -> s.index(CONFERENCE.indexName()).query(Query.of(m -> m.matchAll(MatchAllQuery.of(q -> q)))))
+                SearchRequest.of(s -> s.index(CONFERENCE.index()).query(Query.of(m -> m.matchAll(MatchAllQuery.of(q -> q)))))
         );
         List<ConferenceDTO> conferenceDTOList = new ArrayList<>();
         for (Hit<ConferenceDTO> hit : hits) {
@@ -57,7 +59,7 @@ public class ElasticReadOperation extends ElasticOperation {
     public static ConferenceEdition retrieveConferenceEdition(int id) throws InterruptedException, ExecutionException {
         return Objects.requireNonNull(StorageController.getMapper())
                 .convertToConferenceEdition((ConferenceEditionDTO) sendAsyncRequestToElastic(
-                        GetRequest.of(s -> s.index(CONFERENCE_EDITION.indexName()).id(Integer.toString(id))),
+                        GetRequest.of(s -> s.index(CONFERENCE_EDITION.index()).id(Integer.toString(id))),
                         ConferenceEditionDTO.class
                 ));
     }
@@ -65,10 +67,19 @@ public class ElasticReadOperation extends ElasticOperation {
     public static AdditionalMetric retrieveAdditionalMetric(int id) throws ExecutionException, InterruptedException {
         return Objects.requireNonNull(StorageController.getMapper())
                 .convertToAdditionalMetric((AdditionalMetricDTO) sendAsyncRequestToElastic(
-                        GetRequest.of(s -> s.index(ADDITIONAL_METRIC.indexName()).id(Integer.toString(id))),
+                        GetRequest.of(s -> s.index(ADDITIONAL_METRIC.index()).id(Integer.toString(id))),
                         AdditionalMetricDTO.class
                 ));
     }
+
+    public static IngestConfiguration retrieveIngestConfiguration(int id) throws ExecutionException, InterruptedException {
+        return Objects.requireNonNull(StorageController.getMapper())
+                .convertToIngestConfiguration((IngestConfigurationDTO) sendAsyncRequestToElastic(
+                        GetRequest.of(s -> s.index(INGEST_CONFIGURATION.index()).id(Integer.toString(id))),
+                        IngestConfigurationDTO.class
+                ));
+    }
+
 
     private static int getDocumentNumberFromIndex(String index) throws ExecutionException, InterruptedException {
         return (int) esClient.count(c -> c.index(index)).whenComplete((response, exception) -> {
@@ -80,11 +91,11 @@ public class ElasticReadOperation extends ElasticOperation {
     }
 
     public static int getMaxConferenceEditionId() throws ExecutionException, InterruptedException {
-        return getDocumentNumberFromIndex(CONFERENCE_EDITION.indexName());
+        return getDocumentNumberFromIndex(CONFERENCE_EDITION.index());
     }
 
     public static int getMaxAdditionalMetricId() throws ExecutionException, InterruptedException {
-        return getDocumentNumberFromIndex(ADDITIONAL_METRIC.indexName());
+        return getDocumentNumberFromIndex(ADDITIONAL_METRIC.index());
     }
 
     protected static Object sendAsyncRequestToElastic(GetRequest request, Class<?> clazz) throws InterruptedException, ExecutionException {

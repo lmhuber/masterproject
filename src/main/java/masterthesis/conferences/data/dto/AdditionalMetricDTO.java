@@ -18,8 +18,9 @@ public class AdditionalMetricDTO {
     public AdditionalMetricDTO() {
     }
 
-    public AdditionalMetricDTO(int metId, int conferenceEdition, float datapoint, String metricIdentifier) {
+    public AdditionalMetricDTO(int metId, int conferenceEdition, int ingestConfigId, float datapoint, String metricIdentifier) {
         this.metId = metId;
+        this.ingestConfigId = ingestConfigId;
         this.conferenceEdition = conferenceEdition;
         this.datapoint = datapoint;
         this.metricIdentifier = metricIdentifier;
@@ -57,6 +58,14 @@ public class AdditionalMetricDTO {
         this.conferenceEdition = conferenceEdition;
     }
 
+    public int getIngestConfigId() {
+        return ingestConfigId;
+    }
+
+    public void setIngestConfigId(int ingestConfigId) {
+        this.ingestConfigId = ingestConfigId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -67,7 +76,7 @@ public class AdditionalMetricDTO {
 
     @Override
     public int hashCode() {
-        return Objects.hash(metId, conferenceEdition, datapoint, metricIdentifier);
+        return Objects.hash(metId, ingestConfigId, conferenceEdition, datapoint, metricIdentifier);
     }
 
     @Override
@@ -75,6 +84,7 @@ public class AdditionalMetricDTO {
         return "AdditionalMetricDTO{" +
                 "metId=" + metId +
                 ", conferenceEdition=" + conferenceEdition +
+                ", ingestConfigId=" + ingestConfigId +
                 ", datapoint=" + datapoint +
                 ", metricIdentifier='" + metricIdentifier + '\'' +
                 '}';
@@ -83,6 +93,7 @@ public class AdditionalMetricDTO {
     public static Map<String, Property> getProperties() {
         if (properties.isEmpty()) {
             properties.put("metId", Property.of(c -> c.long_(fn -> fn.store(true))));
+            properties.put("ingestConfigId", Property.of(c -> c.long_(fn -> fn.store(true))));
             properties.put("metricIdentifier", Property.of(c -> c.text(fn -> fn.store(true).fields("raw", Property.of(k -> k.keyword(fn2 -> fn2))))));
             properties.put("datapoint", Property.of(n -> n.float_(fn -> fn.store(true).nullValue(-1.0f))));
             properties.put("conferenceEdition", Property.of(c -> c.long_(fn -> fn.store(true))));

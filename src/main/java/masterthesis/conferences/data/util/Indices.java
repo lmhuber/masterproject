@@ -4,15 +4,16 @@ public enum Indices {
 
     CONFERENCE("conference"),
     CONFERENCE_EDITION("conference-edition"),
-    ADDITIONAL_METRIC("conference-additional-metric");
+    ADDITIONAL_METRIC("conference-additional-metric"),
+    INGEST_CONFIGURATION("index-configuration");
 
-    private final String indexName;
+    private final String index;
 
-    Indices(String indexName) {
-        this.indexName = indexName;
+    Indices(String index) {
+        this.index = index;
     }
 
-    public String indexName() {
-        return this.indexName;
+    public String index() {
+        return this.index;
     }
 }
