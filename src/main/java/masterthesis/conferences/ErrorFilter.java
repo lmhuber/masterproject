@@ -1,4 +1,4 @@
-package masterthesis.conferences.server.controller;
+package masterthesis.conferences;
 
 public class ErrorFilter {
     private boolean errorFlag = false;

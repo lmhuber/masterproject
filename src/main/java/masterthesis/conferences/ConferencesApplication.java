@@ -1,6 +1,5 @@
 package masterthesis.conferences;
 
-import masterthesis.conferences.server.controller.ErrorFilter;
 import masterthesis.conferences.server.controller.ServerController;
 import masterthesis.conferences.server.controller.StorageController;
 import org.apache.commons.logging.Log;
@@ -44,5 +43,4 @@ public class ConferencesApplication {
 	public static ErrorFilter getErrorChecker() {
 		return errorChecker;
 	}
-
 }

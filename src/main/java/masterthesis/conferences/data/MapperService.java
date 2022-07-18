@@ -9,7 +9,7 @@ import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.rest.service.ConferenceService;
 import masterthesis.conferences.server.rest.service.ConferenceServiceImpl;
-import masterthesis.conferences.server.rest.storage.ElasticSearchOperations;
+import masterthesis.conferences.server.rest.storage.ElasticReadOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +52,7 @@ public class MapperService {
                 conferenceDTO.getOrganization(),
                 conferenceDTO.getPublisher());
         for (int i : conferenceDTO.getConferenceEdtions()) {
-            conference.addConferenceEdition(ElasticSearchOperations.retrieveConferenceEdition(i));
+            conference.addConferenceEdition(ElasticReadOperation.retrieveConferenceEdition(i));
         }
         return conference;
     }
@@ -86,7 +86,7 @@ public class MapperService {
         conferenceEdition.setGreenInnovativeness(editionDTO.getGreenInnovativeness());
         conferenceEdition.setInteractionDynamics(editionDTO.getInteractionDynamics());
         for (int id : editionDTO.getAdditionalMetrics()) {
-            conferenceEdition.getAdditionalMetrics().add(ElasticSearchOperations.retrieveAdditionalMetric(id));
+            conferenceEdition.getAdditionalMetrics().add(ElasticReadOperation.retrieveAdditionalMetric(id));
         }
         conferenceEdition.setSustainability(editionDTO.getSustainability());
         return conferenceEdition;

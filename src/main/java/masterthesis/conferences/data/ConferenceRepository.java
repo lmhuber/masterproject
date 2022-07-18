@@ -3,7 +3,7 @@ package masterthesis.conferences.data;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
-import masterthesis.conferences.server.controller.ServerController;
+import masterthesis.conferences.server.controller.StorageController;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -69,7 +69,7 @@ public class ConferenceRepository {
     public void addEdition(Conference conferenceToAdd, ConferenceEdition editionToAdd) {
         if (editionToAdd == null) return;
         try {
-            ServerController.indexConferenceEdition(editionToAdd, conferenceToAdd);
+            StorageController.indexConferenceEdition(editionToAdd, conferenceToAdd);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -78,7 +78,7 @@ public class ConferenceRepository {
     public void addMetric(Conference conferenceToAdd, ConferenceEdition editionToAdd, AdditionalMetric metricToAdd) {
         if (metricToAdd == null) return;
         try {
-            ServerController.indexAdditionalMetric(editionToAdd, conferenceToAdd, metricToAdd);
+            StorageController.indexAdditionalMetric(editionToAdd, conferenceToAdd, metricToAdd);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -111,11 +111,11 @@ public class ConferenceRepository {
 
     public void save(Conference conference) throws InterruptedException {
         this.addConference(conference);
-        ServerController.indexConference(conference);
+        StorageController.indexConference(conference);
     }
 
     public void deleteById(String title) throws InterruptedException {
-        ServerController.removeConference(getConference(title));
+        StorageController.removeConference(getConference(title));
         conferenceSet.remove(getConference(title));
     }
 

@@ -11,7 +11,7 @@ import masterthesis.conferences.server.controller.StorageController;
 import masterthesis.conferences.server.dashboarding.ChartType;
 import masterthesis.conferences.server.dashboarding.DashboardingUtils;
 import masterthesis.conferences.server.dashboarding.Operations;
-import masterthesis.conferences.server.rest.storage.ElasticSearchOperations;
+import masterthesis.conferences.server.rest.storage.ElasticReadOperation;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
@@ -70,17 +70,17 @@ public class DatamodelTests {
     @Test
     @Order(2)
     void testMapConferenceToDTO() {
-        Conference conference = ServerController.getRepository().getConference(DEXA);
-        ConferenceDTO dto = ServerController.getMapper().convertToConferenceDTO(conference.getTitle());
+        Conference conference = StorageController.getRepository().getConference(DEXA);
+        ConferenceDTO dto = StorageController.getMapper().convertToConferenceDTO(conference.getTitle());
         assertEquals(dto.toString(), new ConferenceDTO(DEXA, "TK JKU Linz", "ACM", Set.of()).toString());
     }
 
     @Test
     @Order(1)
     void testIngestConference() throws InterruptedException {
-        ServerController.indexConference(conference1);
+        StorageController.indexConference(conference1);
         checkErrorLogs();
-        ServerController.indexConference(conference2);
+        StorageController.indexConference(conference2);
         checkErrorLogs();
     }
 
@@ -88,7 +88,7 @@ public class DatamodelTests {
     @Order(3)
     void testIngestEdition() throws InterruptedException, ExecutionException {
         for (int c = 0; c < 5; c++) {
-            ServerController.indexConferenceEdition(createEdition(), ServerController.getRepository().getConference(DEXA));
+            StorageController.indexConferenceEdition(createEdition(), StorageController.getRepository().getConference(DEXA));
             checkErrorLogs();
         }
     }
@@ -98,9 +98,9 @@ public class DatamodelTests {
     void testAdditionalMetricIngestInEdition() throws InterruptedException, ExecutionException {
         for (int c = 0; c < 5; c++){
             ConferenceEdition edition = createEdition();
-            ServerController.indexConferenceEdition(edition, ServerController.getRepository().getConference(DEXA));
-            ServerController.indexAdditionalMetric(edition,
-                    ServerController.getRepository().getConference(DEXA), createAdditionalMetric());
+            StorageController.indexConferenceEdition(edition, StorageController.getRepository().getConference(DEXA));
+            StorageController.indexAdditionalMetric(edition,
+                    StorageController.getRepository().getConference(DEXA), createAdditionalMetric());
             checkErrorLogs();
         }
     }
@@ -110,52 +110,52 @@ public class DatamodelTests {
     void testCustomDashboardExportWithAdditionalMetrics() {
         List<DashboardingMetricDTO> dashboardSettings =  new ArrayList<>();
         dashboardSettings.add(new DashboardingMetricDTO(DEXA, ChartType.METRIC.getName(), Operations.AVERAGE.getName(), METRIC_IDENTIFIER_1));
-        DashboardingUtils.convertToDashboard(ServerController.getRepository().getConference(DEXA), dashboardSettings);
+        DashboardingUtils.convertToDashboard(StorageController.getRepository().getConference(DEXA), dashboardSettings);
     }
 
     @Test
     @Order(6)
     void testConferenceRead() throws InterruptedException, ExecutionException {
-        Conference conference = ElasticSearchOperations.retrieveConference(DEXA);
+        Conference conference = ElasticReadOperation.retrieveConference(DEXA);
         System.out.println(conference.toString());
-        assertEquals(conference.toString(), ServerController.getRepository().getConference(DEXA).toString());
+        assertEquals(conference.toString(), StorageController.getRepository().getConference(DEXA).toString());
     }
 
     @Test
     @Order(7)
     void testDeletionEdition() throws InterruptedException, ExecutionException {
         if (ConferencesApplication.DEBUG) return;
-        ServerController
-                .removeConferenceEdition(ServerController.getRepository().getEdition(0));
-        assertNull(ServerController.getRepository().getEdition(0));
-        assertNull(ElasticSearchOperations.retrieveConferenceEdition(0));
+        StorageController
+                .removeConferenceEdition(StorageController.getRepository().getEdition(0));
+        assertNull(StorageController.getRepository().getEdition(0));
+        assertNull(ElasticReadOperation.retrieveConferenceEdition(0));
     }
 
     @Test
     @Order(8)
     void testDeletionConference() throws InterruptedException, ExecutionException {
         if (ConferencesApplication.DEBUG) return;
-        ServerController
-                .removeConference(ServerController.getRepository().getConference(IIWAS));
-        assertNull(ServerController.getRepository().getConference(IIWAS));
-        assertNull(ElasticSearchOperations.retrieveConference(IIWAS));
+        StorageController
+                .removeConference(StorageController.getRepository().getConference(IIWAS));
+        assertNull(StorageController.getRepository().getConference(IIWAS));
+        assertNull(ElasticReadOperation.retrieveConference(IIWAS));
     }
 
     @Test
     @Order(9)
     void testDeletionConferenceCascading() throws InterruptedException, ExecutionException {
         if (ConferencesApplication.DEBUG) return;
-        ServerController
-                .removeConference(ServerController.getRepository().getConference(DEXA));
-        assertNull(ServerController.getRepository().getConference(DEXA));
-        assertNull(ElasticSearchOperations.retrieveConference(DEXA));
-        assertNull(ElasticSearchOperations.retrieveConferenceEdition(3));
+        StorageController
+                .removeConference(StorageController.getRepository().getConference(DEXA));
+        assertNull(StorageController.getRepository().getConference(DEXA));
+        assertNull(ElasticReadOperation.retrieveConference(DEXA));
+        assertNull(ElasticReadOperation.retrieveConferenceEdition(3));
     }
 
     @Test
     @Order(10)
     void testRetrievalAllConferences() {
-        ServerController.fetchConferences();
+        StorageController.fetchConferences();
     }
 
 
