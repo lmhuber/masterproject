@@ -1,6 +1,6 @@
 package masterthesis.conferences.data.model;
 
-import masterthesis.conferences.server.rest.storage.ElasticCountOperations;
+import masterthesis.conferences.server.rest.storage.ElasticReadOperation;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -34,7 +34,7 @@ public class ConferenceEdition {
                              int greenInnovativeness, float interactionDynamics, float cost,
                              float carbonFootprint, String sustainability, String country,
                              String city, AdditionalMetric... additionalMetrics) throws ExecutionException, InterruptedException {
-        this.id = ElasticCountOperations.getMaxConferenceEditionId();
+        this.id = ElasticReadOperation.getMaxConferenceEditionId();
         this.year = year;
         this.edition = edition;
         this.participants = participants;

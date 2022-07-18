@@ -4,7 +4,7 @@ import masterthesis.conferences.data.ConferenceRepository;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
-import masterthesis.conferences.server.controller.ServerController;
+import masterthesis.conferences.server.controller.StorageController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ public class ConferenceServiceImpl implements ConferenceService {
 
 	@Autowired
 	public ConferenceServiceImpl() {
-		this.conferenceRepository = ServerController.getRepository();
+		this.conferenceRepository = StorageController.getRepository();
 	}
 	
 	@Override

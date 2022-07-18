@@ -9,6 +9,7 @@ import java.util.Objects;
 public class AdditionalMetricDTO {
     private int metId;
     private int conferenceEdition;
+    private int ingestConfigId;
     private float datapoint;
     private String metricIdentifier;
 

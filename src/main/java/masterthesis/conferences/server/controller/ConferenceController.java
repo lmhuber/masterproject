@@ -42,7 +42,7 @@ public class ConferenceController {
 
 	public ConferenceController() {
 		this.conferenceService = new ConferenceServiceImpl();
-		this.mapperService = ServerController.getMapper();
+		this.mapperService = StorageController.getMapper();
 	}
 
 	// add mapping for "/list"
