@@ -126,12 +126,26 @@
                   class="badge badge-danger ml-2 mb-4"></span>
         </div>
 
+        <p class="h5 mb-5">Select Additional Metrics</p>
+        <div>
+            <select class="form-control" th:name="additionalMetric">
+                <option th:each="additionalMetric : ${additionalMetrics}" th:value="${additionalMetric}" th:text="${additionalMetric}"></option>
+            </select>
+            <!-- Edit button -->
+            <a th:href="@{showFormForEditAdditionalMetrics(confEditionId=${conferenceFrontendDTO.id}, title=${conferenceFrontendDTO.title}, additionalMetric=${additionalMetric})}"
+               class="btn btn-success btn-sm"
+               onclick="if (!(confirm('Edit this additional metric?'))) return false">
+                Edit Additional Metric
+            </a>
+        </div>
+
+
         <button type="submit" class="btn btn-info col-2">Save</button>
 
     </form>
 
     <hr>
-    <a th:href="@{/conferences/conferences-form-edit}">Back to Edit Conference</a>
+    <a th:href="@{showFormForEditConference(conferenceId=${conferenceFrontendDTO.title})}">Back to Edit Conference</a>
 
 </div>
 </body>
