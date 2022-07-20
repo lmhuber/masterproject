@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+    <title>Edit Configs</title>
+</head>
+
+<body>
+
+<div class="container">
+
+    <hr>
+
+    <p class="h4 mb-4">Edit Configs</p>
+
+    <form action="#" th:action="@{/conferences/save}"
+          th:object="${ingestConfigurationDTO}" method="POST">
+
+        <div style="display: none">
+            Config Id&emsp;&emsp;<input type="text" th:field="*{id}"
+                                        class="form-control mb-4 col-4" placeholder="Config Id" name="id">
+        </div>
+        <div class="form-inline">
+            Config type&emsp;&emsp;<input type="text" th:field="*{type}"
+                                               class="form-control mb-4 col-4" placeholder="Config Type" name="type">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('type')}"
+                  th:errors="*{type}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+
+        </div>
+
+        <h1>Parameters</h1>
+        <table>
+            <tr>
+                <th>No</th>
+                <th>Config</th>
+                <th>Parameter</th>
+            </tr>
+            <tr th:each="entry, stat : ${parameters}">
+                <td th:text="${stat.index + 1}">1</td>
+                <td th:text="${entry.key}">config</td>
+                <td>
+                    <table>
+                        <tr th:each="parameter : ${entry.value}">
+                            <td th:text="${parameter}"></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <button type="submit" class="btn btn-info col-2">Save</button>
+
+    </form>
+
+    <hr>
+    <a th:href="@{showFormForEditConference(conferenceId=${title})}">Back to Edit Conference</a>
+
+</div>
+</body>
+
+</html>

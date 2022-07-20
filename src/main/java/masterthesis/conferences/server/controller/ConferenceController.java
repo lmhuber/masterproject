@@ -3,6 +3,7 @@ package masterthesis.conferences.server.controller;
 import masterthesis.conferences.data.MapperService;
 import masterthesis.conferences.data.dto.AdditionalMetricDTO;
 import masterthesis.conferences.data.dto.ConferenceFrontendDTO;
+import masterthesis.conferences.data.dto.IngestConfigurationDTO;
 import masterthesis.conferences.data.metrics.ApplicationType;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
@@ -194,7 +195,7 @@ public class ConferenceController {
 
 		if (conferenceEdition != null && !conferenceEdition.getAdditionalMetrics().isEmpty()) {
 			for (var i : conferenceEdition.getAdditionalMetricIds()) {
-				additionalMetrics.add("Edition: " + i);
+				additionalMetrics.add("Metric: " + i);
 			}
 		}
 		additionalMetrics.add("Add new");
@@ -233,8 +234,51 @@ public class ConferenceController {
 		// set conference as a model attribute to pre-populate the form
 		model.addAttribute("additionalMetric", additionalMetricDTO);
 
+		List<String> configs = new ArrayList<>();
+
+		if (additionalMetricDTO != null) {
+				configs.add("Config: " + additionalMetricDTO.getIngestConfigId());
+		}
+		configs.add("Add new");
+		model.addAttribute("configs", configs);
+
 		// send over to our form
 		return "conferences/conferences-form-additional-metrics";
+	}
+
+	@GetMapping("/showFormForEditConfigs")
+	public String showFormForEditConfigs(@RequestParam("confEditionId") String confEditionId, @RequestParam("title") String title, @RequestParam("metricId") String metricId, @RequestParam(value = "config") String config,
+												   Model model) throws ExecutionException, InterruptedException {
+
+		// get the conference from the service
+		ConferenceEdition conferenceEdition = conferenceService.findById(Integer.parseInt(confEditionId));
+
+		int ingestId = -1;
+		try {
+			if (!config.equals("Add new")) ingestId = Integer.parseInt(config.split(" ")[1]);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		IngestConfigurationDTO ingestConfigurationDTO = null;
+
+		// create new IngestConfig
+		if (conferenceService.findByMetricId(Integer.parseInt(metricId)).getConfig() == null) {
+			IngestConfiguration ingestConfiguration = new IngestConfiguration(0, ApplicationType.ZOOM);
+			AdditionalMetric metric = conferenceService.findByMetricId(Integer.parseInt(metricId));
+			metric.setConfig(ingestConfiguration);
+			conferenceService.save(metric, title, Integer.parseInt(confEditionId));
+
+			ingestConfigurationDTO = mapperService.convertToIngestConfigurationDTO(0);
+		}
+		if (ingestId != -1) ingestConfigurationDTO = mapperService.convertToIngestConfigurationDTO(ingestId);
+
+		// set conference as a model attribute to pre-populate the form
+		model.addAttribute("config", ingestConfigurationDTO);
+		model.addAttribute("parameters", ingestConfigurationDTO.getParameters());
+
+		// send over to our form
+		return "conferences/conferences-form-config";
 	}
 
 	@GetMapping("/requestDashboard")
