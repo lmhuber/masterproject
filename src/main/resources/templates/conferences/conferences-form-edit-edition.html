@@ -8,6 +8,14 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <!-- Include Twitter Bootstrap and jQuery: -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css"/>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+
+    <!-- Include the plugin's CSS and JS: -->
+    <script type="text/javascript" src="js/bootstrap-multiselect.js"></script>
+    <link rel="stylesheet" href="css/bootstrap-multiselect.css" type="text/css"/>
 
     <title>Edit Conference Edition</title>
 </head>
@@ -128,7 +136,7 @@
 
         <p class="h5 mb-5">Select Additional Metrics</p>
         <div>
-            <select class="form-control" th:name="additionalMetric">
+            <select id="selectMetric" multiple="multiple" class="form-control" th:name="additionalMetric">
                 <option th:each="additionalMetric : ${additionalMetrics}" th:value="${additionalMetric}" th:text="${additionalMetric}"></option>
             </select>
             <!-- Edit button -->
@@ -149,5 +157,12 @@
 
 </div>
 </body>
+
+<!-- Initialize the plugin: -->
+<script type="text/javascript">
+        $(document).ready(function() {
+            $('#selectMetric').multiselect();
+        });
+    </script>
 
 </html>
