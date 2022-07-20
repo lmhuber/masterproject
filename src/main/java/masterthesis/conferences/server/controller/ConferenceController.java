@@ -1,9 +1,13 @@
 package masterthesis.conferences.server.controller;
 
 import masterthesis.conferences.data.MapperService;
+import masterthesis.conferences.data.dto.AdditionalMetricDTO;
 import masterthesis.conferences.data.dto.ConferenceFrontendDTO;
+import masterthesis.conferences.data.metrics.ApplicationType;
+import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.data.model.IngestConfiguration;
 import masterthesis.conferences.server.dashboarding.DashboardingUtils;
 import masterthesis.conferences.server.rest.service.ConferenceService;
 import masterthesis.conferences.server.rest.service.ConferenceServiceImpl;
@@ -184,8 +188,53 @@ public class ConferenceController {
 		// set conference as a model attribute to pre-populate the form
 		model.addAttribute("conferenceFrontendDTO", conferenceFrontendDTO);
 
+		List<String> additionalMetrics = new ArrayList<>();
+
+		ConferenceEdition conferenceEdition = conferenceService.findById(confEditionId);
+
+		if (conferenceEdition != null && !conferenceEdition.getAdditionalMetrics().isEmpty()) {
+			for (var i : conferenceEdition.getAdditionalMetricIds()) {
+				additionalMetrics.add("Edition: " + i);
+			}
+		}
+		additionalMetrics.add("Add new");
+		model.addAttribute("additionalMetrics", additionalMetrics);
+
 		// send over to our form
 		return "conferences/conferences-form-edit-edition";
+	}
+
+	@GetMapping("/showFormForEditAdditionalMetrics")
+	public String showFormForEditAdditionalMetrics(@RequestParam("confEditionId") String confEditionId, @RequestParam("title") String title, @RequestParam(value = "additionalMetric") String additionalMetric,
+												   Model model) throws ExecutionException, InterruptedException {
+
+		// get the conference from the service
+		ConferenceEdition conferenceEdition = conferenceService.findById(Integer.parseInt(confEditionId));
+
+		int metricId = -1;
+		try {
+			if (!additionalMetric.equals("Add new")) metricId = Integer.parseInt(additionalMetric.split(" ")[1]);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		AdditionalMetricDTO additionalMetricDTO = null;
+
+		// create new additionalMetric if no additionalMetrics are present yet
+		if (conferenceService.findByMetricId(metricId) == null) {
+			IngestConfiguration ingestConfiguration = new IngestConfiguration(0, ApplicationType.ZOOM);
+			AdditionalMetric metric = new AdditionalMetric(0, ingestConfiguration, 0.0f, "test");
+			conferenceService.save(metric, title, Integer.parseInt(confEditionId));
+
+			additionalMetricDTO = mapperService.convertToAdditionalMetricDTO(0);
+		}
+		if (metricId != -1) additionalMetricDTO = mapperService.convertToAdditionalMetricDTO(metricId);
+
+		// set conference as a model attribute to pre-populate the form
+		model.addAttribute("additionalMetric", additionalMetricDTO);
+
+		// send over to our form
+		return "conferences/conferences-form-additional-metrics";
 	}
 
 	@GetMapping("/requestDashboard")
