@@ -74,7 +74,7 @@
         <option th:each="config : ${configs}" th:value="${config}" th:text="${config}"></option>
       </select>
       <!-- Edit button -->
-      <a th:href="@{showFormForEditConference(conferenceId=${title})}"
+      <a th:href="@{showFormForEditConfigs(confEditionId=${confEditionId}, title=${title}, metricId=${additionalMetricDTO.metId}, config=${config})}"
          class="btn btn-success btn-sm"
          onclick="if (!(confirm('Edit this config?'))) return false">
         Edit
