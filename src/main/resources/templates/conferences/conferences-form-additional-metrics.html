@@ -21,7 +21,7 @@
   <p class="h4 mb-4">Edit Additional Metrics</p>
 
   <form action="#" th:action="@{/conferences/save}"
-        th:object="${additionalMetricDTO}" method="POST">
+        th:object="${additionalMetric}" method="POST">
 
     <div style="display: none">
       Metric Id&emsp;&emsp;<input type="text" th:field="*{id}"
