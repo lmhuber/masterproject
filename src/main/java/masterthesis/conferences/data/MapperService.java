@@ -111,7 +111,9 @@ public class MapperService {
 
     public IngestConfiguration convertToIngestConfiguration(IngestConfigurationDTO configDTO) {
         if (configDTO == null) return null;
-        return new IngestConfiguration(configDTO.getId(), ApplicationType.getFromString(configDTO.getType()));
+        IngestConfiguration config = new IngestConfiguration(configDTO.getId(), ApplicationType.getFromString(configDTO.getType()));
+        if (!configDTO.getParameters().isEmpty()) config.setParameters(configDTO.getParameters());
+        return config;
     }
 
 

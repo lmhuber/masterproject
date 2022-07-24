@@ -1,6 +1,7 @@
 package masterthesis.conferences.server.rest.service;
 
 import masterthesis.conferences.data.ConferenceRepository;
+import masterthesis.conferences.data.metrics.ApplicationType;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
@@ -9,8 +10,9 @@ import masterthesis.conferences.server.controller.StorageController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
+import static masterthesis.conferences.data.metrics.zoom.AudioLatency.MEETING_ID;
 
 @Service
 public class ConferenceServiceImpl implements ConferenceService {
@@ -35,7 +37,7 @@ public class ConferenceServiceImpl implements ConferenceService {
 		if (result.isPresent()) {
 			conference = result.get();
 		} else {
-			throw new RuntimeException("Did not find conference id - " + title);
+			return null;
 		}
 
 		return conference;
@@ -58,6 +60,16 @@ public class ConferenceServiceImpl implements ConferenceService {
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public void save(IngestConfiguration config, int metricId, String title, int id) {
+		try {
+			conferenceRepository.addConfig(findById(title), findById(id), findByMetricId(metricId), config);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	@Override
 	public void deleteById(String title) {
@@ -100,6 +112,45 @@ public class ConferenceServiceImpl implements ConferenceService {
 	@Override
 	public IngestConfiguration findConfigById(int ingestConfigId) {
 		return conferenceRepository.getIngestConfiguration(ingestConfigId);
+	}
+
+	@Override
+	public List<String> fetchAllMeetingIds() {
+		List<String> meetingIds = new ArrayList<>();
+		for (Conference conference : conferenceRepository.getConferences()) {
+			for (ConferenceEdition edition: conference.getConferenceEditions()){
+				for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
+					if (metric.getConfig().getType() == ApplicationType.ZOOM) {
+						meetingIds.add(metric.getConfig().getParameters().get(MEETING_ID));
+					}
+				}
+			}
+		}
+		return meetingIds;
+	}
+
+	@Override
+	public List<Integer> fetchAllMetricIdsPerConference(String title) {
+		Set<Integer> metrics = new HashSet<>();
+		for (Conference conference : conferenceRepository.getConferences()) {
+			for (ConferenceEdition edition: conference.getConferenceEditions()){
+				metrics.addAll(edition.getAdditionalMetricIds());
+			}
+		}
+		return List.copyOf(metrics);
+	}
+
+	@Override
+	public List<String> fetchAllMetricsPerConference(String title) {
+		Set<String> metrics = new HashSet<>();
+		for (Conference conference : conferenceRepository.getConferences()) {
+			for (ConferenceEdition edition: conference.getConferenceEditions()){
+				for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
+					metrics.add(metric.getMetricIdentifier());
+				}
+			}
+		}
+		return List.copyOf(metrics);
 	}
 
 }

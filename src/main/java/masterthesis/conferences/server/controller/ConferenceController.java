@@ -4,7 +4,6 @@ import masterthesis.conferences.data.MapperService;
 import masterthesis.conferences.data.dto.AdditionalMetricDTO;
 import masterthesis.conferences.data.dto.ConferenceFrontendDTO;
 import masterthesis.conferences.data.dto.IngestConfigurationDTO;
-import masterthesis.conferences.data.metrics.ApplicationType;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
@@ -31,6 +30,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static masterthesis.conferences.data.metrics.ApplicationType.ZOOM;
+import static masterthesis.conferences.data.metrics.zoom.AudioLatency.MEETING_ID;
 
 @Controller
 @RequestMapping("/conferences")
@@ -69,21 +71,31 @@ public class ConferenceController {
 			@ModelAttribute("conference") Conference conference,
 			BindingResult bindingResult,
 			Model model,
-			@ModelAttribute("conferenceFrontendDTO") ConferenceFrontendDTO dto
+			@ModelAttribute("conferenceFrontendDTO") ConferenceFrontendDTO dto,
+			@ModelAttribute("additionalMetric") AdditionalMetricDTO metric,
+			@ModelAttribute("config") IngestConfigurationDTO config
 	) {
 
 		if (bindingResult.hasErrors()) {
 			return "conferences/conference-view";
 		} else {
-			if (dto.getCity() == null) conferenceService.save(conference);
-			else {
-				try {
-					final Conference oldConference = mapperService.convertFrontendDTOToConference(dto);
+			try {
+				if (config.getType() != null &&
+						((config.getType().equals(ZOOM.text()) && !config.getParameters().get(MEETING_ID).equals(""))
+						|| !config.getType().equals(ZOOM.text()))) {
+					conferenceService.save(mapperService.convertToIngestConfiguration(config), metric.getMetId(),
+							dto.getTitle(), dto.getEdition());
+				} else if (metric.getMetricIdentifier() != null) {
+					conferenceService.save(mapperService.convertToAdditionalMetric(metric),
+							dto.getTitle(), dto.getEdition());
+				} else if (dto.getCity() != null) {
 					ConferenceEdition edition = mapperService.convertFrontendDTOToConferenceEdition(dto);
 					conferenceService.save(edition, conference.getTitle());
-				} catch (Exception e) {
-					e.printStackTrace();
+				} else {
+					conferenceService.save(conference);
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 			// use a redirect to prevent duplicate submissions
 			return "redirect:/conferences/list";
@@ -169,10 +181,13 @@ public class ConferenceController {
 
 		int confEditionId = -1;
 		try {
-			if (!option.equals("Add new")) confEditionId = Integer.parseInt(option.split(" ")[1]);
-			confEditionId = conference.convertEditionToId(confEditionId);
+			confEditionId = Integer.parseInt(option);
 		} catch (Exception e) {
-			e.printStackTrace();
+			try {
+				if (!option.equals("Add new")) confEditionId = Integer.parseInt(option.split(" ")[1]);
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 
 		ConferenceFrontendDTO conferenceFrontendDTO = null;
@@ -206,76 +221,72 @@ public class ConferenceController {
 	}
 
 	@GetMapping("/showFormForEditAdditionalMetrics")
-	public String showFormForEditAdditionalMetrics(@RequestParam("confEditionId") String confEditionId, @RequestParam("title") String title, @RequestParam(value = "additionalMetric") String additionalMetric,
+	public String showFormForEditAdditionalMetrics(@ModelAttribute("conferenceFrontendDTO") ConferenceFrontendDTO dto,
+												   @RequestParam(value = "additionalMetric") String additionalMetric,
 												   Model model) throws ExecutionException, InterruptedException {
 
 		// get the conference from the service
-		ConferenceEdition conferenceEdition = conferenceService.findById(Integer.parseInt(confEditionId));
+		ConferenceEdition conferenceEdition = conferenceService.findById(dto.getEdition());
 
 		int metricId = -1;
 		try {
-			if (!additionalMetric.equals("Add new")) metricId = Integer.parseInt(additionalMetric.split(" ")[1]);
+			metricId = Integer.parseInt(additionalMetric);
 		} catch (Exception e) {
-			e.printStackTrace();
+			try {
+				if (!additionalMetric.equals("Add new")) metricId = Integer.parseInt(additionalMetric.split(" ")[1]);
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 
 		AdditionalMetricDTO additionalMetricDTO = null;
 
 		// create new additionalMetric if no additionalMetrics are present yet
 		if (conferenceService.findByMetricId(metricId) == null) {
-			IngestConfiguration ingestConfiguration = new IngestConfiguration(0, ApplicationType.ZOOM);
+			IngestConfiguration ingestConfiguration = new IngestConfiguration(0, ZOOM);
 			AdditionalMetric metric = new AdditionalMetric(0, ingestConfiguration, 0.0f, "test");
-			conferenceService.save(metric, title, Integer.parseInt(confEditionId));
+			conferenceService.save(metric, dto.getTitle(), dto.getEdition());
 
 			additionalMetricDTO = mapperService.convertToAdditionalMetricDTO(0);
 		}
 		if (metricId != -1) additionalMetricDTO = mapperService.convertToAdditionalMetricDTO(metricId);
 
 		// set conference as a model attribute to pre-populate the form
+		model.addAttribute("conferenceFrontendDTO", dto);
 		model.addAttribute("additionalMetric", additionalMetricDTO);
 
-		List<String> configs = new ArrayList<>();
-
-		if (additionalMetricDTO != null) {
-				configs.add("Config: " + additionalMetricDTO.getIngestConfigId());
-		}
-		configs.add("Add new");
-		model.addAttribute("configs", configs);
+		String config = Integer.toString(additionalMetricDTO.getIngestConfigId());
+		model.addAttribute("configs", config);
 
 		// send over to our form
 		return "conferences/conferences-form-additional-metrics";
 	}
 
 	@GetMapping("/showFormForEditConfigs")
-	public String showFormForEditConfigs(@RequestParam("confEditionId") String confEditionId, @RequestParam("title") String title, @RequestParam("metricId") String metricId, @RequestParam(value = "config") String config,
-												   Model model) throws ExecutionException, InterruptedException {
+	public String showFormForEditConfigs(@ModelAttribute("conferenceFrontendDTO") ConferenceFrontendDTO dto,
+										 @ModelAttribute("additionalMetric") AdditionalMetricDTO additionalMetricDTO,
+										 Model model) throws ExecutionException, InterruptedException {
 
 		// get the conference from the service
-		ConferenceEdition conferenceEdition = conferenceService.findById(Integer.parseInt(confEditionId));
-
-		int ingestId = -1;
-		try {
-			if (!config.equals("Add new")) ingestId = Integer.parseInt(config.split(" ")[1]);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		ConferenceEdition conferenceEdition = conferenceService.findById(additionalMetricDTO.getConferenceEdition());
 
 		IngestConfigurationDTO ingestConfigurationDTO = null;
 
 		// create new IngestConfig
-		if (conferenceService.findByMetricId(Integer.parseInt(metricId)).getConfig() == null) {
-			IngestConfiguration ingestConfiguration = new IngestConfiguration(0, ApplicationType.ZOOM);
-			AdditionalMetric metric = conferenceService.findByMetricId(Integer.parseInt(metricId));
+		if (conferenceService.findByMetricId(additionalMetricDTO.getMetId()).getConfig() == null) {
+			IngestConfiguration ingestConfiguration = new IngestConfiguration(0, ZOOM);
+			AdditionalMetric metric = conferenceService.findByMetricId(additionalMetricDTO.getMetId());
 			metric.setConfig(ingestConfiguration);
-			conferenceService.save(metric, title, Integer.parseInt(confEditionId));
+			conferenceService.save(metric, additionalMetricDTO.getMetricIdentifier(), additionalMetricDTO.getConferenceEdition());
 
 			ingestConfigurationDTO = mapperService.convertToIngestConfigurationDTO(0);
 		}
-		if (ingestId != -1) ingestConfigurationDTO = mapperService.convertToIngestConfigurationDTO(ingestId);
+		ingestConfigurationDTO = mapperService.convertToIngestConfigurationDTO(additionalMetricDTO.getIngestConfigId());
 
 		// set conference as a model attribute to pre-populate the form
 		model.addAttribute("config", ingestConfigurationDTO);
 		model.addAttribute("parameters", ingestConfigurationDTO.getParameters());
+		model.addAttribute("conferenceFrontendDTO", dto);
 
 		// send over to our form
 		return "conferences/conferences-form-config";

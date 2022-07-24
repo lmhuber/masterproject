@@ -21,7 +21,10 @@
     <p class="h4 mb-4">Edit Configs</p>
 
     <form action="#" th:action="@{/conferences/save}"
-          th:object="${ingestConfigurationDTO}" method="POST">
+          th:object="${config}" method="POST">
+        <input type="text" th:field="${additionalMetric.metId}" hidden/>
+        <input type="text" th:field="${conferenceFrontendDTO.title}" hidden/>
+        <input type="text" th:field="${conferenceFrontendDTO.edition}" hidden/>
 
         <div style="display: none">
             Config Id&emsp;&emsp;<input type="text" th:field="*{id}"
@@ -49,11 +52,9 @@
                 <td th:text="${stat.index + 1}">1</td>
                 <td th:text="${entry.key}">config</td>
                 <td>
-                    <table>
-                        <tr th:each="parameter : ${entry.value}">
-                            <td th:text="${parameter}"></td>
-                        </tr>
-                    </table>
+                    <input type="text" th:field="*{parameters[__${entry.key}__]}"
+                           class="form-control mb-4 col-4" placeholder="parameter"
+                           name="parameter + ${stat.index}">
                 </td>
             </tr>
         </table>
@@ -63,7 +64,7 @@
     </form>
 
     <hr>
-    <a th:href="@{showFormForEditConference(conferenceId=${title})}">Back to Edit Conference</a>
+    <a th:href="@{showFormForEditAdditionalMetrics(conferenceFrontendDTO=${conferenceFrontendDTO}, additionalMetric=${additionalMetric.metId})}">Back to Additional Metrics</a>
 
 </div>
 </body>

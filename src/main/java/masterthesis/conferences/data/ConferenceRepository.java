@@ -85,6 +85,15 @@ public class ConferenceRepository {
         }
     }
 
+    public void addConfig(Conference conferenceToAdd, ConferenceEdition editionToAdd, AdditionalMetric metricToAdd, IngestConfiguration config) {
+        if (config == null) return;
+        try {
+            StorageController.indexIngestConfiguration(editionToAdd, conferenceToAdd, metricToAdd, config);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void removeAdditionalMetric(int id) {
         ConferenceEdition editionToRemove = null;
         AdditionalMetric metricToRemove = null;

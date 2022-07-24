@@ -134,35 +134,34 @@
                   class="badge badge-danger ml-2 mb-4"></span>
         </div>
 
-        <p class="h5 mb-5">Select Additional Metrics</p>
-        <div>
-            <select id="selectMetric" multiple="multiple" class="form-control" th:name="additionalMetric">
-                <option th:each="additionalMetric : ${additionalMetrics}" th:value="${additionalMetric}" th:text="${additionalMetric}"></option>
-            </select>
-            <!-- Edit button -->
-            <a th:href="@{showFormForEditAdditionalMetrics(confEditionId=${conferenceFrontendDTO.id}, title=${conferenceFrontendDTO.title}, additionalMetric=${additionalMetric})}"
-               class="btn btn-success btn-sm"
-               onclick="if (!(confirm('Edit this additional metric?'))) return false">
-                Edit Additional Metric
-            </a>
-        </div>
-
-
         <button type="submit" class="btn btn-info col-2">Save</button>
 
     </form>
+
+    <div>
+        </br>
+        <p class="h5 mb-5">Select Additional Metrics</p>
+
+        <form th:action="@{showFormForEditAdditionalMetrics(conferenceDTO=${conferenceFrontendDTO})}"
+              th:object="${conferenceFrontendDTO}"
+              method="GET">
+            <input type="text" th:field="*{id}" hidden/>
+            <input type="text" th:field="*{title}" hidden/>
+            <select class="form-control" th:name="additionalMetric">
+                <option th:each="additionalMetric : ${additionalMetrics}" th:value="${additionalMetric}" th:text="${additionalMetric}"></option>
+            </select>
+            <button type="submit" class="btn btn-info col-2"
+                    onclick="if (!(confirm('Edit this additional metric?'))) return false">
+                Edit Additional Metric
+            </button>
+            </form>
+    </div>
+
 
     <hr>
     <a th:href="@{showFormForEditConference(conferenceId=${conferenceFrontendDTO.title})}">Back to Edit Conference</a>
 
 </div>
 </body>
-
-<!-- Initialize the plugin: -->
-<script type="text/javascript">
-        $(document).ready(function() {
-            $('#selectMetric').multiselect();
-        });
-    </script>
 
 </html>
