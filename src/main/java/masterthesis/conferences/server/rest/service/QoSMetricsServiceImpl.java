@@ -28,7 +28,7 @@ public class QoSMetricsServiceImpl implements QoSMetricsService {
             String uri="https://apimocha.com/conferences/metrics/meetings/{meetingId}/participants/qos";
             RestTemplate restTemplate = new RestTemplate();
             Map<String, String> params = new HashMap<>();
-            params.put("meetingId", meetingId);
+            params.put(MEETING_ID, meetingId);
 
             // create headers
             HttpHeaders headers = new HttpHeaders();

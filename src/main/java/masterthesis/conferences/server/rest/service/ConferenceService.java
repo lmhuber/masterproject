@@ -21,6 +21,8 @@ public interface ConferenceService {
 
 	void save(AdditionalMetric metric, String title, int id);
 
+	void save(IngestConfiguration config, int metricId, String title, int id);
+
 	void deleteById(String title);
 
 	ConferenceEdition findEditionByMetricId(int id);
@@ -30,4 +32,10 @@ public interface ConferenceService {
     AdditionalMetric findByMetricId(int id);
 
     IngestConfiguration findConfigById(int ingestConfigId);
+
+	List<String> fetchAllMeetingIds();
+
+	List<Integer> fetchAllMetricIdsPerConference(String title);
+
+	List<String> fetchAllMetricsPerConference(String title);
 }
