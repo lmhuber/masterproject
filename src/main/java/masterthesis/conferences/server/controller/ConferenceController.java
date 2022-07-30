@@ -4,6 +4,7 @@ import masterthesis.conferences.data.MapperService;
 import masterthesis.conferences.data.dto.AdditionalMetricDTO;
 import masterthesis.conferences.data.dto.ConferenceFrontendDTO;
 import masterthesis.conferences.data.dto.IngestConfigurationDTO;
+import masterthesis.conferences.data.dto.SelectedMetricsDTO;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
@@ -167,6 +168,9 @@ public class ConferenceController {
 		}
 		options.add("Add new");
 		model.addAttribute("options", options);
+		SelectedMetricsDTO selectedMetricsDTO = new SelectedMetricsDTO();
+		model.addAttribute("selectedMetricsDTO", selectedMetricsDTO);
+
 
 		// send over to our form
 		return "conferences/conferences-form-edit";
@@ -214,7 +218,12 @@ public class ConferenceController {
 			}
 		}
 		additionalMetrics.add("Add new");
+
 		model.addAttribute("additionalMetrics", additionalMetrics);
+		SelectedMetricsDTO selectedMetricsDTO = new SelectedMetricsDTO();
+		selectedMetricsDTO.setSelectedMetrics(additionalMetrics);
+		model.addAttribute("selectedMetricsDTO", selectedMetricsDTO);
+		model.addAttribute("selectedMetrics", selectedMetricsDTO.getSelectedMetrics());
 
 		// send over to our form
 		return "conferences/conferences-form-edit-edition";
@@ -290,6 +299,26 @@ public class ConferenceController {
 
 		// send over to our form
 		return "conferences/conferences-form-config";
+	}
+
+	@PostMapping("/selectedMetrics")
+	public String getSelectedMetrics(@ModelAttribute("conferenceFrontendDTO") ConferenceFrontendDTO dto, @ModelAttribute SelectedMetricsDTO selectedMetricsDTO, Model model) {
+		model.addAttribute("conferenceFrontendDTO", dto);
+
+		List<String> additionalMetrics = new ArrayList<>();
+		ConferenceEdition conferenceEdition = conferenceService.findById(dto.getId());
+
+		if (conferenceEdition != null && !conferenceEdition.getAdditionalMetrics().isEmpty()) {
+			for (var i : conferenceEdition.getAdditionalMetricIds()) {
+				additionalMetrics.add("Metric: " + i);
+			}
+		}
+		additionalMetrics.add("Add new");
+
+		model.addAttribute("additionalMetrics", additionalMetrics);
+		model.addAttribute("selectedMetrics", selectedMetricsDTO.getSelectedMetrics());
+
+		return "conferences/conferences-form-edit-edition";
 	}
 
 	@GetMapping("/requestDashboard")
