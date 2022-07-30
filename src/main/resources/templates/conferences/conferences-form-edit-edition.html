@@ -173,13 +173,13 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="#" th:action="@{/selectedMetrics(selectedMetricsDTO=${selectedMetricsDTO})}" th:object="${selectedMetricsDTO}" method="POST">
+                        <form action="#" th:action="@{selectedMetrics(selectedMetricsDTO=${selectedMetricsDTO})}" th:object="${selectedMetricsDTO}" method="POST">
                             <ul>
                                 <label>Metrics:
 
                                 <li th:unless="${#strings.contains(additionalMetric, 'Add new')}"
                                     th:each="additionalMetric : ${additionalMetrics}">
-                                    <input type="checkbox" th:field="${selectedMetrics}" th:value="${additionalMetric}" th:text="${additionalMetric}" />
+                                    <input type="checkbox" th:field="${selectedMetricsDTO}" th:value="${additionalMetric}" th:text="${additionalMetric}" />
                                 </li>
                                 </label>
                             </ul>

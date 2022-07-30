@@ -12,4 +12,11 @@ public class SelectedMetricsDTO {
     public void setSelectedMetrics(List<String> selectedMetrics) {
         this.selectedMetrics = selectedMetrics;
     }
+
+    public SelectedMetricsDTO() {
+    }
+
+    public SelectedMetricsDTO(List<String> selectedMetrics) {
+        selectedMetrics = selectedMetrics;
+    }
 }

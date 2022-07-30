@@ -302,8 +302,20 @@ public class ConferenceController {
 	}
 
 	@PostMapping("/selectedMetrics")
-	public String getSelectedMetrics(@ModelAttribute SelectedMetricsDTO selectedMetricsDTO, Model model) {
+	public String getSelectedMetrics(@ModelAttribute("conferenceFrontendDTO") ConferenceFrontendDTO dto, @ModelAttribute SelectedMetricsDTO selectedMetricsDTO, Model model) {
+		model.addAttribute("conferenceFrontendDTO", dto);
 
+		List<String> additionalMetrics = new ArrayList<>();
+		ConferenceEdition conferenceEdition = conferenceService.findById(dto.getId());
+
+		if (conferenceEdition != null && !conferenceEdition.getAdditionalMetrics().isEmpty()) {
+			for (var i : conferenceEdition.getAdditionalMetricIds()) {
+				additionalMetrics.add("Metric: " + i);
+			}
+		}
+		additionalMetrics.add("Add new");
+
+		model.addAttribute("additionalMetrics", additionalMetrics);
 		model.addAttribute("selectedMetrics", selectedMetricsDTO.getSelectedMetrics());
 
 		return "conferences/conferences-form-edit-edition";
