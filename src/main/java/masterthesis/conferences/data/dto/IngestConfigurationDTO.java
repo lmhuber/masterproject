@@ -1,6 +1,8 @@
 package masterthesis.conferences.data.dto;
 
 import co.elastic.clients.elasticsearch._types.mapping.Property;
+import masterthesis.conferences.data.metrics.ApplicationType;
+import masterthesis.conferences.data.model.IngestConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +48,13 @@ public class IngestConfigurationDTO {
 
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
+    }
+
+    public static IngestConfiguration convertToIngestConfiguration(IngestConfigurationDTO configDTO) {
+        if (configDTO == null) return null;
+        IngestConfiguration config = new IngestConfiguration(configDTO.getId(), ApplicationType.getFromString(configDTO.getType()));
+        if (!configDTO.getParameters().isEmpty()) config.setParameters(configDTO.getParameters());
+        return config;
     }
 
     @Override

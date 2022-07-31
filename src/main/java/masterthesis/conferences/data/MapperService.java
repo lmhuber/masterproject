@@ -1,7 +1,6 @@
 package masterthesis.conferences.data;
 
 import masterthesis.conferences.data.dto.*;
-import masterthesis.conferences.data.metrics.ApplicationType;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
@@ -63,11 +62,6 @@ public class MapperService {
         return conference;
     }
 
-    public Conference convertFrontendDTOToConference(ConferenceFrontendDTO conferenceDTO) {
-        if (conferenceDTO == null) return null;
-        return conferenceService.findById(conferenceDTO.getTitle());
-    }
-
     public List<Conference> convertToConferenceList(List<ConferenceDTO> conferenceDTOList) throws ExecutionException, InterruptedException {
         List<Conference> conferenceList = new ArrayList<>();
         for (ConferenceDTO c : conferenceDTOList) {
@@ -75,47 +69,6 @@ public class MapperService {
         }
         return conferenceList;
     }
-
-    public ConferenceEdition convertToConferenceEdition(ConferenceEditionDTO editionDTO) throws ExecutionException, InterruptedException {
-        if (editionDTO == null) return null;
-        ConferenceEdition conferenceEdition = new ConferenceEdition();
-        conferenceEdition.setEdition(editionDTO.getEdition());
-        conferenceEdition.setYear(editionDTO.getYear());
-        conferenceEdition.setCarbonFootprint(editionDTO.getCarbonFootprint());
-        conferenceEdition.setCity(editionDTO.getCity());
-        conferenceEdition.setId(editionDTO.getId());
-        conferenceEdition.setCost(editionDTO.getCost());
-        conferenceEdition.setCountry(editionDTO.getCountry());
-        conferenceEdition.setParticipants(editionDTO.getParticipants());
-        conferenceEdition.setSessions(editionDTO.getSessions());
-        conferenceEdition.setCarbonFootprint(editionDTO.getCarbonFootprint());
-        conferenceEdition.setGreenInnovativeness(editionDTO.getGreenInnovativeness());
-        conferenceEdition.setInteractionDynamics(editionDTO.getInteractionDynamics());
-        for (int id : editionDTO.getAdditionalMetrics()) {
-            conferenceEdition.getAdditionalMetrics().add(ElasticReadOperation.retrieveAdditionalMetric(id));
-        }
-        conferenceEdition.setSustainability(editionDTO.getSustainability());
-        return conferenceEdition;
-    }
-
-    public AdditionalMetric convertToAdditionalMetric(AdditionalMetricDTO metricDTO) throws ExecutionException, InterruptedException {
-        if (metricDTO == null) return null;
-        AdditionalMetric metric = new AdditionalMetric();
-        metric.setId(metricDTO.getMetId());
-        metric.setMetricIdentifier(metricDTO.getMetricIdentifier());
-        metric.setDatapoint(metricDTO.getDatapoint());
-        metric.setConfig(ElasticReadOperation.retrieveIngestConfiguration(metricDTO.getIngestConfigId()));
-        return metric;
-    }
-
-
-    public IngestConfiguration convertToIngestConfiguration(IngestConfigurationDTO configDTO) {
-        if (configDTO == null) return null;
-        IngestConfiguration config = new IngestConfiguration(configDTO.getId(), ApplicationType.getFromString(configDTO.getType()));
-        if (!configDTO.getParameters().isEmpty()) config.setParameters(configDTO.getParameters());
-        return config;
-    }
-
 
     public ConferenceEdition convertFrontendDTOToConferenceEdition(ConferenceFrontendDTO editionDTO) {
         if (editionDTO == null) return null;

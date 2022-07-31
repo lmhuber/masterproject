@@ -57,24 +57,21 @@ public class ElasticReadOperation extends ElasticOperation {
     }
 
     public static ConferenceEdition retrieveConferenceEdition(int id) throws InterruptedException, ExecutionException {
-        return Objects.requireNonNull(StorageController.getMapper())
-                .convertToConferenceEdition((ConferenceEditionDTO) sendAsyncRequestToElastic(
+        return ConferenceEditionDTO.convertToConferenceEdition((ConferenceEditionDTO) sendAsyncRequestToElastic(
                         GetRequest.of(s -> s.index(CONFERENCE_EDITION.index()).id(Integer.toString(id))),
                         ConferenceEditionDTO.class
                 ));
     }
 
     public static AdditionalMetric retrieveAdditionalMetric(int id) throws ExecutionException, InterruptedException {
-        return Objects.requireNonNull(StorageController.getMapper())
-                .convertToAdditionalMetric((AdditionalMetricDTO) sendAsyncRequestToElastic(
+        return AdditionalMetricDTO.convertToAdditionalMetric((AdditionalMetricDTO) sendAsyncRequestToElastic(
                         GetRequest.of(s -> s.index(ADDITIONAL_METRIC.index()).id(Integer.toString(id))),
                         AdditionalMetricDTO.class
                 ));
     }
 
     public static IngestConfiguration retrieveIngestConfiguration(int id) throws ExecutionException, InterruptedException {
-        return Objects.requireNonNull(StorageController.getMapper())
-                .convertToIngestConfiguration((IngestConfigurationDTO) sendAsyncRequestToElastic(
+        return IngestConfigurationDTO.convertToIngestConfiguration((IngestConfigurationDTO) sendAsyncRequestToElastic(
                         GetRequest.of(s -> s.index(INGEST_CONFIGURATION.index()).id(Integer.toString(id))),
                         IngestConfigurationDTO.class
                 ));

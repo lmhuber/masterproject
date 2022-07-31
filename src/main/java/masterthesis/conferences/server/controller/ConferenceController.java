@@ -84,10 +84,10 @@ public class ConferenceController {
 				if (config.getType() != null &&
 						((config.getType().equals(ZOOM.text()) && !config.getParameters().get(MEETING_ID).equals(""))
 						|| !config.getType().equals(ZOOM.text()))) {
-					conferenceService.save(mapperService.convertToIngestConfiguration(config), metric.getMetId(),
+					conferenceService.save(IngestConfigurationDTO.convertToIngestConfiguration(config), metric.getMetId(),
 							dto.getTitle(), dto.getEdition());
 				} else if (metric.getMetricIdentifier() != null) {
-					conferenceService.save(mapperService.convertToAdditionalMetric(metric),
+					conferenceService.save(AdditionalMetricDTO.convertToAdditionalMetric(metric),
 							dto.getTitle(), dto.getEdition());
 				} else if (dto.getCity() != null) {
 					ConferenceEdition edition = mapperService.convertFrontendDTOToConferenceEdition(dto);
