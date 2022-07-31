@@ -7,12 +7,18 @@ public class DashboardingMetricDTO {
     private String dashboardType;
     private String operation;
     private String panelTitle;
+    private boolean checked;
 
-    public DashboardingMetricDTO(String title, String dashboardType, String operation, String panelTitle) {
+    public DashboardingMetricDTO() {
+
+    }
+
+    public DashboardingMetricDTO(String title, String dashboardType, String operation, String panelTitle, boolean checked) {
         this.title = title;
         this.dashboardType = dashboardType;
         this.operation = operation;
         this.panelTitle = panelTitle;
+        this.checked = checked;
     }
 
     public String getTitle() {
@@ -45,6 +51,14 @@ public class DashboardingMetricDTO {
 
     public void setPanelTitle(String panelTitle) {
         this.panelTitle = panelTitle;
+    }
+
+    public boolean getChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
     }
 
     @Override

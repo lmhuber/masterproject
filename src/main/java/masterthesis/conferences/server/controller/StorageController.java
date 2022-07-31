@@ -128,6 +128,7 @@ public class StorageController implements Controller {
 
     public static void indexAdditionalMetric(ConferenceEdition edition, Conference conference, AdditionalMetric metric) throws InterruptedException {
         edition.addAdditionalMetric(metric);
+        edition.updateAdditionalMetric(metric);
         ElasticWriteOperation.writeAdditionalMetric(
                 Objects.requireNonNull(getMapper()).convertToAdditionalMetricDTO(metric.getId())
         );

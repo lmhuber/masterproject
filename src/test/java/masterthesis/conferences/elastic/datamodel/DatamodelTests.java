@@ -121,7 +121,7 @@ public class DatamodelTests {
     @Order(5)
     void testCustomDashboardExportWithAdditionalMetrics() {
         List<DashboardingMetricDTO> dashboardSettings =  new ArrayList<>();
-        dashboardSettings.add(new DashboardingMetricDTO(DEXA, ChartType.METRIC.getName(), Operations.AVERAGE.getName(), audioLatency.getTitle()));
+        dashboardSettings.add(new DashboardingMetricDTO(DEXA, ChartType.METRIC.getName(), Operations.AVERAGE.getName(), audioLatency.getTitle(), true));
         DashboardingUtils.convertToDashboard(StorageController.getRepository().getConference(DEXA), dashboardSettings);
     }
 

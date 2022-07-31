@@ -1,22 +1,27 @@
 package masterthesis.conferences.data.dto;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SelectedMetricsDTO {
-    private List<String> selectedMetrics;
+    private List<DashboardingMetricDTO> selectedMetrics;
 
-    public List<String> getSelectedMetrics() {
+    public List<DashboardingMetricDTO> getSelectedMetrics() {
         return selectedMetrics;
     }
 
-    public void setSelectedMetrics(List<String> selectedMetrics) {
+    public List<DashboardingMetricDTO> getOnlySelectedMetrics() {
+        return selectedMetrics.stream().filter(x -> x.getChecked()).collect(Collectors.toList());
+    }
+
+    public void setSelectedMetrics(List<DashboardingMetricDTO> selectedMetrics) {
         this.selectedMetrics = selectedMetrics;
     }
 
     public SelectedMetricsDTO() {
     }
 
-    public SelectedMetricsDTO(List<String> selectedMetrics) {
-        selectedMetrics = selectedMetrics;
+    public SelectedMetricsDTO(List<DashboardingMetricDTO> selectedMetrics) {
+        this.selectedMetrics = selectedMetrics;
     }
 }

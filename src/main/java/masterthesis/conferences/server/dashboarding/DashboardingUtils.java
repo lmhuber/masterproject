@@ -71,7 +71,7 @@ public class DashboardingUtils {
                 .replace(METRIC_H, String.valueOf(HEIGHT))
                 .replace(METRIC_LAYER, layer)
                 .replace(METRIC_COLUMN, conference.getTitle()+"-column-"+metric.getTitle())
-                .replace(METRIC_DB_LABEL, toUpper(metric.getOperation())+" of "+toUpper(metric.getPanelTitle()))
+                .replace(METRIC_DB_LABEL, toUpper(metric.getOperation())+" of "+toUpper(metric.getTitle()))
                 .replace(METRIC_DB_DATATYPE, "number")
                 .replace(METRIC_DB_OPERATION, metric.getOperation())
                 .replace(METRIC_DB_QUERY, additionalMetricsAsIdList(conference)));
@@ -101,7 +101,9 @@ public class DashboardingUtils {
     }
 
     private static String prepareDashboardImport(Conference conference, String json) {
-        return json.replace(DB_ID, conferenceAsIdList(conference.getConferenceEditionIds()))
+        return json
+                .replace(DB_ID, conferenceAsIdList(conference.getConferenceEditionIds())
+                        + " or metId: " + additionalMetricsAsIdList(conference))
                 .replace(DB_DASHBOARD, conference.getTitle() + "-dashboard")
                 .replace(DB_TITLE, DB_TITLE_PREFIX + conference.getTitle());
     }

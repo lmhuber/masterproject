@@ -1,17 +1,17 @@
 package masterthesis.conferences.server.controller;
 
 import masterthesis.conferences.data.MapperService;
-import masterthesis.conferences.data.dto.AdditionalMetricDTO;
-import masterthesis.conferences.data.dto.ConferenceFrontendDTO;
-import masterthesis.conferences.data.dto.IngestConfigurationDTO;
-import masterthesis.conferences.data.dto.SelectedMetricsDTO;
+import masterthesis.conferences.data.dto.*;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.data.model.IngestConfiguration;
+import masterthesis.conferences.server.dashboarding.ChartType;
 import masterthesis.conferences.server.dashboarding.DashboardingUtils;
+import masterthesis.conferences.server.dashboarding.Operations;
 import masterthesis.conferences.server.rest.service.ConferenceService;
 import masterthesis.conferences.server.rest.service.ConferenceServiceImpl;
+import masterthesis.conferences.server.rest.storage.ElasticReadOperation;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.mime.FileBody;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
@@ -60,10 +60,10 @@ public class ConferenceController {
 		
 		// get conferences from db
 		List<Conference> conferences = conferenceService.findAll();
-		
+
 		// add to the spring model
 		model.addAttribute("conferences", conferences);
-		
+
 		return "conferences/conference-view";
 	}
 
@@ -220,10 +220,6 @@ public class ConferenceController {
 		additionalMetrics.add("Add new");
 
 		model.addAttribute("additionalMetrics", additionalMetrics);
-		SelectedMetricsDTO selectedMetricsDTO = new SelectedMetricsDTO();
-		selectedMetricsDTO.setSelectedMetrics(additionalMetrics);
-		model.addAttribute("selectedMetricsDTO", selectedMetricsDTO);
-		model.addAttribute("selectedMetrics", selectedMetricsDTO.getSelectedMetrics());
 
 		// send over to our form
 		return "conferences/conferences-form-edit-edition";
@@ -253,7 +249,7 @@ public class ConferenceController {
 		// create new additionalMetric if no additionalMetrics are present yet
 		if (conferenceService.findByMetricId(metricId) == null) {
 			IngestConfiguration ingestConfiguration = new IngestConfiguration(0, ZOOM);
-			AdditionalMetric metric = new AdditionalMetric(0, ingestConfiguration, 0.0f, "test");
+			AdditionalMetric metric = new AdditionalMetric(ElasticReadOperation.getMaxAdditionalMetricId(), ingestConfiguration, 0.0f, "test");
 			conferenceService.save(metric, dto.getTitle(), dto.getEdition());
 
 			additionalMetricDTO = mapperService.convertToAdditionalMetricDTO(0);
@@ -279,7 +275,7 @@ public class ConferenceController {
 		// get the conference from the service
 		ConferenceEdition conferenceEdition = conferenceService.findById(additionalMetricDTO.getConferenceEdition());
 
-		IngestConfigurationDTO ingestConfigurationDTO = null;
+		IngestConfigurationDTO ingestConfigurationDTO;
 
 		// create new IngestConfig
 		if (conferenceService.findByMetricId(additionalMetricDTO.getMetId()).getConfig() == null) {
@@ -301,8 +297,8 @@ public class ConferenceController {
 		return "conferences/conferences-form-config";
 	}
 
-	@PostMapping("/selectedMetrics")
-	public String getSelectedMetrics(@ModelAttribute("conferenceFrontendDTO") ConferenceFrontendDTO dto, @ModelAttribute SelectedMetricsDTO selectedMetricsDTO, Model model) {
+/*	@PostMapping("/selectedMetrics")
+	public String getSelectedMetrics(@ModelAttribute("conferenceId") S, @ModelAttribute SelectedMetricsDTO selectedMetricsDTO, Model model) {
 		model.addAttribute("conferenceFrontendDTO", dto);
 
 		List<String> additionalMetrics = new ArrayList<>();
@@ -318,16 +314,38 @@ public class ConferenceController {
 		model.addAttribute("additionalMetrics", additionalMetrics);
 		model.addAttribute("selectedMetrics", selectedMetricsDTO.getSelectedMetrics());
 
-		return "conferences/conferences-form-edit-edition";
-	}
+		return "conferences/requestDashboard";
+	}*/
 
 	@GetMapping("/requestDashboard")
 	public String requestDashboard(@RequestParam("conferenceId") String title, Model model) {
 
 		Conference conference = conferenceService.findById(title);
 
-		// TODO: list of DashboardingMetricDTO from UI
-		DashboardingUtils.convertToDashboard(conference, new ArrayList<>());
+		List<DashboardingMetricDTO> dashboardingMetricDTOs = new ArrayList<>();
+		for (String metric : conferenceService.fetchAllMetricsPerConference(conference.getTitle())){
+			dashboardingMetricDTOs.add(new DashboardingMetricDTO("", "", "", metric, false));
+		}
+
+		SelectedMetricsDTO selectedMetricsDTO = new SelectedMetricsDTO(dashboardingMetricDTOs);
+
+		model.addAttribute("conference", conference);
+		model.addAttribute("metrics", selectedMetricsDTO);
+		model.addAttribute("types", ChartType.getChartTypes());
+		model.addAttribute("operations", Operations.getOperations());
+
+		return "conferences/select-metrics-dashboard-form";
+
+	}
+
+	@GetMapping("/getDashboard")
+	public String getDashboard(@ModelAttribute Conference conference,
+							   @ModelAttribute SelectedMetricsDTO metrics,
+							   Model model) {
+
+		if (metrics == null) metrics = new SelectedMetricsDTO();
+		conference = conferenceService.findById(conference.getTitle());
+		DashboardingUtils.convertToDashboard(conference, metrics.getSelectedMetrics());
 
 		try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
 			final HttpPost httppost = new HttpPost("http://localhost:5601/api/saved_objects/_import?overwrite=true");
@@ -351,7 +369,7 @@ public class ConferenceController {
 			e.printStackTrace();
 		}
 
-		String redirect = "http://localhost:5601/app/dashboards#/view/" + title + "-dashboard";
+		String redirect = "http://localhost:5601/app/dashboards#/view/" + conference.getTitle() + "-dashboard";
 		return "redirect:" + redirect;
 	}
 
