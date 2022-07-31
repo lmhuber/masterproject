@@ -32,16 +32,6 @@
     </div>
 
     <div class="form-inline">
-      Conference Edition&emsp;&emsp;<input type="text" th:field="*{conferenceEdition}"
-                                         class="form-control mb-4 col-4" placeholder="Conference Edition" name="conferenceEdition">
-
-      <!-- Add error message (if present) -->
-      <span th:if="${#fields.hasErrors('conferenceEdition')}"
-            th:errors="*{conferenceEdition}"
-            class="badge badge-danger ml-2 mb-4"></span>
-
-    </div>
-    <div class="form-inline">
       Datapoint&emsp;&emsp;<input type="text" th:field="*{datapoint}"
                                            class="form-control mb-4 col-4" placeholder="Datapoint" name="datapoint">
 

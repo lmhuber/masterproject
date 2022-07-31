@@ -155,48 +155,6 @@
             </button>
             </form>
 
-        <div>
-            </br>
-            <p class="h5 mb-5">Select Additional Metrics for Dashboard</p>
-            <!-- Button trigger modal -->
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#selectedMetricsModal">
-                Select Additional Metrics
-            </button>
-        </div>
-
-        <!-- Modal -->
-        <div class="modal fade" id="selectedMetricsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="selectedMetricsLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="selectedMetricsLabel">Select Additional Metrics for Dashboard</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="#" th:action="@{selectedMetrics(selectedMetricsDTO=${selectedMetricsDTO})}" th:object="${selectedMetricsDTO}" method="POST">
-                            <ul>
-                                <label>Metrics:
-
-                                <li th:unless="${#strings.contains(additionalMetric, 'Add new')}"
-                                    th:each="additionalMetric : ${additionalMetrics}">
-                                    <input type="checkbox" th:field="${selectedMetricsDTO}" th:value="${additionalMetric}" th:text="${additionalMetric}" />
-                                </li>
-                                </label>
-                            </ul>
-                            <button type="submit" class="btn btn-info col-2"
-                                    onclick="if (!(confirm('Select these additional metrics for the dashboard?'))) return false">
-                                Save
-                            </button>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <hr>
