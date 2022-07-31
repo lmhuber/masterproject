@@ -1,10 +1,13 @@
 package masterthesis.conferences.data.dto;
 
 import co.elastic.clients.elasticsearch._types.mapping.Property;
+import masterthesis.conferences.data.model.AdditionalMetric;
+import masterthesis.conferences.server.rest.storage.ElasticReadOperation;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 public class AdditionalMetricDTO {
     private int metId;
@@ -64,6 +67,16 @@ public class AdditionalMetricDTO {
 
     public void setIngestConfigId(int ingestConfigId) {
         this.ingestConfigId = ingestConfigId;
+    }
+
+    public static AdditionalMetric convertToAdditionalMetric(AdditionalMetricDTO metricDTO) throws ExecutionException, InterruptedException {
+        if (metricDTO == null) return null;
+        AdditionalMetric metric = new AdditionalMetric();
+        metric.setId(metricDTO.getMetId());
+        metric.setMetricIdentifier(metricDTO.getMetricIdentifier());
+        metric.setDatapoint(metricDTO.getDatapoint());
+        metric.setConfig(ElasticReadOperation.retrieveIngestConfiguration(metricDTO.getIngestConfigId()));
+        return metric;
     }
 
     @Override
