@@ -23,7 +23,35 @@ public class ConferenceServiceImpl implements ConferenceService {
 	public ConferenceServiceImpl() {
 		this.conferenceRepository = StorageController.getRepository();
 	}
-	
+
+	@Override
+	public int getMaxConfigId() {
+		int max = 0;
+		for (Conference conference : conferenceRepository.getConferences()) {
+			for (ConferenceEdition edition : conference.getConferenceEditions()) {
+				for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
+					if (metric.getConfig() != null) {
+						Math.max(max, metric.getConfig().getId() + 1);
+					}
+				}
+			}
+		}
+		return max;
+	}
+
+	@Override
+	public int getMaxAdditionalMetricId() {
+		int max = 0;
+		for (Conference conference : conferenceRepository.getConferences()) {
+			for (ConferenceEdition edition : conference.getConferenceEditions()) {
+				for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
+						Math.max(max, metric.getId() + 1);
+				}
+			}
+		}
+		return max;
+	}
+
 	@Override
 	public List<Conference> findAll() {
 		return conferenceRepository.getConferences();
@@ -32,6 +60,7 @@ public class ConferenceServiceImpl implements ConferenceService {
 	@Override
 	public Conference findById(String title) {
 		Optional<Conference> result = conferenceRepository.findById(title);
+		if (result == null) return null;
 		Conference conference;
 
 		if (result.isPresent()) {

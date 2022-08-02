@@ -2,6 +2,7 @@ package masterthesis.conferences.server.controller;
 
 import masterthesis.conferences.data.MapperService;
 import masterthesis.conferences.data.dto.*;
+import masterthesis.conferences.data.metrics.ApplicationType;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
@@ -11,7 +12,6 @@ import masterthesis.conferences.server.dashboarding.DashboardingUtils;
 import masterthesis.conferences.server.dashboarding.Operations;
 import masterthesis.conferences.server.rest.service.ConferenceService;
 import masterthesis.conferences.server.rest.service.ConferenceServiceImpl;
-import masterthesis.conferences.server.rest.storage.ElasticReadOperation;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.mime.FileBody;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
@@ -74,25 +74,38 @@ public class ConferenceController {
 			Model model,
 			@ModelAttribute("conferenceFrontendDTO") ConferenceFrontendDTO dto,
 			@ModelAttribute("additionalMetric") AdditionalMetricDTO metric,
-			@ModelAttribute("config") IngestConfigurationDTO config
-	) {
+			@ModelAttribute("config") IngestConfigurationDTO config)
+	{
 
 		if (bindingResult.hasErrors()) {
 			return "conferences/conference-view";
 		} else {
 			try {
 				if (config.getType() != null &&
-						((config.getType().equals(ZOOM.text()) && !config.getParameters().get(MEETING_ID).equals(""))
-						|| !config.getType().equals(ZOOM.text()))) {
+						(!config.getType().equals(ZOOM.text()) || !config.getParameters().get(MEETING_ID).equals(""))) {
 					conferenceService.save(IngestConfigurationDTO.convertToIngestConfiguration(config), metric.getMetId(),
-							dto.getTitle(), dto.getEdition());
+							dto.getTitle(), dto.getId());
+					return "redirect:/conferences/showFormForEditAdditionalMetrics?id=" + dto.getId()
+							+ "&title=" + dto.getTitle() + "&additionalMetric=%3A+" + metric.getMetId() + "+%28"
+							+ metric.getMetricIdentifier() + "%29";
 				} else if (metric.getMetricIdentifier() != null) {
-					conferenceService.save(AdditionalMetricDTO.convertToAdditionalMetric(metric),
-							dto.getTitle(), dto.getEdition());
+					AdditionalMetric metricObject = AdditionalMetricDTO.convertToAdditionalMetric(metric);
+					IngestConfiguration configObject = metricObject.getConfig();
+					configObject.setType(ApplicationType.getFromString(metric.getConfigString()));
+					conferenceService.save(configObject, metricObject.getId(), dto.getTitle(), dto.getId());
+					conferenceService.save(metricObject, dto.getTitle(), dto.getId());
+					return "redirect:/conferences/showFormForEditConferenceEdition?title=" + dto.getTitle()
+							+ "&option=Edition%3A+" + dto.getId() + "+%28" + dto.getEdition() + "%29";
 				} else if (dto.getCity() != null) {
 					ConferenceEdition edition = mapperService.convertFrontendDTOToConferenceEdition(dto);
 					conferenceService.save(edition, conference.getTitle());
+					return "redirect:/conferences/showFormForEditConference?conferenceId=" + conference.getTitle();
 				} else {
+					Conference tempConference = conferenceService.findById(conference.getTitle());
+					if (tempConference != null) {
+						conference.setConferenceEditions(tempConference.getConferenceEditions());
+						conferenceService.deleteById(tempConference.getTitle());
+					}
 					conferenceService.save(conference);
 				}
 			} catch (Exception e) {
@@ -162,8 +175,8 @@ public class ConferenceController {
 		List<String> options = new ArrayList<>();
 
 		if (conference != null && !conference.getConferenceEditions().isEmpty()) {
-			for (var id : conference.getConferenceEditionEditionNames()) {
-				options.add("Edition: " + id);
+			for (ConferenceEdition edition : conference.getConferenceEditions()) {
+				options.add("Edition: " + edition.getId() + " (" + edition.getEdition() + ")");
 			}
 		}
 		options.add("Add new");
@@ -213,8 +226,8 @@ public class ConferenceController {
 		ConferenceEdition conferenceEdition = conferenceService.findById(confEditionId);
 
 		if (conferenceEdition != null && !conferenceEdition.getAdditionalMetrics().isEmpty()) {
-			for (var i : conferenceEdition.getAdditionalMetricIds()) {
-				additionalMetrics.add("Metric: " + i);
+			for (AdditionalMetric metric : conferenceEdition.getAdditionalMetrics()) {
+				additionalMetrics.add("Metric: " + metric.getId() + " (" + metric.getMetricIdentifier() + ")");
 			}
 		}
 		additionalMetrics.add("Add new");
@@ -248,17 +261,19 @@ public class ConferenceController {
 
 		// create new additionalMetric if no additionalMetrics are present yet
 		if (conferenceService.findByMetricId(metricId) == null) {
-			IngestConfiguration ingestConfiguration = new IngestConfiguration(0, ZOOM);
-			AdditionalMetric metric = new AdditionalMetric(ElasticReadOperation.getMaxAdditionalMetricId(), ingestConfiguration, 0.0f, "test");
-			conferenceService.save(metric, dto.getTitle(), dto.getEdition());
-
-			additionalMetricDTO = mapperService.convertToAdditionalMetricDTO(0);
+			IngestConfiguration ingestConfiguration = new IngestConfiguration(conferenceService.getMaxConfigId(), ZOOM);
+			AdditionalMetric metric = new AdditionalMetric(conferenceService.getMaxAdditionalMetricId(), ingestConfiguration, 0.0f, "test");
+			metric.setConfig(ingestConfiguration);
+			conferenceService.save(metric, dto.getTitle(), dto.getId());
+			conferenceService.save(ingestConfiguration, metric.getId(), dto.getTitle(), dto.getId());
+			additionalMetricDTO = mapperService.convertToAdditionalMetricDTO(metric.getId());
 		}
 		if (metricId != -1) additionalMetricDTO = mapperService.convertToAdditionalMetricDTO(metricId);
 
 		// set conference as a model attribute to pre-populate the form
 		model.addAttribute("conferenceFrontendDTO", dto);
 		model.addAttribute("additionalMetric", additionalMetricDTO);
+		model.addAttribute("types", ApplicationType.getTypes());
 
 		String config = Integer.toString(additionalMetricDTO.getIngestConfigId());
 		model.addAttribute("configs", config);
@@ -277,15 +292,6 @@ public class ConferenceController {
 
 		IngestConfigurationDTO ingestConfigurationDTO;
 
-		// create new IngestConfig
-		if (conferenceService.findByMetricId(additionalMetricDTO.getMetId()).getConfig() == null) {
-			IngestConfiguration ingestConfiguration = new IngestConfiguration(0, ZOOM);
-			AdditionalMetric metric = conferenceService.findByMetricId(additionalMetricDTO.getMetId());
-			metric.setConfig(ingestConfiguration);
-			conferenceService.save(metric, additionalMetricDTO.getMetricIdentifier(), additionalMetricDTO.getConferenceEdition());
-
-			ingestConfigurationDTO = mapperService.convertToIngestConfigurationDTO(0);
-		}
 		ingestConfigurationDTO = mapperService.convertToIngestConfigurationDTO(additionalMetricDTO.getIngestConfigId());
 
 		// set conference as a model attribute to pre-populate the form
@@ -296,26 +302,6 @@ public class ConferenceController {
 		// send over to our form
 		return "conferences/conferences-form-config";
 	}
-
-/*	@PostMapping("/selectedMetrics")
-	public String getSelectedMetrics(@ModelAttribute("conferenceId") S, @ModelAttribute SelectedMetricsDTO selectedMetricsDTO, Model model) {
-		model.addAttribute("conferenceFrontendDTO", dto);
-
-		List<String> additionalMetrics = new ArrayList<>();
-		ConferenceEdition conferenceEdition = conferenceService.findById(dto.getId());
-
-		if (conferenceEdition != null && !conferenceEdition.getAdditionalMetrics().isEmpty()) {
-			for (var i : conferenceEdition.getAdditionalMetricIds()) {
-				additionalMetrics.add("Metric: " + i);
-			}
-		}
-		additionalMetrics.add("Add new");
-
-		model.addAttribute("additionalMetrics", additionalMetrics);
-		model.addAttribute("selectedMetrics", selectedMetricsDTO.getSelectedMetrics());
-
-		return "conferences/requestDashboard";
-	}*/
 
 	@GetMapping("/requestDashboard")
 	public String requestDashboard(@RequestParam("conferenceId") String title, Model model) {

@@ -82,18 +82,29 @@ public class StorageController implements Controller {
             if (ElasticReadOperation.existsIndex(CONFERENCE_EDITION.index())) {
                 ElasticWriteOperation.deleteIndex(CONFERENCE_EDITION.index());
             }
+            if (ElasticReadOperation.existsIndex(ADDITIONAL_METRIC.index())) {
+                ElasticWriteOperation.deleteIndex(ADDITIONAL_METRIC.index());
+            }
+            if (ElasticReadOperation.existsIndex(INGEST_CONFIGURATION.index())) {
+                ElasticWriteOperation.deleteIndex(INGEST_CONFIGURATION.index());
+            }
+
         }
 
         indexCreated = ElasticReadOperation.existsIndex(CONFERENCE.index());
         indexCreated &= ElasticReadOperation.existsIndex(CONFERENCE_EDITION.index());
+        indexCreated &= ElasticReadOperation.existsIndex(ADDITIONAL_METRIC.index());
+        indexCreated &= ElasticReadOperation.existsIndex(INGEST_CONFIGURATION.index());
         if (!indexCreated) {
             initIndex(CONFERENCE.index());
             initIndex(CONFERENCE_EDITION.index());
             initIndex(ADDITIONAL_METRIC.index());
+            initIndex(INGEST_CONFIGURATION.index());
         } else {
             ElasticWriteOperation.openIndex(CONFERENCE.index());
             ElasticWriteOperation.openIndex(CONFERENCE_EDITION.index());
             ElasticWriteOperation.openIndex(ADDITIONAL_METRIC.index());
+            ElasticWriteOperation.openIndex(INGEST_CONFIGURATION.index());
         }
         ConferencesApplication.getLogger().info("Elasticsearch Index initialized");
     }
@@ -103,6 +114,7 @@ public class StorageController implements Controller {
         ElasticWriteOperation.closeIndex(CONFERENCE.index());
         ElasticWriteOperation.closeIndex(CONFERENCE_EDITION.index());
         ElasticWriteOperation.closeIndex(ADDITIONAL_METRIC.index());
+        ElasticWriteOperation.closeIndex(INGEST_CONFIGURATION.index());
     }
 
     private void initIndex(String indexName) throws InterruptedException {
@@ -146,7 +158,7 @@ public class StorageController implements Controller {
     public static void removeConference(Conference conference) throws InterruptedException {
         if (conference.getConferenceEditions() != null) {
             for (ConferenceEdition edition : conference.getConferenceEditions()) {
-                ElasticWriteOperation.deleteConferenceEdition(edition.getId());
+                removeConferenceEdition(edition);
             }
         }
         ElasticWriteOperation.deleteConference(conference.getTitle());
@@ -156,7 +168,7 @@ public class StorageController implements Controller {
     public static void removeConferenceEdition(ConferenceEdition edition) throws InterruptedException {
         if (edition.getAdditionalMetrics() != null) {
             for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
-                ElasticWriteOperation.deleteAdditionalMetric(metric.getId());
+                removeAdditionalMetric(metric);
             }
         }
         ElasticWriteOperation.deleteConferenceEdition(edition.getId());
@@ -164,11 +176,13 @@ public class StorageController implements Controller {
     }
 
     public static void removeAdditionalMetric(AdditionalMetric metric) throws InterruptedException {
+        removeIngestConfiguration(metric.getConfig());
         ElasticWriteOperation.deleteAdditionalMetric(metric.getId());
         repository.removeAdditionalMetric(metric.getId());
     }
 
     public static void removeIngestConfiguration(IngestConfiguration config) throws InterruptedException {
+        if (config == null) return;
         ElasticWriteOperation.deleteIngestConfiguration(config.getId());
         repository.removeIngestConfiguration(config.getId());
     }

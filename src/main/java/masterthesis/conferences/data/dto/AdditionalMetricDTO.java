@@ -15,6 +15,7 @@ public class AdditionalMetricDTO {
     private int ingestConfigId;
     private float datapoint;
     private String metricIdentifier;
+    private String configString;
 
     private final static Map<String, Property> properties = new HashMap<>();
 
@@ -67,6 +68,14 @@ public class AdditionalMetricDTO {
 
     public void setIngestConfigId(int ingestConfigId) {
         this.ingestConfigId = ingestConfigId;
+    }
+
+    public String getConfigString() {
+        return configString;
+    }
+
+    public void setConfigString(String configString) {
+        this.configString = configString;
     }
 
     public static AdditionalMetric convertToAdditionalMetric(AdditionalMetricDTO metricDTO) throws ExecutionException, InterruptedException {

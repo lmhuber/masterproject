@@ -21,10 +21,6 @@ public class ConferenceRepository {
         this.conferenceSet.add(conference);
     }
 
-    public Set<Conference> getConferenceSet() {
-        return conferenceSet;
-    }
-
     public void updateConference(Conference conference) {
         deleteConference(conference);
         this.conferenceSet.add(conference);
@@ -141,7 +137,7 @@ public class ConferenceRepository {
     }
 
     public void save(Conference conference) throws InterruptedException {
-        this.addConference(conference);
+        this.updateConference(conference);
         StorageController.indexConference(conference);
     }
 
@@ -151,7 +147,9 @@ public class ConferenceRepository {
     }
 
     public Optional<Conference> findById(String title) {
-        return Optional.of(getConference(title));
+        Conference conference = getConference(title);
+        if (conference == null) return null;
+        return Optional.of(conference);
     }
 
     public AdditionalMetric getMetric(int id) {

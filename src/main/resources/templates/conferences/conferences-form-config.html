@@ -26,8 +26,9 @@
     <form action="#" th:action="@{/conferences/save}"
           th:object="${config}" method="POST">
         <input type="text" th:field="${additionalMetric.metId}" hidden/>
+        <input type="text" th:field="${additionalMetric.metricIdentifier}" hidden/>
         <input type="text" th:field="${conferenceFrontendDTO.title}" hidden/>
-        <input type="text" th:field="${conferenceFrontendDTO.edition}" hidden/>
+        <input type="text" th:field="${conferenceFrontendDTO.id}" hidden/>
 
         <div style="display: none">
             Config Id&emsp;&emsp;<input type="text" th:field="*{id}"
@@ -35,7 +36,7 @@
         </div>
         <div class="form-inline">
             Config type&emsp;&emsp;<input type="text" th:field="*{type}"
-                                               class="form-control mb-4 col-4" placeholder="Config Type" name="type">
+                                               class="form-control mb-4 col-4" placeholder="Config Type" name="type" readonly>
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('type')}"

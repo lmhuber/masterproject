@@ -77,24 +77,6 @@ public class ElasticReadOperation extends ElasticOperation {
                 ));
     }
 
-
-    private static int getDocumentNumberFromIndex(String index) throws ExecutionException, InterruptedException {
-        return (int) esClient.count(c -> c.index(index)).whenComplete((response, exception) -> {
-            if (exception != null) {
-                ConferencesApplication.getLogger().error("Could not retrieve document count", exception);
-                ConferencesApplication.getErrorChecker().detectError();
-            }
-        }).get().count();
-    }
-
-    public static int getMaxConferenceEditionId() throws ExecutionException, InterruptedException {
-        return getDocumentNumberFromIndex(CONFERENCE_EDITION.index());
-    }
-
-    public static int getMaxAdditionalMetricId() throws ExecutionException, InterruptedException {
-        return getDocumentNumberFromIndex(ADDITIONAL_METRIC.index());
-    }
-
     protected static Object sendAsyncRequestToElastic(GetRequest request, Class<?> clazz) throws InterruptedException, ExecutionException {
         CompletableFuture<?> responseObject = null;
         if (request != null) {
@@ -134,4 +116,5 @@ public class ElasticReadOperation extends ElasticOperation {
         }
         return ((SearchResponse<?>) responseObject.get()).hits().hits();
     }
+
 }
