@@ -21,6 +21,7 @@ public enum ApplicationType {
         return Stream.of(ApplicationType.values()).map(ApplicationType::text).anyMatch(t -> t.equals(input));
     }
 
+    @SuppressWarnings("SwitchStatementWithTooFewBranches")
     public static ApplicationType getFromString(String type) {
         switch (type) {
             case "zoom":

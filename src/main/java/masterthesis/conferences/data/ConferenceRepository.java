@@ -111,7 +111,6 @@ public class ConferenceRepository {
     }
 
     public void removeIngestConfiguration(int id) {
-        IngestConfiguration ingestConfigurationToRemove = null;
         AdditionalMetric metricToRemove = null;
         for (Conference c : conferenceSet) {
             for (ConferenceEdition edition : c.getConferenceEditions()) {
@@ -119,7 +118,6 @@ public class ConferenceRepository {
                     for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
                         if (metric.getConfig().getId() == id) {
                             metricToRemove = metric;
-                            ingestConfigurationToRemove = metric.getConfig();
                         }
                     }
                 }
@@ -148,7 +146,7 @@ public class ConferenceRepository {
 
     public Optional<Conference> findById(String title) {
         Conference conference = getConference(title);
-        if (conference == null) return null;
+        if (conference == null) return Optional.empty();
         return Optional.of(conference);
     }
 

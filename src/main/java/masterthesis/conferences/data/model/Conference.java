@@ -57,26 +57,9 @@ public class Conference {
         this.conferenceEditions.add(edition);
     }
 
-    public void updateConferenceEdition(ConferenceEdition edition) {
-        this.conferenceEditions.remove(edition);
-        this.conferenceEditions.add(edition);
-    }
-
     public Set<Integer> getConferenceEditionIds() {
         return conferenceEditions.stream().filter(Objects::nonNull)
                 .map(ConferenceEdition::getId).collect(Collectors.toSet());
-    }
-
-    public Set<Integer> getConferenceEditionEditionNames() {
-        return conferenceEditions.stream().filter(Objects::nonNull)
-                .map(ConferenceEdition::getEdition).collect(Collectors.toSet());
-    }
-
-    public int convertEditionToId(int edition) {
-        for (ConferenceEdition editionObject : conferenceEditions) {
-            if (editionObject.getEdition() == edition) return editionObject.getId();
-        }
-        return -1;
     }
 
     @Override

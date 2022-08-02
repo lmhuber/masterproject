@@ -22,9 +22,11 @@ import java.util.stream.Collectors;
 
 import static masterthesis.conferences.data.metrics.zoom.AudioLatency.MEETING_ID;
 
+@SuppressWarnings("unchecked")
 @Service
 public class QoSMetricsServiceImpl implements QoSMetricsService {
 
+    @SuppressWarnings("FieldCanBeLocal")
     @Autowired
     private QoSConfig qoSConfig;
 

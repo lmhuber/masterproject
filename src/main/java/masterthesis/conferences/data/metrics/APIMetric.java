@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class APIMetric implements CalculatedMetric {
-    private List<String> jsonPath = new ArrayList<>();
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final List<String> jsonPath = new ArrayList<>();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     protected float value;
 
@@ -49,6 +49,7 @@ public abstract class APIMetric implements CalculatedMetric {
         return value;
     }
 
+    @SuppressWarnings("SwitchStatementWithTooFewBranches")
     public static Map<String, String> createConfigMap(ApplicationType type) {
         Map<String, String> config = new HashMap<>();
         APIMetric metric = null;
@@ -57,6 +58,7 @@ public abstract class APIMetric implements CalculatedMetric {
                 metric = new AudioLatency();
                 break;
         }
+        assert metric != null;
         for (String text : metric.getConfigParameters()) {
             config.put(text, "");
         }

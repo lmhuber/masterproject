@@ -4,14 +4,14 @@ import java.util.List;
 
 public interface CalculatedMetric {
 
-    public float calculateMetric(String jsonResponse);
+    float calculateMetric(String jsonResponse);
 
-    public List<String> getConfigParameters();
+    List<String> getConfigParameters();
 
-    public String getKey();
+    String getKey();
 
-    public String getTitle();
+    String getTitle();
 
-    public ApplicationType getApplicationType();
+    ApplicationType getApplicationType();
 
 }

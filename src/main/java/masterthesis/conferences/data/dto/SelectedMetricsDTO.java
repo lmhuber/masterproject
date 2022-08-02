@@ -11,7 +11,7 @@ public class SelectedMetricsDTO {
     }
 
     public List<DashboardingMetricDTO> getOnlySelectedMetrics() {
-        return selectedMetrics.stream().filter(x -> x.getChecked()).collect(Collectors.toList());
+        return selectedMetrics.stream().filter(DashboardingMetricDTO::getChecked).collect(Collectors.toList());
     }
 
     public void setSelectedMetrics(List<DashboardingMetricDTO> selectedMetrics) {
