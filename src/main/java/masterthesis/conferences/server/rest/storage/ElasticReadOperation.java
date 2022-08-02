@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutionException;
 
 import static masterthesis.conferences.data.util.Indices.*;
 
+@SuppressWarnings("unchecked")
 public class ElasticReadOperation extends ElasticOperation {
     public static boolean existsIndex(String indexName) throws ExecutionException, InterruptedException {
         return esClient.indices().exists(ExistsRequest.of(e -> e.index(indexName)))

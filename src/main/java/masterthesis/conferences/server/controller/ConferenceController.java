@@ -241,7 +241,7 @@ public class ConferenceController {
 	@GetMapping("/showFormForEditAdditionalMetrics")
 	public String showFormForEditAdditionalMetrics(@ModelAttribute("conferenceFrontendDTO") ConferenceFrontendDTO dto,
 												   @RequestParam(value = "additionalMetric") String additionalMetric,
-												   Model model) throws ExecutionException, InterruptedException {
+												   Model model) {
 
 		// get the conference from the service
 		ConferenceEdition conferenceEdition = conferenceService.findById(dto.getEdition());
@@ -275,6 +275,7 @@ public class ConferenceController {
 		model.addAttribute("additionalMetric", additionalMetricDTO);
 		model.addAttribute("types", ApplicationType.getTypes());
 
+		assert additionalMetricDTO != null;
 		String config = Integer.toString(additionalMetricDTO.getIngestConfigId());
 		model.addAttribute("configs", config);
 
@@ -285,7 +286,7 @@ public class ConferenceController {
 	@GetMapping("/showFormForEditConfigs")
 	public String showFormForEditConfigs(@ModelAttribute("conferenceFrontendDTO") ConferenceFrontendDTO dto,
 										 @ModelAttribute("additionalMetric") AdditionalMetricDTO additionalMetricDTO,
-										 Model model) throws ExecutionException, InterruptedException {
+										 Model model) {
 
 		// get the conference from the service
 		ConferenceEdition conferenceEdition = conferenceService.findById(additionalMetricDTO.getConferenceEdition());
@@ -309,7 +310,7 @@ public class ConferenceController {
 		Conference conference = conferenceService.findById(title);
 
 		List<DashboardingMetricDTO> dashboardingMetricDTOs = new ArrayList<>();
-		for (String metric : conferenceService.fetchAllMetricsPerConference(conference.getTitle())){
+		for (String metric : conferenceService.fetchAllMetricsPerConference()){
 			dashboardingMetricDTOs.add(new DashboardingMetricDTO("", "", "", metric, false));
 		}
 
@@ -331,7 +332,7 @@ public class ConferenceController {
 
 		if (metrics == null) metrics = new SelectedMetricsDTO();
 		conference = conferenceService.findById(conference.getTitle());
-		DashboardingUtils.convertToDashboard(conference, metrics.getSelectedMetrics());
+		DashboardingUtils.convertToDashboard(conference, metrics.getOnlySelectedMetrics());
 
 		try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
 			final HttpPost httppost = new HttpPost("http://localhost:5601/api/saved_objects/_import?overwrite=true");

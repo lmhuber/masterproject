@@ -126,7 +126,7 @@ public class DashboardingUtils {
         for (ConferenceEdition e : conference.getConferenceEditions()) {
             ids.addAll(e.getAdditionalMetricIds());
         }
-        List<Integer> idList = new ArrayList<>(ids.stream().collect(Collectors.toList()));
+        List<Integer> idList = ids.stream().collect(Collectors.toList());
         for (int i = 0; i < idList.size(); i++) {
             if (i != 0) {
                 string.append(" or ");
@@ -136,7 +136,7 @@ public class DashboardingUtils {
         return string.toString();
     }
 
-    class DashboardingConstants{
+    static class DashboardingConstants{
         public static final int BASE_X_COL_1 = 0;
         public static final int BASE_X_COL_2 = 24;
         public static final int WIDTH = 24;
@@ -165,7 +165,6 @@ public class DashboardingUtils {
         // aligns to masterthesis.conferences.server.dashboarding.Operations
         public static final String METRIC_DB_OPERATION = "<DB-OPERATION>";
         // see also https://www.elastic.co/guide/en/kibana/8.3/kuery-query.html
-        public static final String METRIC_DB_FIELD = "<DB-FIELD>";
         public static final String METRIC_DB_QUERY = "<METRIC-QUERY>";
     }
 

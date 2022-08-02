@@ -1,7 +1,6 @@
 package masterthesis.conferences.server.rest.service;
 
 import masterthesis.conferences.data.ConferenceRepository;
-import masterthesis.conferences.data.metrics.ApplicationType;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
@@ -10,9 +9,10 @@ import masterthesis.conferences.server.controller.StorageController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-
-import static masterthesis.conferences.data.metrics.zoom.AudioLatency.MEETING_ID;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ConferenceServiceImpl implements ConferenceService {
@@ -31,7 +31,7 @@ public class ConferenceServiceImpl implements ConferenceService {
 			for (ConferenceEdition edition : conference.getConferenceEditions()) {
 				for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
 					if (metric.getConfig() != null) {
-						Math.max(max, metric.getConfig().getId() + 1);
+						max = Math.max(max, metric.getConfig().getId() + 1);
 					}
 				}
 			}
@@ -45,7 +45,7 @@ public class ConferenceServiceImpl implements ConferenceService {
 		for (Conference conference : conferenceRepository.getConferences()) {
 			for (ConferenceEdition edition : conference.getConferenceEditions()) {
 				for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
-						Math.max(max, metric.getId() + 1);
+						max = Math.max(max, metric.getId() + 1);
 				}
 			}
 		}
@@ -60,7 +60,7 @@ public class ConferenceServiceImpl implements ConferenceService {
 	@Override
 	public Conference findById(String title) {
 		Optional<Conference> result = conferenceRepository.findById(title);
-		if (result == null) return null;
+		if (!result.isPresent()) return null;
 		Conference conference;
 
 		if (result.isPresent()) {
@@ -144,33 +144,7 @@ public class ConferenceServiceImpl implements ConferenceService {
 	}
 
 	@Override
-	public List<String> fetchAllMeetingIds() {
-		List<String> meetingIds = new ArrayList<>();
-		for (Conference conference : conferenceRepository.getConferences()) {
-			for (ConferenceEdition edition: conference.getConferenceEditions()){
-				for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
-					if (metric.getConfig().getType() == ApplicationType.ZOOM) {
-						meetingIds.add(metric.getConfig().getParameters().get(MEETING_ID));
-					}
-				}
-			}
-		}
-		return meetingIds;
-	}
-
-	@Override
-	public List<Integer> fetchAllMetricIdsPerConference(String title) {
-		Set<Integer> metrics = new HashSet<>();
-		for (Conference conference : conferenceRepository.getConferences()) {
-			for (ConferenceEdition edition: conference.getConferenceEditions()){
-				metrics.addAll(edition.getAdditionalMetricIds());
-			}
-		}
-		return List.copyOf(metrics);
-	}
-
-	@Override
-	public List<String> fetchAllMetricsPerConference(String title) {
+	public List<String> fetchAllMetricsPerConference() {
 		Set<String> metrics = new HashSet<>();
 		for (Conference conference : conferenceRepository.getConferences()) {
 			for (ConferenceEdition edition: conference.getConferenceEditions()){

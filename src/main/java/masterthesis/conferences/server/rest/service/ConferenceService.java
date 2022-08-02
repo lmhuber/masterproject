@@ -37,9 +37,5 @@ public interface ConferenceService {
 
     IngestConfiguration findConfigById(int ingestConfigId);
 
-	List<String> fetchAllMeetingIds();
-
-	List<Integer> fetchAllMetricIdsPerConference(String title);
-
-	List<String> fetchAllMetricsPerConference(String title);
+	List<String> fetchAllMetricsPerConference();
 }

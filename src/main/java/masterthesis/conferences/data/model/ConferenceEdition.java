@@ -5,7 +5,6 @@ import masterthesis.conferences.server.controller.StorageController;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class ConferenceEdition {
@@ -33,11 +32,11 @@ public class ConferenceEdition {
     public ConferenceEdition(int year, int edition, int participants, int sessions,
                              int greenInnovativeness, float interactionDynamics, float cost,
                              float carbonFootprint, String sustainability, String country,
-                             String city, AdditionalMetric... additionalMetrics) throws ExecutionException, InterruptedException {
+                             String city, AdditionalMetric... additionalMetrics) {
         int max = 0;
         for (Conference conference : StorageController.getRepository().getConferences()) {
             for (ConferenceEdition e : conference.getConferenceEditions()) {
-                Math.max(max, e.getId() + 1);
+                max = Math.max(max, e.getId() + 1);
             }
         }
 

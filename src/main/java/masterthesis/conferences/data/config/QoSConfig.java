@@ -14,7 +14,4 @@ public class QoSConfig {
         return meetingIdList;
     }
 
-    public void setMeetingIdList(List<String> meetingIdList) {
-        this.meetingIdList = meetingIdList;
-    }
 }

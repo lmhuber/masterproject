@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class ConferencesApplication {
 	private static ServerController controller;
-	private static boolean running = true;
 
 	private static final Log logger = LogFactory.getLog(ConferencesApplication.class);
 	private static final ErrorFilter errorChecker = new ErrorFilter();
@@ -23,6 +22,7 @@ public class ConferencesApplication {
 		initServer();
 		SpringApplication.run(ConferencesApplication.class, args);
 
+		boolean running = true;
 		while (running) {
 			Thread.sleep(100);
 		}
