@@ -31,8 +31,8 @@
                                    class="form-control mb-4 col-4" placeholder="Metric Id" name="metId">
     </div>
 
-    <div class="form-inline">
-      Datapoint&emsp;&emsp;<input type="text" th:field="*{datapoint}"
+    <div style="form-inline">
+      Datapoint <br/><input type="text" th:field="*{datapoint}"
                                            class="form-control mb-4 col-4" placeholder="Datapoint" name="datapoint">
 
       <!-- Add error message (if present) -->
@@ -41,8 +41,8 @@
             class="badge badge-danger ml-2 mb-4"></span>
 
     </div>
-    <div class="form-inline">
-      Metric Identifier&emsp;&emsp;<input type="text" th:field="*{metricIdentifier}"
+    <div style="form-inline">
+      Metric Identifier <br/><input type="text" th:field="*{metricIdentifier}"
                                   class="form-control mb-4 col-4" placeholder="Metric Identifier" name="metricIdentifier">
 
       <!-- Add error message (if present) -->
@@ -53,17 +53,20 @@
     </div>
 
     <div style="form-inline">
-      Ingest Type  <select th:field="*{configString}">
+      Ingest Type <br/><select th:field="*{configString}">
         <option th:each="type : ${types}" th:value="${type}" th:text="${type}">
         </option>
       </select>
     </div>
-
+    <br/>
     <button type="submit" class="btn btn-info col-2">Save</button>
 
   </form>
 
   <div>
+    <hr/>
+    </br>
+    <p class="h4 mb-4">Edit Ingest Configuration </p>
     </br>
     <form th:action="@{showFormForEditConfigs}"
           th:object="${additionalMetric}"

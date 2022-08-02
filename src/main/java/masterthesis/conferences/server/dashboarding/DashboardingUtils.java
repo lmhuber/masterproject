@@ -82,6 +82,7 @@ public class DashboardingUtils {
     }
 
     private static String toUpper(String str) {
+        if (str.equals("")) return str;
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
