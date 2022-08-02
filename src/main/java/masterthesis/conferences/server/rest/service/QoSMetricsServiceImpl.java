@@ -1,6 +1,5 @@
 package masterthesis.conferences.server.rest.service;
 
-import masterthesis.conferences.data.config.QoSConfig;
 import masterthesis.conferences.data.dto.AdditionalMetricDTO;
 import masterthesis.conferences.data.metrics.APIMetric;
 import masterthesis.conferences.data.metrics.ApplicationType;
@@ -10,8 +9,6 @@ import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.server.controller.StorageController;
 import masterthesis.conferences.server.rest.storage.ElasticWriteOperation;
-import org.elasticsearch.common.inject.Inject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,10 +22,6 @@ import static masterthesis.conferences.data.metrics.zoom.AudioLatency.MEETING_ID
 @SuppressWarnings("unchecked")
 @Service
 public class QoSMetricsServiceImpl implements QoSMetricsService {
-
-    @SuppressWarnings("FieldCanBeLocal")
-    @Autowired
-    private QoSConfig qoSConfig;
 
     @Override
     public String getQOSMetrics(String meetingId) {
@@ -90,10 +83,5 @@ public class QoSMetricsServiceImpl implements QoSMetricsService {
                 ElasticWriteOperation.writeAdditionalMetric(dto);
             }
         }
-    }
-
-    @Inject
-    public void setQoSConfig(QoSConfig qoSConfig) {
-        this.qoSConfig = qoSConfig;
     }
 }
