@@ -9,6 +9,10 @@ import java.util.List;
 
 public interface ConferenceService {
 
+	int getMaxConfigId();
+
+	int getMaxAdditionalMetricId();
+
 	List<Conference> findAll();
 
 	Conference findById(String title);

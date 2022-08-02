@@ -34,38 +34,14 @@
             Edition id&emsp;&emsp;<input type="text" th:field="*{id}"
                                          class="form-control mb-4 col-4" placeholder="Id" name="id">
         </div>
-        <div class="form-inline">
-            Conference-Title&emsp;&emsp;<input type="text" th:field="*{title}"
-                                               class="form-control mb-4 col-4" placeholder="Title" name="title">
-
-            <!-- Add error message (if present) -->
-            <span th:if="${#fields.hasErrors('title')}"
-                  th:errors="*{title}"
-                  class="badge badge-danger ml-2 mb-4"></span>
-
-        </div>
-
-        <div class="form-inline">
-            Conference Organization:&emsp;&emsp;<input type="text" th:field="*{organization}"
-                                                       class="form-control mb-4 col-4" placeholder="Organization"
-                                                       name="organization">
-
-            <!-- Add error message (if present) -->
-            <span th:if="${#fields.hasErrors('organization')}"
-                  th:errors="*{organization}"
-                  class="badge badge-danger ml-2 mb-4"></span>
-        </div>
-
-        <div class="form-inline">
-            Conference Publisher&emsp;&emsp;<input type="text" th:field="*{publisher}"
-                                                   class="form-control mb-4 col-4" placeholder="Publisher"
-                                                   name="publisher">
-
-            <!-- Add error message (if present) -->
-            <span th:if="${#fields.hasErrors('publisher')}"
-                  th:errors="*{publisher}"
-                  class="badge badge-danger ml-2 mb-4"></span>
-        </div>
+        <input type="text" th:field="*{title}"
+               class="form-control mb-4 col-4" placeholder="Title" name="title" hidden>
+        <input type="text" th:field="*{organization}"
+               class="form-control mb-4 col-4" placeholder="Organization"
+               name="organization" hidden>
+        <input type="text" th:field="*{publisher}"
+               class="form-control mb-4 col-4" placeholder="Publisher"
+               name="publisher" hidden>
 
         <div class="form-inline">
             City&emsp;&emsp;<input type="text" th:field="*{city}"

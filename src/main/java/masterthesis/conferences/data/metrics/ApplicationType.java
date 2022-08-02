@@ -1,5 +1,6 @@
 package masterthesis.conferences.data.metrics;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 public enum ApplicationType {
@@ -27,5 +28,9 @@ public enum ApplicationType {
             default:
                 return null;
         }
+    }
+
+    public static List<String> getTypes(){
+        return List.of(ZOOM.text);
     }
 }

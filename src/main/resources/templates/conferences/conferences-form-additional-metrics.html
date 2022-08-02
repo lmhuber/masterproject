@@ -23,7 +23,7 @@
   <form action="#" th:action="@{/conferences/save}"
         th:object="${additionalMetric}" method="POST">
     <input type="text" th:field="${conferenceFrontendDTO.title}" hidden/>
-    <input type="text" th:field="${conferenceFrontendDTO.edition}" hidden/>
+    <input type="text" th:field="${conferenceFrontendDTO.id}" hidden/>
 
 
     <div style="display: none">
@@ -52,6 +52,13 @@
 
     </div>
 
+    <div style="form-inline">
+      Ingest Type  <select th:field="*{configString}">
+        <option th:each="type : ${types}" th:value="${type}" th:text="${type}">
+        </option>
+      </select>
+    </div>
+
     <button type="submit" class="btn btn-info col-2">Save</button>
 
   </form>
@@ -62,6 +69,7 @@
           th:object="${additionalMetric}"
           method="GET">
       <input type="text" th:field="${conferenceFrontendDTO.title}" hidden/>
+      <input type="text" th:field="${conferenceFrontendDTO.id}" hidden/>
       <input type="text" th:field="${conferenceFrontendDTO}" hidden/>
       <input type="text" th:field="*{metId}" hidden/>
       <input type="text" th:field="*{metricIdentifier}" hidden/>
@@ -72,7 +80,7 @@
   </div>
 
   <hr>
-  <a th:href="@{showFormForEditConferenceEdition(title=${conferenceFrontendDTO.title}, option=${conferenceFrontendDTO.edition})}">Back to Conference Editions</a>
+  <a th:href="@{showFormForEditConferenceEdition(title=${conferenceFrontendDTO.title}, option=${conferenceFrontendDTO.id})}">Back to Conference Editions</a>
 
 </div>
 </body>

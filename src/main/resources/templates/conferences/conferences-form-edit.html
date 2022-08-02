@@ -23,21 +23,12 @@
 
     <p class="h4 mb-4">Edit Conference</p>
 
-    <!--    <form action="#" th:action="@{/conferences/save}"    -->
-    <form action="#" th:action="@{showFormForEditConferenceEdition(title=${conference.title})}"
-          method="GET" }>
-
-        <div class="form-inline">
-            <input type="text" th:field="*{conference.title}"
-                   class="form-control mb-4 col-4" placeholder="Title">
-
-            <!-- Add error message (if present) -->
-            <span th:if="${#fields.hasErrors('conference.title')}"
-                  th:errors="*{title}"
-                  class="badge badge-danger ml-2 mb-4"></span>
-
-        </div>
-
+    <form action="#" th:action="@{/conferences/save}"
+          method="POST">
+        <a type="text" th:text="*{conference.title}" />
+        <br/>
+        <br/>
+        <input type="text" th:field="*{conference.title}" hidden />
         <div class="form-inline">
             <input type="text" th:field="*{conference.organization}"
                    class="form-control mb-4 col-4" placeholder="Organization">
@@ -58,7 +49,14 @@
                   class="badge badge-danger ml-2 mb-4"></span>
         </div>
 
+        <button type="submit" class="btn btn-info col-2">Save</button>
+    </form>
+    <br/>
+    <!--    <form action="#" th:action="@{/conferences/save}"    -->
+    <form action="#" th:action="@{showFormForEditConferenceEdition(title=${conference.title})}"
+          method="GET" }>
         <p class="h5 mb-5">Select Conference Edition</p>
+        <input type="text" th:field="*{conference.title}" hidden />
         <div>
             <select class="form-control" th:name="option">
                 <option th:each="option : ${options}" th:value="${option}" th:text="${option}"></option>
