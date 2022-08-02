@@ -1,9 +1,15 @@
 package masterthesis.conferences.server.rest.service;
 
 import masterthesis.conferences.data.config.QoSConfig;
+import masterthesis.conferences.data.dto.AdditionalMetricDTO;
+import masterthesis.conferences.data.metrics.APIMetric;
 import masterthesis.conferences.data.metrics.ApplicationType;
-import masterthesis.conferences.data.model.IngestConfiguration;
-import masterthesis.conferences.server.rest.storage.ElasticReadOperation;
+import masterthesis.conferences.data.metrics.zoom.AudioLatency;
+import masterthesis.conferences.data.model.AdditionalMetric;
+import masterthesis.conferences.data.model.Conference;
+import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.server.controller.StorageController;
+import masterthesis.conferences.server.rest.storage.ElasticWriteOperation;
 import org.elasticsearch.common.inject.Inject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -12,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static masterthesis.conferences.data.metrics.zoom.AudioLatency.MEETING_ID;
 
@@ -23,9 +29,9 @@ public class QoSMetricsServiceImpl implements QoSMetricsService {
     private QoSConfig qoSConfig;
 
     @Override
-    public ResponseEntity<?> getQOSMetrics(String meetingId) {
+    public String getQOSMetrics(String meetingId) {
         try {
-            String uri="https://apimocha.com/conferences/metrics/meetings/{meetingId}/participants/qos";
+            String uri="http://localhost:8000/v2/metrics/meetings/:meetingId/participants/qos";
             RestTemplate restTemplate = new RestTemplate();
             Map<String, String> params = new HashMap<>();
             params.put(MEETING_ID, meetingId);
@@ -38,7 +44,7 @@ public class QoSMetricsServiceImpl implements QoSMetricsService {
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
             // build the request
-            HttpEntity request = new HttpEntity(headers);
+            HttpEntity<?> request = new HttpEntity(headers);
 
             ResponseEntity<Object> response = restTemplate.exchange(
                     uri,
@@ -47,49 +53,45 @@ public class QoSMetricsServiceImpl implements QoSMetricsService {
                     Object.class,
                     params
             );
-            return response;
+            return response.toString();
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR).toString();
         }
     }
 
     @Override
     @Scheduled(cron = "@daily")
-    public List<ResponseEntity<?>> getQOSMetricsForMeetings() {
-        List<ResponseEntity<?>> responses = null;
-        try {
-            List<String> meetingIdList = qoSConfig.getMeetingIdList();
-            responses = new ArrayList<>();
-
-            for (var meetingId : meetingIdList) {
-                responses.add(getQOSMetrics(meetingId));
+    public void getQOSMetricsForMeetings() throws InterruptedException {
+        HashMap<Integer, String> metrics = new HashMap<>();
+        for (Conference conference : StorageController.getRepository().getConferences()) {
+            for (ConferenceEdition edition : conference.getConferenceEditions()) {
+                for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
+                    if (metric.getConfig().getType() == ApplicationType.ZOOM &&
+                            !metric.getConfig().getParameters().get(MEETING_ID).equals("")) {
+                        metrics.put(metric.getId(), metric.getConfig().getParameters().get(MEETING_ID));
+                    }
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return responses;
+        SortedSet<String> meetingIds = new TreeSet<>(metrics.values());
+        for (String meetingId : meetingIds) {
+            // additional metrics to differ here, when needed
+            APIMetric apiMetric = new AudioLatency();
+            apiMetric.calculateMetric(getQOSMetrics(meetingId));
+            SortedSet<Integer> metricIds = metrics.entrySet()
+                    .stream()
+                    .filter(e -> e.getValue().equals(meetingId)).map(Map.Entry::getKey).collect(Collectors.toCollection(TreeSet::new));
+            for (int id : metricIds) {
+                AdditionalMetricDTO dto = Objects.requireNonNull(StorageController.getMapper()).convertToAdditionalMetricDTO(id);
+                dto.setDatapoint(apiMetric.getValue());
+                ElasticWriteOperation.writeAdditionalMetric(dto);
+            }
+        }
     }
 
     @Inject
     public void setQoSConfig(QoSConfig qoSConfig) {
         this.qoSConfig = qoSConfig;
-    }
-
-    public void addMeetingToConfigFromElastic(int id) {
-        IngestConfiguration config = null;
-        try {
-            config = ElasticReadOperation.retrieveIngestConfiguration(id);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        if (config == null) return;
-
-        if (config.getType() == ApplicationType.ZOOM) {
-            this.qoSConfig.getMeetingIdList().add(config.getParameters().get(MEETING_ID));
-        }
-
     }
 }
