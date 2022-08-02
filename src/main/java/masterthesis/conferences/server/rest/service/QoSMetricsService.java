@@ -1,12 +1,8 @@
 package masterthesis.conferences.server.rest.service;
 
-import org.springframework.http.ResponseEntity;
-
-import java.util.List;
-
 public interface QoSMetricsService {
 
-    ResponseEntity<?> getQOSMetrics(String meetingId);
+    String getQOSMetrics(String meetingId);
 
-    List<ResponseEntity<?>> getQOSMetricsForMeetings();
+    void getQOSMetricsForMeetings() throws InterruptedException;
 }
