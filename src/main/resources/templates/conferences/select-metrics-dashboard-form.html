@@ -25,33 +25,43 @@
 
     <div>
     </br>
-    <p class="h5 mb-5">Select Additional Metrics for Dashboard</p>
+    <p class="h4 mb-4">Select Additional Metrics for Dashboard</p>
     <!-- Button trigger modal -->
     <form action="#" th:action="@{getDashboard}" th:object="${metrics}" method="GET">
         <input type="text" th:field="${conference.title}" hidden/>
-        <ul style="list-style-type: none;">
-            <label>Metrics:
-
-                <li th:each="metric, itemStat : *{selectedMetrics}">
-                    <input type="checkbox" th:field="*{selectedMetrics[__${itemStat.index}__].checked}" />
-                    <input th:field="*{selectedMetrics[__${itemStat.index}__].panelTitle}" readonly />
-                    <input th:field="*{selectedMetrics[__${itemStat.index}__].title}" />
+        <table style="width:90%">
+            <tr>
+                <th>Checked</th>
+                <th>Metric</th>
+                <th>Panel Title</th>
+                <th>Panel Layout</th>
+                <th>Metric Operation</th>
+            </tr>
+            <tr th:each="metric, itemStat : *{selectedMetrics}">
+                <td> <input type="checkbox" th:field="*{selectedMetrics[__${itemStat.index}__].checked}" /> </td>
+                <td> <input th:field="*{selectedMetrics[__${itemStat.index}__].panelTitle}" readonly /> </td>
+                <td> <input th:field="*{selectedMetrics[__${itemStat.index}__].title}" /> </td>
+                <td>
                     <select th:field="*{selectedMetrics[__${itemStat.index}__].dashboardType}">
                         <option th:each="type : ${types}" th:value="${type}" th:text="${type}">
                         </option>
                     </select>
+                </td>
+                <td>
                     <select th:field="*{selectedMetrics[__${itemStat.index}__].operation}">
                         <option th:each="operation : ${operations}" th:value="${operation}" th:text="${operation}">
                         </option>
                     </select>
-                </li>
-            </label>
-        </ul>
+                </td>
+            </tr>
+        </table>
+        <br/>
         <button type="submit" class="btn btn-info col-2"
                 onclick="if (!(confirm('Select these additional metrics for the dashboard?'))) return false">
             Request Dashboard
         </button>
     </form>
+    <hr/>
     <br/>
     <a th:href="@{/conferences/list}">Back to Conference View</a>
 </div>

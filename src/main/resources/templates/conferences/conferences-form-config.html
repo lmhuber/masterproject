@@ -21,7 +21,7 @@
 
     <hr>
 
-    <p class="h4 mb-4">Edit Configs</p>
+    <p class="h4 mb-4">Edit Ingest Configurations</p>
 
     <form action="#" th:action="@{/conferences/save}"
           th:object="${config}" method="POST">
@@ -45,8 +45,10 @@
 
         </div>
 
-        <h1>Parameters</h1>
-        <table>
+        <br/>
+        <hr/>
+        <p class="h4 mb-4">Parameters</p>
+        <table style="width:80%">
             <tr>
                 <th>No</th>
                 <th>Config</th>

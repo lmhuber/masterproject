@@ -114,8 +114,9 @@
     </form>
 
     <div>
+        <hr/>
         </br>
-        <p class="h5 mb-5">Select Additional Metrics</p>
+        <p class="h4 mb-4">Select Additional Metrics</p>
 
         <form th:action="@{showFormForEditAdditionalMetrics(conferenceDTO=${conferenceFrontendDTO})}"
               th:object="${conferenceFrontendDTO}"
@@ -125,6 +126,7 @@
             <select class="form-control" th:name="additionalMetric">
                 <option th:each="additionalMetric : ${additionalMetrics}" th:value="${additionalMetric}" th:text="${additionalMetric}"></option>
             </select>
+            <br/>
             <button type="submit" class="btn btn-info col-2"
                     onclick="if (!(confirm('Edit this additional metric?'))) return false">
                 Edit Additional Metric

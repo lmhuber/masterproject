@@ -19,8 +19,7 @@
 
 <div class="container">
 
-    <hr>
-
+    <hr/>
     <p class="h4 mb-4">Edit Conference</p>
 
     <form action="#" th:action="@{/conferences/save}"
@@ -51,18 +50,19 @@
 
         <button type="submit" class="btn btn-info col-2">Save</button>
     </form>
+    <hr/>
     <br/>
     <!--    <form action="#" th:action="@{/conferences/save}"    -->
     <form action="#" th:action="@{showFormForEditConferenceEdition(title=${conference.title})}"
           method="GET" }>
-        <p class="h5 mb-5">Select Conference Edition</p>
         <input type="text" th:field="*{conference.title}" hidden />
+        <p class="h4 mb-4">Select Conference Edition</p>
         <div>
             <select class="form-control" th:name="option">
                 <option th:each="option : ${options}" th:value="${option}" th:text="${option}"></option>
             </select>
         </div>
-
+        <br/>
         <button type="submit" class="btn btn-info col-2">Edit</button>
         <hr>
 
