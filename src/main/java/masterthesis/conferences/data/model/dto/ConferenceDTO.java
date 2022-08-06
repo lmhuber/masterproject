@@ -1,6 +1,7 @@
-package masterthesis.conferences.data.dto;
+package masterthesis.conferences.data.model.dto;
 
 import co.elastic.clients.elasticsearch._types.mapping.Property;
+import masterthesis.conferences.data.model.Conference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,13 @@ public class ConferenceDTO {
 
     public ConferenceDTO() {
 
+    }
+
+    public ConferenceDTO(Conference conference) {
+        this.title = conference.getTitle();
+        this.organization = conference.getOrganization();
+        this.publisher = conference.getPublisher();
+        this.conferenceEdtions = conference.getConferenceEditionIds();
     }
 
     public ConferenceDTO(String title, String organization, String publisher, Set<Integer> conferenceEditions) {

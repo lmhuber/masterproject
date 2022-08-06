@@ -1,13 +1,12 @@
-package masterthesis.conferences.server.rest.storage;
+package masterthesis.conferences.server.controller.storage;
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
-import masterthesis.conferences.server.controller.StorageController;
 
 public abstract class ElasticOperation {
     protected static ElasticsearchAsyncClient esClient = getElastic();
 
     private static ElasticsearchAsyncClient getElastic(){
-        if (esClient == null) esClient = StorageController.getInstance();
+        if (esClient == null) esClient = StorageController.getElasticInstance();
         return esClient;
     }
 }

@@ -1,4 +1,7 @@
-package masterthesis.conferences.data.dto;
+package masterthesis.conferences.data.model.dto;
+
+import masterthesis.conferences.data.model.Conference;
+import masterthesis.conferences.data.model.ConferenceEdition;
 
 import java.util.Objects;
 
@@ -112,6 +115,33 @@ public class ConferenceFrontendDTO {
 
     public void setPublisher(String publisher) {
         this.publisher = publisher;
+    }
+
+    public static ConferenceEdition convertFrontendDTOToConferenceEdition(ConferenceFrontendDTO editionDTO, ConferenceEdition edition) {
+        if (editionDTO == null) return null;
+        edition.setEdition(editionDTO.getEdition());
+        edition.setYear(editionDTO.getYear());
+        edition.setCity(editionDTO.getCity());
+        edition.setId(editionDTO.getId());
+        edition.setCountry(editionDTO.getCountry());
+        edition.setParticipants(editionDTO.getParticipants());
+        edition.setSessions(editionDTO.getSessions());
+        return edition;
+    }
+
+    public static ConferenceFrontendDTO convertToFrontendDTO(Conference conference, ConferenceEdition edition) {
+        ConferenceFrontendDTO frontendDTO = new ConferenceFrontendDTO();
+        frontendDTO.setCity(edition.getCity());
+        frontendDTO.setCountry(edition.getCountry());
+        frontendDTO.setEdition(edition.getEdition());
+        frontendDTO.setOrganization(conference.getOrganization());
+        frontendDTO.setPublisher(conference.getPublisher());
+        frontendDTO.setParticipants(edition.getParticipants());
+        frontendDTO.setId(edition.getId());
+        frontendDTO.setSessions(edition.getSessions());
+        frontendDTO.setYear(edition.getYear());
+        frontendDTO.setTitle(conference.getTitle());
+        return frontendDTO;
     }
 
     @Override

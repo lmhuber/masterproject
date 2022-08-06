@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface ConferenceService {
 
+	int getMaxEditionId();
+
 	int getMaxConfigId();
 
 	int getMaxAdditionalMetricId();

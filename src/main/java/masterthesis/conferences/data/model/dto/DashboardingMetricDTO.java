@@ -1,4 +1,4 @@
-package masterthesis.conferences.data.dto;
+package masterthesis.conferences.data.model.dto;
 
 import java.util.Objects;
 

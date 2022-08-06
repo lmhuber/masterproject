@@ -1,12 +1,13 @@
 package masterthesis.conferences.server.controller;
 
-import masterthesis.conferences.data.MapperService;
-import masterthesis.conferences.data.dto.*;
 import masterthesis.conferences.data.metrics.ApplicationType;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.data.model.IngestConfiguration;
+import masterthesis.conferences.data.model.dto.*;
+import masterthesis.conferences.server.controller.storage.MapperService;
+import masterthesis.conferences.server.controller.storage.StorageController;
 import masterthesis.conferences.server.dashboarding.ChartType;
 import masterthesis.conferences.server.dashboarding.DashboardingUtils;
 import masterthesis.conferences.server.dashboarding.Operations;
@@ -30,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import static masterthesis.conferences.data.metrics.ApplicationType.ZOOM;
 import static masterthesis.conferences.data.metrics.zoom.AudioLatency.MEETING_ID;
@@ -90,6 +90,7 @@ public class ConferenceController {
 							+ metric.getMetricIdentifier() + "%29";
 				} else if (metric.getMetricIdentifier() != null) {
 					AdditionalMetric metricObject = AdditionalMetricDTO.convertToAdditionalMetric(metric);
+					metricObject.setConfig(conferenceService.findConfigById(metric.getIngestConfigId()));
 					IngestConfiguration configObject = metricObject.getConfig();
 					configObject.setType(ApplicationType.getFromString(metric.getConfigString()));
 					conferenceService.save(configObject, metricObject.getId(), dto.getTitle(), dto.getId());
@@ -97,7 +98,8 @@ public class ConferenceController {
 					return "redirect:/conferences/showFormForEditConferenceEdition?title=" + dto.getTitle()
 							+ "&option=Edition%3A+" + dto.getId() + "+%28" + dto.getEdition() + "%29";
 				} else if (dto.getCity() != null) {
-					ConferenceEdition edition = mapperService.convertFrontendDTOToConferenceEdition(dto);
+					ConferenceEdition edition = ConferenceFrontendDTO
+							.convertFrontendDTOToConferenceEdition(dto, conferenceService.findById(dto.getId()));
 					conferenceService.save(edition, conference.getTitle());
 					return "redirect:/conferences/showFormForEditConference?conferenceId=" + conference.getTitle();
 				} else {
@@ -191,7 +193,7 @@ public class ConferenceController {
 
 	@GetMapping("/showFormForEditConferenceEdition")
 	public String showFormForEditConferenceEdition(@RequestParam("title") String title, @RequestParam(value = "option") String option,
-												   Model model) throws ExecutionException, InterruptedException {
+												   Model model) {
 
 		// get the conference from the service
 		Conference conference = conferenceService.findById(title);
@@ -208,25 +210,25 @@ public class ConferenceController {
 		}
 
 		ConferenceFrontendDTO conferenceFrontendDTO = null;
-
+		ConferenceEdition edition;
 		// create new conference edition if no editions are present yet
 		if (conferenceService.findById(confEditionId) == null) {
-			ConferenceEdition edition = new ConferenceEdition(0, 0, 0, 0, 0,
+			edition = new ConferenceEdition(conferenceService.getMaxEditionId(),0, 0, 0, 0, 0,
 					1.0f, 1.0f, 1.0f, "test", "test", "test");
 			conferenceService.save(edition, title);
-			conferenceFrontendDTO = mapperService.convertToFrontendDTO(title, edition.getId());
+			conferenceFrontendDTO = ConferenceFrontendDTO.convertToFrontendDTO(conference, edition);
 		}
-		if (confEditionId != -1) conferenceFrontendDTO = mapperService.convertToFrontendDTO(title, confEditionId);
+		edition = conferenceService.findById(confEditionId);
+		if (confEditionId != -1) conferenceFrontendDTO = ConferenceFrontendDTO
+				.convertToFrontendDTO(conference, edition);
 
 		// set conference as a model attribute to pre-populate the form
 		model.addAttribute("conferenceFrontendDTO", conferenceFrontendDTO);
 
 		List<String> additionalMetrics = new ArrayList<>();
 
-		ConferenceEdition conferenceEdition = conferenceService.findById(confEditionId);
-
-		if (conferenceEdition != null && !conferenceEdition.getAdditionalMetrics().isEmpty()) {
-			for (AdditionalMetric metric : conferenceEdition.getAdditionalMetrics()) {
+		if (edition != null && !edition.getAdditionalMetrics().isEmpty()) {
+			for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
 				additionalMetrics.add("Metric: " + metric.getId() + " (" + metric.getMetricIdentifier() + ")");
 			}
 		}

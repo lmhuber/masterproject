@@ -1,4 +1,4 @@
-package masterthesis.conferences.data.dto;
+package masterthesis.conferences.data.model.dto;
 
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 import masterthesis.conferences.data.metrics.ApplicationType;
@@ -15,6 +15,11 @@ public class IngestConfigurationDTO {
 
     private final static Map<String, Property> properties = new HashMap<>();
 
+    public IngestConfigurationDTO(IngestConfiguration config) {
+        this.id = config.getId();
+        this.type = config.getType().text();
+        this.parameters = config.getParameters();
+    }
 
     public IngestConfigurationDTO(int id, String type, Map<String, String> parameters) {
         this.id = id;
