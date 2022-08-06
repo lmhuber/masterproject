@@ -1,7 +1,5 @@
 package masterthesis.conferences.data.model;
 
-import masterthesis.conferences.server.controller.StorageController;
-
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -29,18 +27,12 @@ public class ConferenceEdition {
 
     }
 
-    public ConferenceEdition(int year, int edition, int participants, int sessions,
+    public ConferenceEdition(int id, int year, int edition, int participants, int sessions,
                              int greenInnovativeness, float interactionDynamics, float cost,
                              float carbonFootprint, String sustainability, String country,
                              String city, AdditionalMetric... additionalMetrics) {
-        int max = 0;
-        for (Conference conference : StorageController.getRepository().getConferences()) {
-            for (ConferenceEdition e : conference.getConferenceEditions()) {
-                max = Math.max(max, e.getId() + 1);
-            }
-        }
 
-        this.id = max;
+        this.id = id;
         this.year = year;
         this.edition = edition;
         this.participants = participants;

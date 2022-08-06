@@ -1,8 +1,8 @@
 package masterthesis.conferences.server.dashboarding;
 
-import masterthesis.conferences.data.dto.DashboardingMetricDTO;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.data.model.dto.DashboardingMetricDTO;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static masterthesis.conferences.server.controller.ConferenceController.JSON_EXPORT;
 import static masterthesis.conferences.server.dashboarding.ChartType.METRIC;
@@ -127,7 +126,7 @@ public class DashboardingUtils {
         for (ConferenceEdition e : conference.getConferenceEditions()) {
             ids.addAll(e.getAdditionalMetricIds());
         }
-        List<Integer> idList = ids.stream().collect(Collectors.toList());
+        List<Integer> idList = new ArrayList<>(ids);
         for (int i = 0; i < idList.size(); i++) {
             if (i != 0) {
                 string.append(" or ");

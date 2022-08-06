@@ -1,7 +1,7 @@
 package masterthesis.conferences;
 
 import masterthesis.conferences.server.controller.ServerController;
-import masterthesis.conferences.server.controller.StorageController;
+import masterthesis.conferences.server.controller.storage.StorageController;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.SpringApplication;
@@ -24,7 +24,11 @@ public class ConferencesApplication {
 
 		boolean running = true;
 		while (running) {
-			Thread.sleep(100);
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				running = false;
+			}
 		}
 		controller.shutdown();
 		controller.deregister();
@@ -32,7 +36,7 @@ public class ConferencesApplication {
 
 	private static void initServer() {
 		controller = new ServerController();
-		controller.register(new StorageController());
+		controller.register(StorageController.getInstance());
 		controller.init();
 	}
 

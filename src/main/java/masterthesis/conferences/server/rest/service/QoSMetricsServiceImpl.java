@@ -1,14 +1,13 @@
 package masterthesis.conferences.server.rest.service;
 
-import masterthesis.conferences.data.dto.AdditionalMetricDTO;
 import masterthesis.conferences.data.metrics.APIMetric;
 import masterthesis.conferences.data.metrics.ApplicationType;
 import masterthesis.conferences.data.metrics.zoom.AudioLatency;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
-import masterthesis.conferences.server.controller.StorageController;
-import masterthesis.conferences.server.rest.storage.ElasticWriteOperation;
+import masterthesis.conferences.data.model.dto.AdditionalMetricDTO;
+import masterthesis.conferences.server.controller.storage.StorageController;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -19,9 +18,10 @@ import java.util.stream.Collectors;
 
 import static masterthesis.conferences.data.metrics.zoom.AudioLatency.MEETING_ID;
 
-@SuppressWarnings("unchecked")
 @Service
 public class QoSMetricsServiceImpl implements QoSMetricsService {
+
+    private static final StorageController storageController = StorageController.getInstance();
 
     @Override
     public String getQOSMetrics(String meetingId) {
@@ -39,7 +39,7 @@ public class QoSMetricsServiceImpl implements QoSMetricsService {
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
             // build the request
-            HttpEntity<?> request = new HttpEntity(headers);
+            HttpEntity<?> request = new HttpEntity<>(headers);
 
             ResponseEntity<Object> response = restTemplate.exchange(
                     uri,
@@ -59,7 +59,7 @@ public class QoSMetricsServiceImpl implements QoSMetricsService {
     @Scheduled(cron = "@daily")
     public void getQOSMetricsForMeetings() throws InterruptedException {
         HashMap<Integer, String> metrics = new HashMap<>();
-        for (Conference conference : StorageController.getRepository().getConferences()) {
+        for (Conference conference : StorageController.getInstance().getConferences()) {
             for (ConferenceEdition edition : conference.getConferenceEditions()) {
                 for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
                     if (metric.getConfig().getType() == ApplicationType.ZOOM &&
@@ -80,7 +80,15 @@ public class QoSMetricsServiceImpl implements QoSMetricsService {
             for (int id : metricIds) {
                 AdditionalMetricDTO dto = Objects.requireNonNull(StorageController.getMapper()).convertToAdditionalMetricDTO(id);
                 dto.setDatapoint(apiMetric.getValue());
-                ElasticWriteOperation.writeAdditionalMetric(dto);
+                ConferenceEdition edition = storageController.getEdition(dto.getConferenceEdition());
+                Conference conference =
+                        storageController.getConferences()
+                                .stream()
+                                .filter(c -> c.getConferenceEditionIds().contains(edition.getId())).findFirst().orElse(null);
+                if (conference != null) {
+                    storageController.indexAdditionalMetric(edition,
+                            conference, AdditionalMetricDTO.convertToAdditionalMetric(dto));
+                }
             }
         }
     }

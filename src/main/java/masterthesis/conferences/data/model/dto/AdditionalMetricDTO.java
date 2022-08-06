@@ -1,13 +1,11 @@
-package masterthesis.conferences.data.dto;
+package masterthesis.conferences.data.model.dto;
 
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 import masterthesis.conferences.data.model.AdditionalMetric;
-import masterthesis.conferences.server.rest.storage.ElasticReadOperation;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 public class AdditionalMetricDTO {
     private int metId;
@@ -20,6 +18,14 @@ public class AdditionalMetricDTO {
     private final static Map<String, Property> properties = new HashMap<>();
 
     public AdditionalMetricDTO() {
+    }
+
+    public AdditionalMetricDTO(AdditionalMetric metric, int editionId) {
+        this.metId = metric.getId();
+        this.ingestConfigId = metric.getConfig().getId();
+        this.conferenceEdition = editionId;
+        this.datapoint = metric.getDatapoint();
+        this.metricIdentifier = metric.getMetricIdentifier();
     }
 
     public AdditionalMetricDTO(int metId, int conferenceEdition, int ingestConfigId, float datapoint, String metricIdentifier) {
@@ -78,13 +84,12 @@ public class AdditionalMetricDTO {
         this.configString = configString;
     }
 
-    public static AdditionalMetric convertToAdditionalMetric(AdditionalMetricDTO metricDTO) throws ExecutionException, InterruptedException {
+    public static AdditionalMetric convertToAdditionalMetric(AdditionalMetricDTO metricDTO) {
         if (metricDTO == null) return null;
         AdditionalMetric metric = new AdditionalMetric();
         metric.setId(metricDTO.getMetId());
         metric.setMetricIdentifier(metricDTO.getMetricIdentifier());
         metric.setDatapoint(metricDTO.getDatapoint());
-        metric.setConfig(ElasticReadOperation.retrieveIngestConfiguration(metricDTO.getIngestConfigId()));
         return metric;
     }
 

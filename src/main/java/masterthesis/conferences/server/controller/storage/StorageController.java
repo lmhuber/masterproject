@@ -1,19 +1,15 @@
-package masterthesis.conferences.server.controller;
+package masterthesis.conferences.server.controller.storage;
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import masterthesis.conferences.ConferencesApplication;
-import masterthesis.conferences.data.ConferenceRepository;
-import masterthesis.conferences.data.MapperService;
-import masterthesis.conferences.data.dto.IngestConfigurationDTO;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.data.model.IngestConfiguration;
-import masterthesis.conferences.server.rest.storage.ElasticReadOperation;
-import masterthesis.conferences.server.rest.storage.ElasticWriteOperation;
+import masterthesis.conferences.data.model.dto.IngestConfigurationDTO;
+import masterthesis.conferences.server.controller.Controller;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -21,57 +17,55 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static masterthesis.conferences.data.util.Indices.*;
 
 public class StorageController implements Controller {
+    private static StorageController instance = null;
+
     private static ElasticsearchAsyncClient client = null;
 
     private static final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 
-    private static ConferenceRepository repository = null;
-
     private static MapperService mapperService = null;
 
-    public static ElasticsearchAsyncClient getInstance() {
+    private static final Set<Conference> conferenceSet = new HashSet<>();
+
+    public static StorageController getInstance() {
+        if (instance == null) {
+            instance = new StorageController();
+            instance.fetchConferences();
+        }
+        return instance;
+    }
+
+    public static ElasticsearchAsyncClient getElasticInstance() {
         if (client == null) {
             credentialsProvider.setCredentials(AuthScope.ANY,
                     new UsernamePasswordCredentials("elastic", "changeme"));
             RestClient restClient = RestClient.builder(new HttpHost("localhost", 9200))
                     .setHttpClientConfigCallback(httpAsyncClientBuilder ->
                             httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider)).build();
-            ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
-            client = new ElasticsearchAsyncClient(transport);
+            client = new ElasticsearchAsyncClient(new RestClientTransport(restClient, new JacksonJsonpMapper()));
         }
         return client;
     }
 
     public static MapperService getMapper() {
         if (mapperService == null) {
-            if (repository == null) return null;
             mapperService = new MapperService();
         }
         return mapperService;
     }
 
-    public static ConferenceRepository getRepository() {
-        if (repository == null) {
-            repository = new ConferenceRepository();
-            fetchConferences();
-        }
-        return repository;
-    }
 
     @Override
     public synchronized void init() throws ExecutionException, InterruptedException {
         ConferencesApplication.getLogger().info("Initializing Controller");
         getInstance();
         getMapper();
-        getRepository();
         ConferencesApplication.getLogger().info("Controller Objects initialized");
         ConferencesApplication.getLogger().info("Initializing Elasticsearch Index");
         boolean indexCreated;
@@ -122,23 +116,95 @@ public class StorageController implements Controller {
         ElasticWriteOperation.createMapping(indexName);
     }
 
-    public static void indexConference(Conference conference) throws InterruptedException {
-        repository.addConference(conference);
+    public Conference getConference(String title) {
+        return conferenceSet.stream().filter(c -> c.getTitle().equals(title)).findFirst().orElse(null);
+    }
+
+    public List<Conference> getConferences() {
+        return new ArrayList<>(conferenceSet);
+    }
+
+    public void save(Conference conference) throws InterruptedException {
+        conferenceSet.remove(conference);
+        conferenceSet.add(conference);
+        indexConference(conference);
+    }
+
+    public void deleteById(String title) throws InterruptedException {
+        removeConference(getConference(title));
+        conferenceSet.remove(getConference(title));
+    }
+
+    public Optional<Conference> findById(String title) {
+        Conference conference = getConference(title);
+        if (conference == null) return Optional.empty();
+        return Optional.of(conference);
+    }
+
+    public ConferenceEdition getEdition(int id) {
+        for (Conference c : conferenceSet) {
+            if (c.getConferenceEditionIds()!= null && c.getConferenceEditionIds().contains(id)) {
+                for (ConferenceEdition edition : c.getConferenceEditions()) {
+                    if (edition.getId() == id) return edition;
+                }
+            }
+        }
+        return null;
+    }
+
+    public AdditionalMetric getMetric(int id) {
+        for (Conference c : conferenceSet) {
+            for (ConferenceEdition e : c.getConferenceEditions()) {
+                for (AdditionalMetric metric : e.getAdditionalMetrics()) {
+                    if (metric.getId() == id) return metric;
+                }
+            }
+        }
+        return null;
+    }
+
+    public ConferenceEdition getEditonByMetric(int id) {
+        for (Conference c : conferenceSet) {
+            for (ConferenceEdition edition : c.getConferenceEditions()) {
+                if (edition.getAdditionalMetricIds().contains(id)) {
+                    return edition;
+                }
+            }
+        }
+        return null;
+    }
+
+    public IngestConfiguration getIngestConfiguration(int ingestConfigId) {
+        for (Conference c : conferenceSet) {
+            for (ConferenceEdition edition : c.getConferenceEditions()) {
+                for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
+                    if (metric.getConfig() != null && metric.getConfig().getId() == ingestConfigId) {
+                        return metric.getConfig();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public void indexConference(Conference conference) throws InterruptedException {
+        conferenceSet.add(conference);
         ElasticWriteOperation.writeConference(
                 Objects.requireNonNull(getMapper()).convertToConferenceDTO(conference.getTitle()), CONFERENCE.index()
         );
     }
 
-    public static void indexConferenceEdition(ConferenceEdition edition, Conference conference) throws InterruptedException {
+    public void indexConferenceEdition(ConferenceEdition edition, Conference conference) throws InterruptedException {
         conference.addConferenceEdition(edition);
-        repository.updateConference(conference);
+        conferenceSet.remove(conference);
+        conferenceSet.add(conference);
         ElasticWriteOperation.writeConferenceEdition(
                 Objects.requireNonNull(getMapper()).convertToConferenceEditionDTO(edition.getId())
         );
         indexConference(conference);
     }
 
-    public static void indexAdditionalMetric(ConferenceEdition edition, Conference conference, AdditionalMetric metric) throws InterruptedException {
+    public void indexAdditionalMetric(ConferenceEdition edition, Conference conference, AdditionalMetric metric) throws InterruptedException {
         edition.addAdditionalMetric(metric);
         edition.updateAdditionalMetric(metric);
         ElasticWriteOperation.writeAdditionalMetric(
@@ -147,7 +213,7 @@ public class StorageController implements Controller {
         indexConferenceEdition(edition, conference);
     }
 
-    public static void indexIngestConfiguration(ConferenceEdition edition, Conference conference, AdditionalMetric metric, IngestConfiguration config) throws InterruptedException {
+    public void indexIngestConfiguration(ConferenceEdition edition, Conference conference, AdditionalMetric metric, IngestConfiguration config) throws InterruptedException {
         metric.setConfig(config);
         IngestConfigurationDTO ingestDTO = Objects.requireNonNull(getMapper()).convertToIngestConfigurationDTO(config.getId());
         if (ingestDTO == null) return;
@@ -155,47 +221,95 @@ public class StorageController implements Controller {
         indexAdditionalMetric(edition, conference, metric);
     }
 
-    public static void removeConference(Conference conference) throws InterruptedException {
+    public void removeConference(Conference conference) throws InterruptedException {
         if (conference.getConferenceEditions() != null) {
             for (ConferenceEdition edition : conference.getConferenceEditions()) {
                 removeConferenceEdition(edition);
             }
         }
         ElasticWriteOperation.deleteConference(conference.getTitle());
-        repository.deleteConference(conference);
+        conferenceSet.remove(conference);
     }
 
-    public static void removeConferenceEdition(ConferenceEdition edition) throws InterruptedException {
+    public void removeConferenceEdition(ConferenceEdition edition) throws InterruptedException {
         if (edition.getAdditionalMetrics() != null) {
             for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
                 removeAdditionalMetric(metric);
             }
         }
         ElasticWriteOperation.deleteConferenceEdition(edition.getId());
-        repository.removeEdition(edition.getId());
+        final int id = edition.getId();
+        Conference conferenceToRemove = null;
+        ConferenceEdition editionToRemove = null;
+        for (Conference c : conferenceSet) {
+            if (c.getConferenceEditionIds().contains(id)) {
+                for (ConferenceEdition conferenceEdition : c.getConferenceEditions()) {
+                    if (edition.getId() == id) {
+                        editionToRemove = conferenceEdition;
+                        conferenceToRemove = c;
+                    }
+                }
+            }
+        }
+        if (editionToRemove != null) {
+            conferenceToRemove.getConferenceEditions().remove(editionToRemove);
+        }
     }
 
-    public static void removeAdditionalMetric(AdditionalMetric metric) throws InterruptedException {
+    public void removeAdditionalMetric(AdditionalMetric metric) throws InterruptedException {
         removeIngestConfiguration(metric.getConfig());
         ElasticWriteOperation.deleteAdditionalMetric(metric.getId());
-        repository.removeAdditionalMetric(metric.getId());
+        final int id = metric.getId();
+        ConferenceEdition editionToRemove = null;
+        AdditionalMetric metricToRemove = null;
+        for (Conference c : conferenceSet) {
+            for (ConferenceEdition edition : c.getConferenceEditions()) {
+                if (edition.getAdditionalMetricIds().contains(id)) {
+                    for (AdditionalMetric additionalMetric : edition.getAdditionalMetrics()) {
+                        if (metric.getId() == id) {
+                            editionToRemove = edition;
+                            metricToRemove = additionalMetric;
+                        }
+                    }
+                }
+            }
+        }
+        if (editionToRemove != null) {
+            editionToRemove.getAdditionalMetrics().remove(metricToRemove);
+        }
     }
 
-    public static void removeIngestConfiguration(IngestConfiguration config) throws InterruptedException {
+    public void removeIngestConfiguration(IngestConfiguration config) throws InterruptedException {
         if (config == null) return;
         ElasticWriteOperation.deleteIngestConfiguration(config.getId());
-        repository.removeIngestConfiguration(config.getId());
+        final int id = config.getId();
+        AdditionalMetric metricToRemove = null;
+        for (Conference c : conferenceSet) {
+            for (ConferenceEdition edition : c.getConferenceEditions()) {
+                if (edition.getAdditionalMetricIds().contains(id)) {
+                    for (AdditionalMetric metric : edition.getAdditionalMetrics()) {
+                        if (metric.getConfig().getId() == id) {
+                            metricToRemove = metric;
+                        }
+                    }
+                }
+            }
+        }
+        if (metricToRemove != null) {
+            metricToRemove.setConfig(null);
+        }
     }
 
 
-    public static void fetchConferences() {
+    public void fetchConferences() {
         List<Conference> conferenceList = new ArrayList<>();
         try {
             conferenceList = ElasticReadOperation.retrieveConferences();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-        for (Conference c : conferenceList) repository.addConference(c);
+        conferenceSet.addAll(conferenceList);
     }
+
 
 }
