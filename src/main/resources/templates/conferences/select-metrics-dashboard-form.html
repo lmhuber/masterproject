@@ -25,7 +25,7 @@
 
     <div>
     </br>
-    <p class="h4 mb-4">Select Additional Metrics for Dashboard</p>
+        <header><h1>Select Additional Metrics for Dashboard</h1></header>
     <!-- Button trigger modal -->
     <form action="#" th:action="@{getDashboard}" th:object="${metrics}" method="GET">
         <input type="text" th:field="${conference.title}" hidden/>
@@ -38,17 +38,17 @@
                 <th>Metric Operation</th>
             </tr>
             <tr th:each="metric, itemStat : *{selectedMetrics}">
-                <td> <input type="checkbox" th:field="*{selectedMetrics[__${itemStat.index}__].checked}" /> </td>
-                <td> <input th:field="*{selectedMetrics[__${itemStat.index}__].panelTitle}" readonly /> </td>
-                <td> <input th:field="*{selectedMetrics[__${itemStat.index}__].title}" /> </td>
+                <td> <input type="checkbox" th:field="*{selectedMetrics[__${itemStat.index}__].checked}" aria-label="Checked" /> </td>
+                <td> <input th:field="*{selectedMetrics[__${itemStat.index}__].panelTitle}" readonly aria-label="Metric Title" /> </td>
+                <td> <input th:field="*{selectedMetrics[__${itemStat.index}__].title}" aria-label="Panel Title" /> </td>
                 <td>
-                    <select th:field="*{selectedMetrics[__${itemStat.index}__].dashboardType}">
+                    <select th:field="*{selectedMetrics[__${itemStat.index}__].dashboardType}" aria-label="Panel Layout">
                         <option th:each="type : ${types}" th:value="${type}" th:text="${type}">
                         </option>
                     </select>
                 </td>
                 <td>
-                    <select th:field="*{selectedMetrics[__${itemStat.index}__].operation}">
+                    <select th:field="*{selectedMetrics[__${itemStat.index}__].operation}" aria-label="Metric Operation or Aggregation">
                         <option th:each="operation : ${operations}" th:value="${operation}" th:text="${operation}">
                         </option>
                     </select>

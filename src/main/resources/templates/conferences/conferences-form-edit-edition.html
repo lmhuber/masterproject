@@ -25,7 +25,7 @@
 
     <hr>
 
-    <p class="h4 mb-4">Edit Conference Edition</p>
+    <header><h1>Edit Conference Edition</h1></header>
 
     <form action="#" th:action="@{/conferences/save}"
           th:object="${conferenceFrontendDTO}" method="POST">
@@ -35,17 +35,17 @@
                                          class="form-control mb-4 col-4" placeholder="Id" name="id">
         </div>
         <input type="text" th:field="*{title}"
-               class="form-control mb-4 col-4" placeholder="Title" name="title" hidden>
+               class="form-control mb-4 col-4" placeholder="Title" name="title" hidden aria-label="Title">
         <input type="text" th:field="*{organization}"
                class="form-control mb-4 col-4" placeholder="Organization"
-               name="organization" hidden>
+               name="organization" hidden aria-label="Organization">
         <input type="text" th:field="*{publisher}"
                class="form-control mb-4 col-4" placeholder="Publisher"
-               name="publisher" hidden>
+               name="publisher" hidden aria-label="Publisher">
 
         <div class="form-inline">
             City&emsp;&emsp;<input type="text" th:field="*{city}"
-                                   class="form-control mb-4 col-4" placeholder="City" name="city">
+                                   class="form-control mb-4 col-4" placeholder="City" name="city" aria-label="City">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('city')}"
@@ -56,7 +56,7 @@
 
         <div class="form-inline">
             Country:&emsp;&emsp;<input type="text" th:field="*{country}"
-                                       class="form-control mb-4 col-4" placeholder="Country" name="country">
+                                       class="form-control mb-4 col-4" placeholder="Country" name="country" aria-label="Country">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('country')}"
@@ -67,7 +67,7 @@
 
         <div class="form-inline">
             Year:&emsp;&emsp;<input type="text" th:field="*{year}"
-                                    class="form-control mb-4 col-4" placeholder="Year" name="year">
+                                    class="form-control mb-4 col-4" placeholder="Year" name="year" aria-label="Year">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('year')}"
@@ -78,7 +78,7 @@
 
         <div class="form-inline">
             Edition:&emsp;&emsp;<input type="text" th:field="*{edition}"
-                                       class="form-control mb-4 col-4" placeholder="Edition" name="edition">
+                                       class="form-control mb-4 col-4" placeholder="Edition" name="edition" aria-label="Edition">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('edition')}"
@@ -90,7 +90,7 @@
         <div class="form-inline">
             Participants:&emsp;&emsp;<input type="text" th:field="*{participants}"
                                             class="form-control mb-4 col-4" placeholder="Participants"
-                                            name="participants">
+                                            name="participants" aria-label="Participants">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('participants')}"
@@ -101,7 +101,7 @@
 
         <div class="form-inline">
             Sessions:&emsp;&emsp;<input type="text" th:field="*{sessions}"
-                                        class="form-control mb-4 col-4" placeholder="Sessions" name="sessions">
+                                        class="form-control mb-4 col-4" placeholder="Sessions" name="sessions" aria-label="Sessions">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('sessions')}"
@@ -116,14 +116,14 @@
     <div>
         <hr/>
         </br>
-        <p class="h4 mb-4">Select Additional Metrics</p>
+        <h1>Select Additional Metrics</h1>
 
         <form th:action="@{showFormForEditAdditionalMetrics(conferenceDTO=${conferenceFrontendDTO})}"
               th:object="${conferenceFrontendDTO}"
               method="GET">
-            <input type="text" th:field="*{id}" hidden/>
-            <input type="text" th:field="*{title}" hidden/>
-            <select class="form-control" th:name="additionalMetric">
+            <input type="text" th:field="*{id}" hidden aria-label="Id"/>
+            <input type="text" th:field="*{title}" hidden aria-label="Title"/>
+            <select class="form-control" th:name="additionalMetric" aria-label="Additional Metric">
                 <option th:each="additionalMetric : ${additionalMetrics}" th:value="${additionalMetric}" th:text="${additionalMetric}"></option>
             </select>
             <br/>

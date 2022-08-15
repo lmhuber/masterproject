@@ -2,12 +2,19 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+	<!-- Bootstrap CSS -->
+	<!-- CSS only -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+	<!-- JavaScript Bundle with Popper -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+
+	<!-- Include the plugin's CSS and JS: -->
+	<script type="text/javascript" src="js/bootstrap-multiselect.js"></script>
+	<link rel="stylesheet" href="css/bootstrap-multiselect.css" type="text/css"/>
 
 	<title>Save Conference</title>
 </head>
@@ -18,14 +25,14 @@
 
 		<hr>
 		
-		<p class="h4 mb-4">Save Conference</p>
+		<header><h1>Save Conference</h1></header>
 	
 		<form action="#" th:action="@{/conferences/save}"
 						 th:object="${conference}" method="POST">
 			
 			<div class="form-inline">
 				<input type="text" th:field="*{title}"
-						class="form-control mb-4 col-4" placeholder="Title">
+						class="form-control mb-4 col-4" placeholder="Title" aria-label="Title">
 			
 				<!-- Add error message (if present) -->
 				<span th:if="${#fields.hasErrors('title')}"
@@ -36,7 +43,7 @@
 
 			<div class="form-inline">
 				<input type="text" th:field="*{organization}"
-					   class="form-control mb-4 col-4" placeholder="Organization">
+					   class="form-control mb-4 col-4" placeholder="Organization" aria-label="Organization">
 
 				<!-- Add error message (if present) -->
 				<span th:if="${#fields.hasErrors('organization')}"
@@ -46,7 +53,7 @@
 
 			<div class="form-inline">
 				<input type="text" th:field="*{publisher}"
-					   class="form-control mb-4 col-4" placeholder="Publisher">
+					   class="form-control mb-4 col-4" placeholder="Publisher" aria-label="Publisher">
 
 				<!-- Add error message (if present) -->
 				<span th:if="${#fields.hasErrors('publisher')}"

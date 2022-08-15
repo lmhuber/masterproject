@@ -12,7 +12,7 @@
     <!-- JavaScript Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
 
-    <title>Edit Configs</title>
+    <title>Edit Configuration</title>
 </head>
 
 <body>
@@ -21,22 +21,22 @@
 
     <hr>
 
-    <p class="h4 mb-4">Edit Ingest Configurations</p>
+    <header><h1>Edit Ingest Configurations</h1></header>
 
     <form action="#" th:action="@{/conferences/save}"
           th:object="${config}" method="POST">
-        <input type="text" th:field="${additionalMetric.metId}" hidden/>
-        <input type="text" th:field="${additionalMetric.metricIdentifier}" hidden/>
-        <input type="text" th:field="${conferenceFrontendDTO.title}" hidden/>
-        <input type="text" th:field="${conferenceFrontendDTO.id}" hidden/>
+        <input type="text" th:field="${additionalMetric.metId}" hidden aria-label="Metric Id"/>
+        <input type="text" th:field="${additionalMetric.metricIdentifier}" hidden aria-label="Metric Identifier"/>
+        <input type="text" th:field="${conferenceFrontendDTO.title}" hidden aria-label="Title"/>
+        <input type="text" th:field="${conferenceFrontendDTO.id}" hidden aria-label="Id"/>
 
         <div style="display: none">
             Config Id&emsp;&emsp;<input type="text" th:field="*{id}"
-                                        class="form-control mb-4 col-4" placeholder="Config Id" name="id">
+                                        class="form-control mb-4 col-4" placeholder="Config Id" name="id" aria-label="Configuration Id">
         </div>
         <div class="form-inline">
             Config type&emsp;&emsp;<input type="text" th:field="*{type}"
-                                               class="form-control mb-4 col-4" placeholder="Config Type" name="type" readonly>
+                                               class="form-control mb-4 col-4" placeholder="Config Type" name="type" readonly aria-label="Configuration Type">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('type')}"
@@ -47,7 +47,7 @@
 
         <br/>
         <hr/>
-        <p class="h4 mb-4">Parameters</p>
+        <h1>Parameters</h1>
         <table style="width:80%">
             <tr>
                 <th>No</th>
@@ -60,7 +60,7 @@
                 <td>
                     <input type="text" th:field="*{parameters[__${entry.key}__]}"
                            class="form-control mb-4 col-4" placeholder="parameter"
-                           name="parameter + ${stat.index}">
+                           name="parameter + ${stat.index}" aria-label="Parameter">
                 </td>
             </tr>
         </table>

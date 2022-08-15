@@ -20,16 +20,16 @@
 <div class="container">
 
     <hr/>
-    <p class="h4 mb-4">Edit Conference</p>
+    <header><h1>Edit Conference</h1></header>
 
     <form action="#" th:action="@{/conferences/save}"
           method="POST">
         <a type="text" th:text="*{conference.title}" />
         <br/>
         <br/>
-        <input type="text" th:field="*{conference.title}" hidden />
+        <input type="text" th:field="*{conference.title}" hidden aria-label="Title"/>
         <div class="form-inline">
-            <input type="text" th:field="*{conference.organization}"
+            <input type="text" th:field="*{conference.organization}" aria-label="Organization"
                    class="form-control mb-4 col-4" placeholder="Organization">
 
             <!-- Add error message (if present) -->
@@ -39,7 +39,7 @@
         </div>
 
         <div class="form-inline">
-            <input type="text" th:field="*{conference.publisher}"
+            <input type="text" th:field="*{conference.publisher}" aria-label="Publisher"
                    class="form-control mb-4 col-4" placeholder="Publisher">
 
             <!-- Add error message (if present) -->
@@ -55,10 +55,10 @@
     <!--    <form action="#" th:action="@{/conferences/save}"    -->
     <form action="#" th:action="@{showFormForEditConferenceEdition(title=${conference.title})}"
           method="GET" }>
-        <input type="text" th:field="*{conference.title}" hidden />
-        <p class="h4 mb-4">Select Conference Edition</p>
+        <input type="text" th:field="*{conference.title}" hidden aria-label="Title" />
+        <h1>Select Conference Edition</h1>
         <div>
-            <select class="form-control" th:name="option">
+            <select class="form-control" th:name="option" aria-label="Conference Edition">
                 <option th:each="option : ${options}" th:value="${option}" th:text="${option}"></option>
             </select>
         </div>

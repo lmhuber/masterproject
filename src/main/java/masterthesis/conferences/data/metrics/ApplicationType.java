@@ -4,10 +4,14 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public enum ApplicationType {
-    ZOOM("zoom");
-
+    ZOOM("zoom"),
+    MANUAL("manual");
 
     private final String text;
+
+    private static final String MANUAL_STRING = "manual";
+    private static final String ZOOM_STRING = "zoom";
+
 
     ApplicationType(String text) {
         this.text = text;
@@ -24,14 +28,16 @@ public enum ApplicationType {
     @SuppressWarnings("SwitchStatementWithTooFewBranches")
     public static ApplicationType getFromString(String type) {
         switch (type) {
-            case "zoom":
+            case ZOOM_STRING:
                 return ZOOM;
+            case MANUAL_STRING:
+                return MANUAL;
             default:
                 return null;
         }
     }
 
     public static List<String> getTypes(){
-        return List.of(ZOOM.text);
+        return List.of(ZOOM.text, MANUAL.text);
     }
 }

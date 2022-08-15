@@ -1,6 +1,7 @@
 package masterthesis.conferences.server.controller.storage;
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
+import co.elastic.clients.elasticsearch.core.GetRequest;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import masterthesis.conferences.ConferencesApplication;
@@ -8,6 +9,8 @@ import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.data.model.IngestConfiguration;
+import masterthesis.conferences.data.model.dto.AdditionalMetricDTO;
+import masterthesis.conferences.data.model.dto.ConferenceEditionDTO;
 import masterthesis.conferences.data.model.dto.IngestConfigurationDTO;
 import masterthesis.conferences.server.controller.Controller;
 import org.apache.http.HttpHost;
@@ -21,6 +24,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static masterthesis.conferences.data.util.Indices.*;
+import static masterthesis.conferences.server.controller.storage.ElasticReadOperation.sendAsyncRequestToElastic;
 
 public class StorageController implements Controller {
     private static StorageController instance = null;
@@ -95,20 +99,20 @@ public class StorageController implements Controller {
             initIndex(ADDITIONAL_METRIC.index());
             initIndex(INGEST_CONFIGURATION.index());
         } else {
-            ElasticWriteOperation.openIndex(CONFERENCE.index());
-            ElasticWriteOperation.openIndex(CONFERENCE_EDITION.index());
-            ElasticWriteOperation.openIndex(ADDITIONAL_METRIC.index());
-            ElasticWriteOperation.openIndex(INGEST_CONFIGURATION.index());
+            ElasticWriteOperation.changeIndex(CONFERENCE.index(), true);
+            ElasticWriteOperation.changeIndex(CONFERENCE_EDITION.index(), true);
+            ElasticWriteOperation.changeIndex(ADDITIONAL_METRIC.index(), true);
+            ElasticWriteOperation.changeIndex(INGEST_CONFIGURATION.index(), true);
         }
         ConferencesApplication.getLogger().info("Elasticsearch Index initialized");
     }
 
     @Override
     public void shutdown() throws InterruptedException {
-        ElasticWriteOperation.closeIndex(CONFERENCE.index());
-        ElasticWriteOperation.closeIndex(CONFERENCE_EDITION.index());
-        ElasticWriteOperation.closeIndex(ADDITIONAL_METRIC.index());
-        ElasticWriteOperation.closeIndex(INGEST_CONFIGURATION.index());
+        ElasticWriteOperation.changeIndex(CONFERENCE.index(), false);
+        ElasticWriteOperation.changeIndex(CONFERENCE_EDITION.index(), false);
+        ElasticWriteOperation.changeIndex(ADDITIONAL_METRIC.index(), false);
+        ElasticWriteOperation.changeIndex(INGEST_CONFIGURATION.index(), false);
     }
 
     private void initIndex(String indexName) throws InterruptedException {
@@ -300,6 +304,27 @@ public class StorageController implements Controller {
         }
     }
 
+
+    public ConferenceEdition retrieveConferenceEdition(int id) throws InterruptedException, ExecutionException {
+        return ConferenceEditionDTO.convertToConferenceEdition((ConferenceEditionDTO) sendAsyncRequestToElastic(
+                GetRequest.of(s -> s.index(CONFERENCE_EDITION.index()).id(Integer.toString(id))),
+                ConferenceEditionDTO.class
+        ));
+    }
+
+    public AdditionalMetric retrieveAdditionalMetric(int id) throws ExecutionException, InterruptedException {
+        return AdditionalMetricDTO.convertToAdditionalMetric((AdditionalMetricDTO) sendAsyncRequestToElastic(
+                GetRequest.of(s -> s.index(ADDITIONAL_METRIC.index()).id(Integer.toString(id))),
+                AdditionalMetricDTO.class
+        ));
+    }
+
+    public IngestConfiguration retrieveIngestConfiguration(int id) throws ExecutionException, InterruptedException {
+        return IngestConfigurationDTO.convertToIngestConfiguration((IngestConfigurationDTO) sendAsyncRequestToElastic(
+                GetRequest.of(s -> s.index(INGEST_CONFIGURATION.index()).id(Integer.toString(id))),
+                IngestConfigurationDTO.class
+        ));
+    }
 
     public void fetchConferences() {
         List<Conference> conferenceList = new ArrayList<>();

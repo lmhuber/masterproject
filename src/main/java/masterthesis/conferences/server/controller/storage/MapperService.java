@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class MapperService {
@@ -39,25 +40,22 @@ public class MapperService {
         return new IngestConfigurationDTO(conferenceService.findConfigById(id));
     }
 
-    public Conference convertToConference(ConferenceDTO conferenceDTO) {
+    public Conference convertToConference(ConferenceDTO conferenceDTO) throws ExecutionException, InterruptedException {
         if (conferenceDTO == null) return null;
         Conference conference = new Conference(conferenceDTO.getTitle(),
                 conferenceDTO.getOrganization(),
                 conferenceDTO.getPublisher());
         for (int i : conferenceDTO.getConferenceEdtions()) {
-            conference.addConferenceEdition(conferenceService.findById(i));
+            conference.addConferenceEdition(StorageController.getInstance().retrieveConferenceEdition(i));
         }
         return conference;
     }
 
-    public List<Conference> convertToConferenceList(List<ConferenceDTO> conferenceDTOList) {
+    public List<Conference> convertToConferenceList(List<ConferenceDTO> conferenceDTOList) throws ExecutionException, InterruptedException {
         List<Conference> conferenceList = new ArrayList<>();
         for (ConferenceDTO c : conferenceDTOList) {
             conferenceList.add(convertToConference(c));
         }
         return conferenceList;
     }
-
-
-
 }
