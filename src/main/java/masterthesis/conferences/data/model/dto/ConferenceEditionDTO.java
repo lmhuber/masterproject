@@ -2,11 +2,13 @@ package masterthesis.conferences.data.model.dto;
 
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 import masterthesis.conferences.data.model.ConferenceEdition;
+import masterthesis.conferences.server.controller.storage.StorageController;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 public class ConferenceEditionDTO {
     private int id;
@@ -185,6 +187,28 @@ public class ConferenceEditionDTO {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public static ConferenceEdition convertToConferenceEdition(ConferenceEditionDTO editionDTO) throws ExecutionException, InterruptedException {
+        if (editionDTO == null) return null;
+        ConferenceEdition conferenceEdition = new ConferenceEdition();
+        conferenceEdition.setEdition(editionDTO.getEdition());
+        conferenceEdition.setYear(editionDTO.getYear());
+        conferenceEdition.setCarbonFootprint(editionDTO.getCarbonFootprint());
+        conferenceEdition.setCity(editionDTO.getCity());
+        conferenceEdition.setId(editionDTO.getId());
+        conferenceEdition.setCost(editionDTO.getCost());
+        conferenceEdition.setCountry(editionDTO.getCountry());
+        conferenceEdition.setParticipants(editionDTO.getParticipants());
+        conferenceEdition.setSessions(editionDTO.getSessions());
+        conferenceEdition.setCarbonFootprint(editionDTO.getCarbonFootprint());
+        conferenceEdition.setGreenInnovativeness(editionDTO.getGreenInnovativeness());
+        conferenceEdition.setInteractionDynamics(editionDTO.getInteractionDynamics());
+        for (int id : editionDTO.getAdditionalMetrics()) {
+            conferenceEdition.getAdditionalMetrics().add(StorageController.getInstance().retrieveAdditionalMetric(id));
+        }
+        conferenceEdition.setSustainability(editionDTO.getSustainability());
+        return conferenceEdition;
     }
 
     @Override

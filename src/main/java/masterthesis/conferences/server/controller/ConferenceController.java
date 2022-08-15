@@ -32,7 +32,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static masterthesis.conferences.data.metrics.ApplicationType.ZOOM;
+import static masterthesis.conferences.data.metrics.ApplicationType.MANUAL;
 import static masterthesis.conferences.data.metrics.zoom.AudioLatency.MEETING_ID;
 
 @Controller
@@ -82,7 +82,7 @@ public class ConferenceController {
 		} else {
 			try {
 				if (config.getType() != null &&
-						(!config.getType().equals(ZOOM.text()) || !config.getParameters().get(MEETING_ID).equals(""))) {
+						(ApplicationType.configExists(config.getType()) || !config.getParameters().get(MEETING_ID).equals(""))) {
 					conferenceService.save(IngestConfigurationDTO.convertToIngestConfiguration(config), metric.getMetId(),
 							dto.getTitle(), dto.getId());
 					return "redirect:/conferences/showFormForEditAdditionalMetrics?id=" + dto.getId()
@@ -263,7 +263,7 @@ public class ConferenceController {
 
 		// create new additionalMetric if no additionalMetrics are present yet
 		if (conferenceService.findByMetricId(metricId) == null) {
-			IngestConfiguration ingestConfiguration = new IngestConfiguration(conferenceService.getMaxConfigId(), ZOOM);
+			IngestConfiguration ingestConfiguration = new IngestConfiguration(conferenceService.getMaxConfigId(), MANUAL);
 			AdditionalMetric metric = new AdditionalMetric(conferenceService.getMaxAdditionalMetricId(), ingestConfiguration, 0.0f, "test");
 			metric.setConfig(ingestConfiguration);
 			conferenceService.save(metric, dto.getTitle(), dto.getId());

@@ -16,7 +16,6 @@ import java.util.concurrent.CompletableFuture;
 import static masterthesis.conferences.data.util.Indices.*;
 
 public class ElasticWriteOperation extends ElasticOperation{
-
     protected static void createIndex(String indexName) throws InterruptedException {
         CompletableFuture<?> responseObject = esClient.indices().create(i -> i.index(indexName))
                 .whenComplete((response, exception)
@@ -64,31 +63,22 @@ public class ElasticWriteOperation extends ElasticOperation{
         }
     }
 
-    protected static void openIndex(String indexName) throws InterruptedException {
-        CompletableFuture<?> responseObject = esClient.indices().open(i -> i.index(indexName))
-                .whenComplete((response, exception)
-                        -> {
-                    if (exception != null) {
-                        ConferencesApplication.getLogger().error("Failed to open index", exception);
-                    } else {
-                        ConferencesApplication.getLogger().info(response);
-                    }
-                });
-        while (!responseObject.isDone()) {
-            Thread.sleep(100);
+    protected static void changeIndex(String indexName, boolean open) throws InterruptedException {
+        CompletableFuture<?> responseObject;
+        if (open) {
+            responseObject = esClient.indices().open(i -> i.index(indexName));
+        } else {
+            responseObject = esClient.indices().close(i -> i.index(indexName));
         }
-    }
-
-    protected static void closeIndex(String indexName) throws InterruptedException {
-        CompletableFuture<?> responseObject = esClient.indices().close(i -> i.index(indexName))
-                .whenComplete((response, exception)
-                        -> {
-                    if (exception != null) {
-                        ConferencesApplication.getLogger().error("Failed to close index", exception);
-                    } else {
-                        ConferencesApplication.getLogger().info(response);
-                    }
-                });
+        responseObject.whenComplete((response, exception)
+                -> {
+            if (exception != null) {
+                ConferencesApplication.getLogger()
+                        .error(open ? "Failed to open index" : "Failed to close index", exception);
+            } else {
+                ConferencesApplication.getLogger().info(response);
+            }
+        });
         while (!responseObject.isDone()) {
             Thread.sleep(100);
         }

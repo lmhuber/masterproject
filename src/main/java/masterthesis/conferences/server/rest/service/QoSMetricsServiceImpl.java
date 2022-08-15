@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static masterthesis.conferences.data.metrics.zoom.AudioLatency.MEETING_ID;
@@ -57,7 +58,7 @@ public class QoSMetricsServiceImpl implements QoSMetricsService {
 
     @Override
     @Scheduled(cron = "@daily")
-    public void getQOSMetricsForMeetings() throws InterruptedException {
+    public void getQOSMetricsForMeetings() throws InterruptedException, ExecutionException {
         HashMap<Integer, String> metrics = new HashMap<>();
         for (Conference conference : StorageController.getInstance().getConferences()) {
             for (ConferenceEdition edition : conference.getConferenceEditions()) {
