@@ -32,9 +32,9 @@ public class ConferenceEdition {
                              float carbonFootprint, String sustainability, String country,
                              String city, AdditionalMetric... additionalMetrics) {
 
-        this.id = id;
+        this.id = id; // id for storage
         this.year = year;
-        this.edition = edition;
+        this.edition = edition; // real edition number
         this.participants = participants;
         this.sessions = sessions;
         this.greenInnovativeness = greenInnovativeness;
