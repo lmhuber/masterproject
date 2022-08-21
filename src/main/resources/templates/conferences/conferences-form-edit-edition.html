@@ -118,7 +118,7 @@
         </br>
         <h1>Select Additional Metrics</h1>
 
-        <form th:action="@{showFormForEditAdditionalMetrics(conferenceDTO=${conferenceFrontendDTO})}"
+        <form th:action="@{showFormForEditAdditionalMetrics(conferenceFrontendDTO=${conferenceFrontendDTO})}"
               th:object="${conferenceFrontendDTO}"
               method="GET">
             <input type="text" th:field="*{id}" hidden aria-label="Id"/>

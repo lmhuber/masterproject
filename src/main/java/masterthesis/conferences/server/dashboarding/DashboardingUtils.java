@@ -31,6 +31,9 @@ public class DashboardingUtils {
                 StringBuilder toAppendRefs = new StringBuilder();
                 int elementCounter = 0;
                 for (DashboardingMetricDTO metric : dashboardingMetrics) {
+                    if (metric.getTitle().equals("")) {
+                        metric.setTitle(metric.getPanelTitle());
+                    }
                     toAppendMetrics.append(",");
                     toAppendRefs.append(",");
                     convertPanel(conference, metric, toAppendMetrics, toAppendRefs, elementCounter);

@@ -31,8 +31,13 @@ public class MapperService {
     }
 
     public AdditionalMetricDTO convertToAdditionalMetricDTO(int id) {
-        return new AdditionalMetricDTO(conferenceService.findByMetricId(id),
-                conferenceService.findEditionByMetricId(id).getId());
+        try {
+            return new AdditionalMetricDTO(conferenceService.findByMetricId(id),
+                    conferenceService.findEditionByMetricId(id).getId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public IngestConfigurationDTO convertToIngestConfigurationDTO(int id) {

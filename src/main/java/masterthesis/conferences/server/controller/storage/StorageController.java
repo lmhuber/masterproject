@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch.core.GetRequest;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import masterthesis.conferences.ConferencesApplication;
+import masterthesis.conferences.data.metrics.ApplicationType;
 import masterthesis.conferences.data.model.AdditionalMetric;
 import masterthesis.conferences.data.model.Conference;
 import masterthesis.conferences.data.model.ConferenceEdition;
@@ -20,6 +21,9 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -28,14 +32,12 @@ import static masterthesis.conferences.server.controller.storage.ElasticReadOper
 
 public class StorageController implements Controller {
     private static StorageController instance = null;
-
     private static ElasticsearchAsyncClient client = null;
-
-    private static final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-
     private static MapperService mapperService = null;
 
+    private static final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
     private static final Set<Conference> conferenceSet = new HashSet<>();
+    private static final String SAMPLES_PATH = "src/main/resources/samples/";
 
     public static StorageController getInstance() {
         if (instance == null) {
@@ -105,6 +107,76 @@ public class StorageController implements Controller {
             ElasticWriteOperation.changeIndex(INGEST_CONFIGURATION.index(), true);
         }
         ConferencesApplication.getLogger().info("Elasticsearch Index initialized");
+        if (ConferencesApplication.LOAD_SAMPLES && ConferencesApplication.DEBUG) {
+            ConferencesApplication.getLogger().info("Initializing Sample Data");
+            ConferencesApplication.getLogger().warn("This process can take up a significant amount of time," +
+                    " as all items have to be indexed, often multiple times for an update.");
+            loadSampleData();
+            ConferencesApplication.getLogger().info("Initializing Sample Data ... DONE");
+        }
+        
+    }
+
+    private void loadSampleData() {
+        try (BufferedReader conferenceReader = new BufferedReader(new FileReader(SAMPLES_PATH + "Conference.csv"));
+             BufferedReader editionReader = new BufferedReader(new FileReader(SAMPLES_PATH + "ConferenceEdition.csv"));
+             BufferedReader metricReader = new BufferedReader(new FileReader(SAMPLES_PATH + "AdditionalMetric.csv"));
+             BufferedReader ingestReader = new BufferedReader(new FileReader(SAMPLES_PATH + "IngestConfiguration.csv"))) {
+            String conferenceLine;
+            String editionLine;
+            String metricLine;
+            String ingestLine;
+            int confId = 1;
+            int editionId = 1;
+            int metricId = 1;
+            // Discard title line
+            conferenceReader.readLine();
+            editionReader.readLine();
+            metricReader.readLine();
+            ingestReader.readLine();
+            while ((conferenceLine = conferenceReader.readLine()) != null) {
+                String[] confFields = conferenceLine.split(";");
+                Conference conference = new Conference(confFields[0], confFields[1], confFields[2]);
+                indexConference(conference);
+                while ((editionLine = editionReader.readLine()) != null
+                        && editionLine.startsWith(Integer.toString(confId))) {
+                    editionReader.mark(1000);
+                    String[] editionFields = editionLine.replace(",",".").split(";");
+                    ConferenceEdition edition = new ConferenceEdition(editionId,
+                            Integer.parseInt(editionFields[1]),Integer.parseInt(editionFields[2]),
+                            Integer.parseInt(editionFields[3]), Integer.parseInt(editionFields[4]),
+                            Integer.parseInt(editionFields[9]), Float.parseFloat(editionFields[5]),
+                            Float.parseFloat(editionFields[6]), Float.parseFloat(editionFields[7]),
+                            editionFields[8], editionFields[11], editionFields[10]);
+                    conference.addConferenceEdition(edition);
+                    indexConferenceEdition(edition, conference);
+                    while ((metricLine = metricReader.readLine()) != null
+                            && metricLine.split(";")[2].equals(Integer.toString(editionId))){
+                        metricReader.mark(1000);
+                        String[] metricFields = metricLine.replace(",", ".").split(";");
+                        IngestConfiguration ingest = null;
+                        if ((ingestLine = ingestReader.readLine()) != null) {
+                            String[] ingestFields = ingestLine.replace(",", ".").split(";");
+                            ingest = new IngestConfiguration(Integer.parseInt(ingestFields[0]),
+                                    ApplicationType.getFromString(ingestFields[1]));
+                        }
+                        AdditionalMetric metric = new AdditionalMetric(metricId, ingest ,Float.parseFloat(metricFields[1]), metricFields[0]);
+                        edition.addAdditionalMetric(metric);
+                        indexAdditionalMetric(edition, conference, metric);
+                        indexIngestConfiguration(edition, conference, metric, ingest);
+                        metricId++;
+                    }
+                    editionId++;
+                    metricReader.reset();
+                }
+                confId++;
+                editionReader.reset();
+
+            }
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

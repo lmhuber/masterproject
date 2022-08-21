@@ -83,6 +83,7 @@ public class ConferenceController {
 			try {
 				if (config.getType() != null &&
 						(ApplicationType.configExists(config.getType()) || !config.getParameters().get(MEETING_ID).equals(""))) {
+					config.setType(config.getType().toLowerCase());
 					conferenceService.save(IngestConfigurationDTO.convertToIngestConfiguration(config), metric.getMetId(),
 							dto.getTitle(), dto.getId());
 					return "redirect:/conferences/showFormForEditAdditionalMetrics?id=" + dto.getId()
@@ -273,9 +274,11 @@ public class ConferenceController {
 		if (metricId != -1) additionalMetricDTO = mapperService.convertToAdditionalMetricDTO(metricId);
 
 		// set conference as a model attribute to pre-populate the form
+		List<String> types = ApplicationType.getTypes();
+		types.forEach(s -> s = (s.substring(0, 1).toUpperCase() + s.substring(1)));
 		model.addAttribute("conferenceFrontendDTO", dto);
 		model.addAttribute("additionalMetric", additionalMetricDTO);
-		model.addAttribute("types", ApplicationType.getTypes());
+		model.addAttribute("types", types);
 
 		assert additionalMetricDTO != null;
 		String config = Integer.toString(additionalMetricDTO.getIngestConfigId());
