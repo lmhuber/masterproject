@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * DTO class, which is needed to transfer additional metrics
+ */
 public class AdditionalMetricDTO {
     private int metId;
     private int conferenceEdition;

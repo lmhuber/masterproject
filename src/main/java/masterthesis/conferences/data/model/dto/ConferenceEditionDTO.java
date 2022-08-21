@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * DTO class, which is needed to transfer conference editions
+ */
 public class ConferenceEditionDTO {
     private int id;
     private int year;

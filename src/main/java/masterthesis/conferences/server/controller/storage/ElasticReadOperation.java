@@ -22,6 +22,14 @@ import static masterthesis.conferences.data.util.Indices.CONFERENCE;
 
 @SuppressWarnings("unchecked")
 public class ElasticReadOperation extends ElasticOperation {
+    /**
+     * Checks if an elastic index is created
+     *
+     * @param indexName the index name
+     * @return true if created, false otherwise
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     public static boolean existsIndex(String indexName) throws ExecutionException, InterruptedException {
         return esClient.indices().exists(ExistsRequest.of(e -> e.index(indexName)))
                 .whenComplete((response, exception) -> {
@@ -32,6 +40,13 @@ public class ElasticReadOperation extends ElasticOperation {
                 }).get().value();
     }
 
+    /**
+     * Retrieves all conferences to work with them in the services
+     *
+     * @return list of conferences
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
     protected static List<Conference> retrieveConferences() throws InterruptedException, ExecutionException {
         List<Hit<ConferenceDTO>> hits = (List<Hit<ConferenceDTO>>) sendAsyncSearchRequestToElastic(
                 SearchRequest.of(s -> s.index(CONFERENCE.index()).query(Query.of(m -> m.matchAll(MatchAllQuery.of(q -> q)))))
@@ -44,6 +59,15 @@ public class ElasticReadOperation extends ElasticOperation {
     }
 
 
+    /**
+     * Sends an asynchronous request to elasticsearch to retrieve an item from any of the indices
+     *
+     * @param request a get request to elastic to obtain one item
+     * @param clazz the DTO class of the returned object
+     * @return a DTO object containing an item of any of the indices
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
     protected static Object sendAsyncRequestToElastic(GetRequest request, Class<?> clazz) throws InterruptedException, ExecutionException {
         CompletableFuture<?> responseObject = null;
         if (request != null) {
@@ -64,6 +88,15 @@ public class ElasticReadOperation extends ElasticOperation {
         return ((GetResponse<?>) responseObject.get()).source();
     }
 
+
+    /**
+     * Sends an asynchronous request to elasticsearch to retrieve items from any of the indices
+     *
+     * @param request a search request to elastic to obtain an arbitrary number of items
+     * @return a DTO object containing an item of any of the indices
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
     protected static Object sendAsyncSearchRequestToElastic(SearchRequest request) throws InterruptedException, ExecutionException {
         CompletableFuture<?> responseObject = null;
         if (request != null) {

@@ -7,7 +7,9 @@ import masterthesis.conferences.data.model.IngestConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
+/**
+ * DTO class, which is needed to transfer ingest configurations
+ */
 public class IngestConfigurationDTO {
     private int id;
     private String type;

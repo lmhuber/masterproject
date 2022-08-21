@@ -2,6 +2,9 @@ package masterthesis.conferences.data.model.dto;
 
 import java.util.Objects;
 
+/**
+ * DTO class, which is needed to transfer configurations for a metric on a dashboard
+ */
 public class DashboardingMetricDTO {
     private String title;
     private String dashboardType;

@@ -8,6 +8,14 @@ import java.util.Map;
 public abstract class Metric implements CalculatedMetric {
     protected float value;
 
+    /**
+     * For the actual metric, a map is needed to fetch all configuration parameters.
+     * Key is the parameter name
+     * Value is the parameter value
+     *
+     * @param type the application type from which the config is needed
+     * @return a map containing the configuration for the calculation of said metric
+     */
     @SuppressWarnings("SwitchStatementWithTooFewBranches")
     public static Map<String, String> createConfigMap(ApplicationType type) {
         Map<String, String> config = new HashMap<>();

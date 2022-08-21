@@ -8,6 +8,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * DTO class, which is needed to transfer conferences
+ */
+
 public class ConferenceDTO {
     private String title;
     private String organization;

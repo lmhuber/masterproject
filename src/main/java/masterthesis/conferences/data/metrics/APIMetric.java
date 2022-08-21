@@ -14,6 +14,12 @@ public abstract class APIMetric extends Metric {
         jsonPath.addAll(pathValues);
     }
 
+    /**
+     * Fetches all parameters that are needed from an API call.
+     *
+     * @param json Json string that is returned from an API call
+     * @return list of strings according to the parameters list
+     */
     protected List<String> fetchValuesFromResponse(String json) {
         List<String> values = new ArrayList<>();
         try {
@@ -40,6 +46,9 @@ public abstract class APIMetric extends Metric {
         return values;
     }
 
+    /**
+     * @return value of the metric
+     */
     public float getValue(){
         return value;
     }

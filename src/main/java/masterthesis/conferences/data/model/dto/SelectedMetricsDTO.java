@@ -3,6 +3,9 @@ package masterthesis.conferences.data.model.dto;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * DTO class, which is needed to transfer all selected metrics for a dashboard
+ */
 public class SelectedMetricsDTO {
     private List<DashboardingMetricDTO> selectedMetrics;
 

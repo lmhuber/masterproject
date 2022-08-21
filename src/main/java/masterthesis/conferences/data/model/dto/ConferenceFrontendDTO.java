@@ -5,6 +5,9 @@ import masterthesis.conferences.data.model.ConferenceEdition;
 
 import java.util.Objects;
 
+/**
+ * DTO class, which is needed to display conferences in the frontend
+ */
 public class ConferenceFrontendDTO {
     private int id;
     private int year;
