@@ -26,6 +26,7 @@ import static masterthesis.conferences.metrics.APIMetricTests.TEST_JSON_RESPONSE
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Disabled("Can be used instead of ingest with sample data, see ConferencesApplication.LOAD_SAMPLES")
 public class DatamodelTests {
 
     private static final ServerController controller = new ServerController();
