@@ -11,12 +11,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication(scanBasePackages = {"masterthesis.conferences.server.controller", "masterthesis.conferences.server.rest.service"})
 @EnableScheduling
 public class ConferencesApplication {
-	private static ServerController controller;
+    private static ServerController controller;
 
 	private static final Log logger = LogFactory.getLog(ConferencesApplication.class);
 	private static final ErrorFilter errorChecker = new ErrorFilter();
-	public static final boolean DEBUG = false;
-
+	public static final boolean DEBUG = false; // Enables debug workflows (like reseting indices everytime)
+	public static final boolean LOAD_SAMPLES = false; // ONLY USABLE WITH DEBUG ON, loads sample data for conferences
 
 	public static void main(String[] args) throws InterruptedException {
 		initServer();

@@ -1,0 +1,14 @@
+﻿conferenceId;year;edition;participants;sessions;interactionDynamics;cost;carbonFootprint;sustainability;greenInnovativeness;city;country
+1;2020;12;1000;4;0,6;400000;2500;0;0;Sydney;Australia
+1;2019;11;1400;4;0,9;500000;4500;0;0;Perth;Australia
+1;2018;10;850;4;0,85;300000;3000;0;0;Brisbane;Australia
+1;2017;9;700;4;0,7;150000;3500;0;0;Sydney;Australia
+1;2016;8;750;4;0,8;200000;1800;0;0;Melbourne;Australia
+2;2019;4;353;4;0,6;50000;882,5;0;0;Montreal;Canada
+2;2017;3;280;3;0,8;40000;743;0;0;Ann Arbor;USA
+2;2015;2;170;2;0,9;35000;634;0;0;Edmonton;Canada
+2;2013;1;90;2;0,95;20000;523,5;0;0;Princeton;USA
+3;2020;9;300;2;0,4;130000;750;0;0;Langkawi;Malaysia
+3;2019;8;430;3;0,7;160000;900;0;0;Penang;Malaysia
+3;2018;7;270;3;0,9;110000;834;0;0;Kuantan;Malaysia
+3;2017;6;210;2;0,6;90000;600;0;0;Bangkok;Malaysia
