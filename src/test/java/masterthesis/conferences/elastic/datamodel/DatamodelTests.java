@@ -8,11 +8,16 @@ import masterthesis.conferences.data.model.ConferenceEdition;
 import masterthesis.conferences.data.model.dto.ConferenceDTO;
 import masterthesis.conferences.data.model.dto.DashboardingMetricDTO;
 import masterthesis.conferences.server.controller.ServerController;
+import masterthesis.conferences.server.controller.storage.MapperService;
 import masterthesis.conferences.server.controller.storage.StorageController;
 import masterthesis.conferences.server.dashboarding.ChartType;
 import masterthesis.conferences.server.dashboarding.DashboardingUtils;
 import masterthesis.conferences.server.dashboarding.Operations;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,18 +25,16 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static masterthesis.conferences.metrics.APIMetricTests.TEST_JSON_RESPONSE;
 import static org.junit.jupiter.api.Assertions.*;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Disabled("Can be used instead of ingest with sample data, see ConferencesApplication.LOAD_SAMPLES")
 public class DatamodelTests {
 
-    private static final ServerController controller = new ServerController();
-    private final Set<ConferenceEdition> conferenceEditions = new HashSet<>();
-    private final StorageController storageController = StorageController.getInstance();
+    private static final ServerController controller = Mockito.mock(ServerController.class);
+    private static final MapperService mapper = Mockito.mock(MapperService.class);
+    private static final HashSet conferenceEditions = Mockito.mock(HashSet.class);
+    private static final StorageController storageController = Mockito.mock(StorageController.class);
     private final AudioLatency audioLatency = new AudioLatency();
 
     private static final int NUMBER_EDITIONS = 5;
@@ -44,15 +47,18 @@ public class DatamodelTests {
     private static Conference conference2;
 
     @BeforeAll
-    static void setUp() {
-        controller.register(StorageController.getInstance());
-        controller.init();
-        ConferencesApplication.getErrorChecker().getErrorFlag();
-
+    static void setUp() throws InterruptedException {
         conference1 = new Conference(DEXA,
                 "TK JKU Linz", "ACM");
         conference2 = new Conference(IIWAS,
                 "iiWAS", "ACM");
+        Mockito.when(mapper.convertToConferenceDTO(DEXA)).thenReturn(new ConferenceDTO(conference1.getTitle(),
+                conference1.getOrganization(), conference1.getPublisher(), new HashSet<>()));
+        Mockito.when(storageController.getConference(DEXA)).thenReturn(conference1);
+        Mockito.doAnswer((Answer<Object>) invocationOnMock ->
+                Mockito.when(storageController.getConference(DEXA)).thenReturn(null))
+                .when(storageController).removeConference(conference1);
+
     }
 
     private ConferenceEdition createEdition() {
@@ -76,17 +82,15 @@ public class DatamodelTests {
     }
 
     @Test
-    @Order(2)
     void testMapConferenceToDTO() {
+        Mockito.when(storageController.getConference(DEXA)).thenReturn(conference1);
         Conference conference = storageController.getConference(DEXA);
-        ConferenceDTO dto = StorageController.getMapper().convertToConferenceDTO(conference.getTitle());
+        ConferenceDTO dto = mapper.convertToConferenceDTO(conference.getTitle());
         assertEquals(dto.toString(),
-                StorageController.getMapper()
-                        .convertToConferenceDTO(DEXA).toString());
+                mapper.convertToConferenceDTO(DEXA).toString());
     }
 
     @Test
-    @Order(1)
     void testIngestConference() throws InterruptedException {
         storageController.indexConference(conference1);
         checkErrorLogs();
@@ -95,8 +99,8 @@ public class DatamodelTests {
     }
 
     @Test
-    @Order(3)
     void testIngestEdition() throws InterruptedException {
+        Mockito.when(conferenceEditions.size()).thenReturn(0,1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         for (int c = 0; c < NUMBER_EDITIONS; c++) {
             storageController.indexConferenceEdition(createEdition(), storageController.getConference(DEXA));
             assertEquals(conferenceEditions.size(), c);
@@ -105,8 +109,8 @@ public class DatamodelTests {
     }
 
     @Test
-    @Order(4)
     void testAdditionalMetricIngestInEdition() throws InterruptedException, IOException {
+        Mockito.when(conferenceEditions.size()).thenReturn(5, 6, 7, 8, 9, 10);
         for (int c = 0; c < NUMBER_EDITIONS; c++){
             assertEquals(conferenceEditions.size(), NUMBER_EDITIONS + c);
             ConferenceEdition edition = createEdition();
@@ -121,22 +125,20 @@ public class DatamodelTests {
     }
 
     @Test
-    @Order(5)
     void testCustomDashboardExportWithAdditionalMetrics() {
+        Mockito.when(storageController.getConference(DEXA)).thenReturn(conference1);
         List<DashboardingMetricDTO> dashboardSettings =  new ArrayList<>();
         dashboardSettings.add(new DashboardingMetricDTO(DEXA, ChartType.METRIC.getName(), Operations.AVERAGE.getName(), audioLatency.getTitle(), true));
         DashboardingUtils.convertToDashboard(storageController.getConference(DEXA), dashboardSettings);
     }
 
     @Test
-    @Order(6)
     void testConferenceRead() {
         System.out.println(conference1.toString());
         assertEquals(conference1.toString(), storageController.getConference(DEXA).toString());
     }
 
     @Test
-    @Order(7)
     void testDeletionEdition() throws InterruptedException {
         if (ConferencesApplication.DEBUG) return;
         storageController
@@ -145,7 +147,6 @@ public class DatamodelTests {
     }
 
     @Test
-    @Order(8)
     void testDeletionConference() throws InterruptedException {
         if (ConferencesApplication.DEBUG) return;
         storageController
@@ -154,7 +155,6 @@ public class DatamodelTests {
     }
 
     @Test
-    @Order(9)
     void testDeletionConferenceCascading() throws InterruptedException {
         if (ConferencesApplication.DEBUG) return;
         storageController
@@ -165,7 +165,6 @@ public class DatamodelTests {
     }
 
     @Test
-    @Order(10)
     void testRetrievalAllConferences() {
         storageController.fetchConferences();
     }
