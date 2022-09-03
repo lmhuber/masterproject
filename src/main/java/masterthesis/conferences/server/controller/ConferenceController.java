@@ -29,6 +29,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -341,7 +343,9 @@ public class ConferenceController {
 
 		try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
 			final HttpPost httppost = new HttpPost("http://localhost:5601/api/saved_objects/_import?overwrite=true");
-			httppost.setHeader(HttpHeaders.AUTHORIZATION, "ApiKey WWR1cXBZRUJycWxiZWEzTjFUd2E6TF9Ra0cycXlSdkNqQWFUR0s2ck1CQQ==");
+			final String apiKey = Files.lines(Paths.get("src/main/resources/properties.configuration"))
+					.filter(s -> s.startsWith("elastic.kibana.apiKey")).findFirst().orElse("").split(" ")[1];
+			httppost.setHeader(HttpHeaders.AUTHORIZATION, "ApiKey " + apiKey);
 			httppost.setHeader("kbn-xsrf", true);
 
 
